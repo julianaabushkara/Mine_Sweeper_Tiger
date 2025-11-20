@@ -5,13 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb06f182-36c2-4598-8d4a-f7e954c3f54d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/Board.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/GameSession.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/MinesweeperApp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/Player.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/Question.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/QuestionBank.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/GameView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/NewGameView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/QuestionWizardView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/StartMenuView.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -84,7 +99,7 @@
       <workItem from="1763674999667" duration="171000" />
       <workItem from="1763675272666" duration="384000" />
       <workItem from="1763675671472" duration="435000" />
-      <workItem from="1763676183193" duration="887000" />
+      <workItem from="1763676183193" duration="1191000" />
     </task>
     <servers />
   </component>
