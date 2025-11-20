@@ -5,16 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb06f182-36c2-4598-8d4a-f7e954c3f54d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/Board.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/GameSession.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/MinesweeperApp.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/Player.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/Question.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/QuestionBank.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/GameView.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/NewGameView.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/QuestionWizardView.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/StartMenuView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,24 +50,14 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "project.propCompiler",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="Mine_Sweeper" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="Mine_Sweeper" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="minesweeper" />
+    </key>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -99,7 +80,7 @@
       <workItem from="1763674999667" duration="171000" />
       <workItem from="1763675272666" duration="384000" />
       <workItem from="1763675671472" duration="435000" />
-      <workItem from="1763676183193" duration="1191000" />
+      <workItem from="1763676183193" duration="1822000" />
     </task>
     <servers />
   </component>
