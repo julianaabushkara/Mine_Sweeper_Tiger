@@ -404,15 +404,14 @@ public class QuestionWizardView extends JFrame {
 
     // ==================== Public API ====================
 
-    public void show() {
+    public void showWindow() {
         setVisible(true);
         toFront();
     }
 
-    public void hide() {
+    public void hideWindow() {
         setVisible(false);
     }
-
     public void bindQuestions(List<Question> questions) {
         if (questions == null || questions.isEmpty()) {
             showEmptyState();
