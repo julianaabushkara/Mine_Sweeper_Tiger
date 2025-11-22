@@ -5,7 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb06f182-36c2-4598-8d4a-f7e954c3f54d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/json_simple_1_1_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/Data/history.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/controller/GameHistoryLogic.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/Difficulty.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/model/GameHistory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/HistoryView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/assets/mine.PNG" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/assets/question.PNG" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/assets/surprise.PNG" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/assets/tile.PNG" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/components/NeonButtonFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/components/NeonDialog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/components/NeonHeaderRenderer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/components/NeonTableCellRenderer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/minesweeper/view/components/PlaceholderTextField.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mine_Sweeper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Mine_Sweeper.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/production/Mine_Sweeper/minesweeper/view/NewGameView.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/production/Mine_Sweeper/minesweeper/view/NewGameView.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/minesweeper/view/NewGameView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/minesweeper/view/NewGameView.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,13 +33,32 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
+        <option value="package.json" />
         <option value="Class" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;julianaabushkara&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/julianaabushkara/Mine_Sweeper_Tiger.git&quot;,
+    &quot;accountId&quot;: &quot;d18f1680-d296-4978-b0f3-e601a06fcb21&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -37,24 +74,35 @@
   "keyToString": {
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Application.HistoryView.executor": "Run",
     "Application.Main.executor": "Run",
+    "Application.NewGamePanel.executor": "Run",
+    "Application.NewGameView.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "Iteration1-New",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
+    "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Julia\IdeaProjects\Mine_Sweeper_Tiger\src\minesweeper\view\assets" />
+    </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="minesweeper" />
     </key>
@@ -62,8 +110,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9f38398b9061-18abd8497189-intellij.indexing.shared.core-IU-241.14494.240" />
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-IU-241.14494.240" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28238.7" />
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28238.7" />
       </set>
     </attachedChunks>
   </component>
@@ -81,6 +129,9 @@
       <workItem from="1763675272666" duration="384000" />
       <workItem from="1763675671472" duration="435000" />
       <workItem from="1763676183193" duration="1822000" />
+      <workItem from="1763712998899" duration="554000" />
+      <workItem from="1763713561808" duration="1000000" />
+      <workItem from="1763714849418" duration="21328000" />
     </task>
     <servers />
   </component>
