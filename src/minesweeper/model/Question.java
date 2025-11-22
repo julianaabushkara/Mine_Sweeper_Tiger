@@ -16,7 +16,7 @@ public class Question {
     private final String optionC;
     private final String optionD;
     private final char correctOption;  // 'A', 'B', 'C', or 'D'
-    private final Difficulty difficulty;
+    private final QuestionDifficulty difficulty;
 
     /**
      * Constructs a new Question with all required fields.
@@ -73,7 +73,7 @@ public class Question {
         return correctOption;
     }
 
-    public Difficulty getDifficulty() {
+    public QuestionDifficulty getDifficulty() {
         return difficulty;
     }
 
