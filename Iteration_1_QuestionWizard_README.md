@@ -59,7 +59,7 @@ The Question Wizard is a component of the Minesweeper Quiz Game that allows cont
 question-wizard/
 ├── src/
 │   ├── model/
-│   │   ├── Difficulty.java      # Enum for question difficulty
+│   │   ├── QuestionDifficulty.java      # Enum for question difficulty
 │   │   ├── Question.java        # Question data class
 │   │   └── QuestionBank.java    # CSV parser and question storage
 │   ├── view/
@@ -82,7 +82,7 @@ question-wizard/
 The application follows the **MVC (Model-View-Controller)** pattern as specified in the class diagram:
 
 ### Model Layer
-- **Difficulty**: Enum with EASY, MEDIUM, HARD values
+- **QuestionDifficulty**: Enum with EASY, MEDIUM, HARD values
 - **Question**: Immutable data class representing a single question
 - **QuestionBank**: Manages question collection and CSV parsing
 
