@@ -32,7 +32,7 @@ public class Question {
      */
     public Question(int id, String text, String optionA, String optionB,
                     String optionC, String optionD, char correctOption,
-                    Difficulty difficulty) {
+                    QuestionDifficulty difficulty) {
         this.id = id;
         this.text = text;
         this.optionA = optionA;
