@@ -1,8 +1,7 @@
 package minesweeper.controller;
 
 import minesweeper.model.Question;
-import minesweeper.model.QuestionBank;
-import minesweeper.model.QuestionBank.CSVParseException;
+import minesweeper.controller.QuestionBankController.CSVParseException;
 import minesweeper.view.QuestionWizardView;
 
 import javax.swing.SwingUtilities;
@@ -21,7 +20,7 @@ import java.util.List;
  */
 public class QuestionWizardController {
 
-    private QuestionBank questionBank;
+    private QuestionBankController questionBank;
     private QuestionWizardView view;
     private String lastLoadedFilePath;
 
@@ -34,7 +33,7 @@ public class QuestionWizardController {
      * @param questionBank The question bank model
      * @param view The question wizard view
      */
-    public QuestionWizardController(QuestionBank questionBank, QuestionWizardView view) {
+    public QuestionWizardController(QuestionBankController questionBank, QuestionWizardView view) {
         this.questionBank = questionBank;
         this.view = view;
         this.lastLoadedFilePath = null;
@@ -156,7 +155,7 @@ public class QuestionWizardController {
      *
      * @return The question bank
      */
-    public QuestionBank getQuestionBank() {
+    public QuestionBankController getQuestionBank() {
         return questionBank;
     }
 

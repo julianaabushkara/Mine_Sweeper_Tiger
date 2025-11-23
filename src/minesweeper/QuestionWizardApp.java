@@ -1,7 +1,7 @@
 package minesweeper;
 
 import minesweeper.controller.QuestionWizardController;
-import minesweeper.model.QuestionBank;
+import minesweeper.controller.QuestionBankController;
 import minesweeper.view.QuestionWizardView;
 
 import javax.swing.SwingUtilities;
@@ -50,11 +50,11 @@ public class QuestionWizardApp {
      */
     private static void launchQuestionWizard(String csvPath) {
         // Create Model
-        QuestionBank questionBank;
+        QuestionBankController questionBank;
         if (csvPath != null) {
-            questionBank = new QuestionBank(csvPath);
+            questionBank = new QuestionBankController(csvPath);
         } else {
-            questionBank = new QuestionBank();
+            questionBank = new QuestionBankController();
         }
 
         // Create View

@@ -1,4 +1,4 @@
 package minesweeper.controller;
 
-public class GameController {
+public class GameController extends NavigationController{
 }

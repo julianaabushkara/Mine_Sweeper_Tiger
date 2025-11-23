@@ -1,4 +1,7 @@
-package minesweeper.model;
+package minesweeper.controller;
+
+import minesweeper.model.Question;
+import minesweeper.model.QuestionDifficulty;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +17,7 @@ import java.util.*;
  * Example:
  * 1,What color is the sky?,1,Blue,Green,Red,Yellow,A
  */
-public class QuestionBank {
+public class QuestionBankController {
 
     // Expected CSV header columns
     private static final String[] EXPECTED_HEADERS = {
@@ -31,7 +34,7 @@ public class QuestionBank {
      *
      * @param csvPath Path to the CSV file
      */
-    public QuestionBank(String csvPath) {
+    public QuestionBankController(String csvPath) {
         this.csvPath = csvPath;
         this.questions = new ArrayList<>();
         this.parseErrors = new ArrayList<>();
@@ -40,7 +43,7 @@ public class QuestionBank {
     /**
      * Creates an empty QuestionBank (for testing or manual loading).
      */
-    public QuestionBank() {
+    public QuestionBankController() {
         this.csvPath = null;
         this.questions = new ArrayList<>();
         this.parseErrors = new ArrayList<>();

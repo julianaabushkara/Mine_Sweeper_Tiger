@@ -1,11 +1,10 @@
 package minesweeper.controller;
-import minesweeper.model.QuestionBank;
 import minesweeper.view.QuestionWizardView;
 /**
  * Simple launcher class for the Question Wizard.
  * Call QuestionWizardLauncher.launch() to open the Question Wizard from anywhere.
  */
-public class QuestionWizardLauncher {
+public class QuestionWizardLauncher extends NavigationController{
 
     private static QuestionWizardController currentController = null;
 
@@ -16,7 +15,7 @@ public class QuestionWizardLauncher {
      */
     public static void launch(Runnable onClose) {
         // Create MVC components
-        QuestionBank questionBank = new QuestionBank();
+        QuestionBankController questionBank = new QuestionBankController();
         QuestionWizardView view = new QuestionWizardView();
         QuestionWizardController controller = new QuestionWizardController(questionBank, view);
 
