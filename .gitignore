@@ -1,2 +1,25 @@
-.idea/workspace.xml
-.idea/workspace.xml
+# ===== Java =====
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# ===== Build directories =====
+/out/
+/build/
+/target/
+
+# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+
+# ===== OS-specific =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===== Temporary files =====
+*.tmp
+*.swp
+*.swo
