@@ -1,7 +1,7 @@
 package minesweeper;
 
 import minesweeper.controller.QuestionWizardController;
-import minesweeper.controller.QuestionBankController;
+import minesweeper.model.QuestionBank;
 import minesweeper.view.QuestionWizardView;
 
 import javax.swing.SwingUtilities;
@@ -11,7 +11,7 @@ import javax.swing.UIManager;
  * Main entry point for the Question Wizard application.
  * This class demonstrates the standalone Question Wizard functionality
  * for Iteration 1 of the Minesweeper Quiz Game project.
- *gfgfgfgfg
+ *
  * Usage:
  *   java main.QuestionWizardApp [csv_file_path]
  *
@@ -50,11 +50,11 @@ public class QuestionWizardApp {
      */
     private static void launchQuestionWizard(String csvPath) {
         // Create Model
-        QuestionBankController questionBank;
+        QuestionBank questionBank;
         if (csvPath != null) {
-            questionBank = new QuestionBankController(csvPath);
+            questionBank = new QuestionBank(csvPath);
         } else {
-            questionBank = new QuestionBankController();
+            questionBank = new QuestionBank();
         }
 
         // Create View

@@ -1,17 +1,19 @@
-// ======================================== 
-// FILE: view/MinesweeperGame.java
-// ======================================== 
 package minesweeper.view;
 
-import minesweeper.model.*;
+
+import model.*;
 import javax.swing.*;
+
+import minesweeper.model.GameSession;
+import minesweeper.model.Question;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.Queue;
 import java.util.LinkedList;
 
-public class MinesweeperGame extends JFrame {
+public class GameView extends JFrame {
     private GameSession gameSession;
     private JPanel topPanel;
     private JPanel boardsPanel;
@@ -27,12 +29,12 @@ public class MinesweeperGame extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            MinesweeperGame game = new MinesweeperGame();
+            GameView game = new GameView();
             game.setVisible(true);
         });
     }
 
-    public MinesweeperGame() {
+    public GameView() {
         setTitle("Minesweeper Boards");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -383,7 +385,7 @@ public class MinesweeperGame extends JFrame {
                 @Override
                 public void mousePressed(MouseEvent e) {
                     if (gameSession.isPlayerATurn() != isPlayerA) {
-                        JOptionPane.showMessageDialog(MinesweeperGame.this, 
+                        JOptionPane.showMessageDialog(GameView.this, 
                             "It's not your turn!", "Invalid Action", 
                             JOptionPane.WARNING_MESSAGE);
                         return;
@@ -406,7 +408,7 @@ public class MinesweeperGame extends JFrame {
                     case MINE:
                         addLives(-1);
                         board.incrementRevealedMines();
-                        JOptionPane.showMessageDialog(MinesweeperGame.this, 
+                        JOptionPane.showMessageDialog(GameView.this, 
                             "💣 Mine discovered! -1 life\nMines discovered: " + 
                             board.getRevealedMines() + "/" + board.getTotalMines(),
                             "Mine!", JOptionPane.WARNING_MESSAGE);
@@ -446,13 +448,13 @@ public class MinesweeperGame extends JFrame {
                 if (cell.getType() == Cell.CellType.MINE) {
                     addScore(1);
                     board.incrementRevealedMines();
-                    JOptionPane.showMessageDialog(MinesweeperGame.this, 
+                    JOptionPane.showMessageDialog(GameView.this, 
                         "✓ Correct flag! +1 point\nMines discovered: " + 
                         board.getRevealedMines() + "/" + board.getTotalMines(),
                         "Good Job!", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     addScore(-3);
-                    JOptionPane.showMessageDialog(MinesweeperGame.this, 
+                    JOptionPane.showMessageDialog(GameView.this, 
                         "✗ Wrong flag! -3 points", "Penalty", 
                         JOptionPane.ERROR_MESSAGE);
                 }
@@ -490,7 +492,11 @@ public class MinesweeperGame extends JFrame {
                                 neighbor.setRevealed(true);
                                 addScore(1);
 
-                                if (neighbor.getType() == Cell.CellType.EMPTY) {
+                                // Continue cascade for Empty, Question, and Surprise tiles
+                                // Stop ONLY at Number tiles (and Mines)
+                                if (neighbor.getType() == Cell.CellType.EMPTY ||
+                                    neighbor.getType() == Cell.CellType.QUESTION ||
+                                    neighbor.getType() == Cell.CellType.SURPRISE) {
                                     queue.offer(new int[]{newRow, newCol});
                                 }
                             }
@@ -507,7 +513,7 @@ public class MinesweeperGame extends JFrame {
             }
         }
 
-        // NEW: Cascade for Question and Surprise tiles
+        // Cascade for Question and Surprise tiles - continues through Question/Surprise, stops at Numbers
         private void performSpecialCascade(int startRow, int startCol) {
             Queue<int[]> queue = new LinkedList<>();
             boolean[][] visited = new boolean[board.getSize()][board.getSize()];
@@ -537,12 +543,12 @@ public class MinesweeperGame extends JFrame {
                                 addScore(1);
 
                                 // Continue cascade for Empty, Question, and Surprise tiles
+                                // Stop ONLY at Number tiles (and Mines)
                                 if (neighbor.getType() == Cell.CellType.EMPTY ||
                                     neighbor.getType() == Cell.CellType.QUESTION ||
                                     neighbor.getType() == Cell.CellType.SURPRISE) {
                                     queue.offer(new int[]{newRow, newCol});
                                 }
-                                // Stop at NUMBER tiles (don't add to queue)
                             }
                         }
                     }
@@ -559,7 +565,7 @@ public class MinesweeperGame extends JFrame {
 
         private void activateQuestionTile() {
             if (gameSession.getSharedScore() < gameSession.getDifficulty().activationCost) {
-                JOptionPane.showMessageDialog(MinesweeperGame.this, 
+                JOptionPane.showMessageDialog(GameView.this, 
                     "Not enough points! Need " + 
                     gameSession.getDifficulty().activationCost + " points.",
                     "Cannot Activate", JOptionPane.WARNING_MESSAGE);
@@ -572,7 +578,7 @@ public class MinesweeperGame extends JFrame {
             Question.QuestionDifficulty qDiff = Question.getRandomDifficulty();
 
             String[] options = {"Answer A", "Answer B", "Answer C", "Answer D"};
-            int answer = JOptionPane.showOptionDialog(MinesweeperGame.this, 
+            int answer = JOptionPane.showOptionDialog(GameView.this, 
                 "Question Type: " + qDiff.name() + 
                 "\n\nSample Question: What is 2 + 2?",
                 "Question Tile - " + gameSession.getDifficulty().name() + " Game Mode",
@@ -713,7 +719,7 @@ public class MinesweeperGame extends JFrame {
                 String.format("%s\nPoints: %+d | Lives: %+d", result, points, lives) :
                 String.format("%s\nPoints: %+d | Lives: %+d", result, points, lives);
 
-            JOptionPane.showMessageDialog(MinesweeperGame.this, details, 
+            JOptionPane.showMessageDialog(GameView.this, details, 
                 "Question Result - " + qDiff.name(),
                 correct ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
         }
@@ -743,12 +749,13 @@ public class MinesweeperGame extends JFrame {
             }
         }
 
-        // NEW: Reveal 3x3 area of UNREVEALED tiles (NOT around the question tile)
+        // NEW: Reveal 3x3 area (NOT around the question tile)
         private void reveal3x3Area() {
             Random rand = new Random();
-            java.util.List<int[]> validCenters = new ArrayList<>();
+            java.util.List<int[]> fullyUnrevealedCenters = new ArrayList<>();
+            java.util.List<int[]> partiallyUnrevealedCenters = new ArrayList<>();
             
-            // Find all possible 3x3 blocks where ALL 9 tiles are unrevealed
+            // Find all possible 3x3 blocks
             for (int centerRow = 1; centerRow < board.getSize() - 1; centerRow++) {
                 for (int centerCol = 1; centerCol < board.getSize() - 1; centerCol++) {
                     
@@ -771,27 +778,37 @@ public class MinesweeperGame extends JFrame {
                     
                     if (hasOverlap) continue;
                     
-                    // Check if ALL 9 tiles in this 3x3 block are unrevealed
+                    // Check status of this 3x3 block
                     boolean allUnrevealed = true;
+                    boolean hasUnrevealed = false;
+                    
                     for (int dr = -1; dr <= 1; dr++) {
                         for (int dc = -1; dc <= 1; dc++) {
                             int checkRow = centerRow + dr;
                             int checkCol = centerCol + dc;
                             Cell checkCell = board.getCell(checkRow, checkCol);
                             
-                            if (checkCell.isRevealed() || checkCell.isFlagged()) {
+                            if (!checkCell.isRevealed() && !checkCell.isFlagged()) {
+                                hasUnrevealed = true;
+                            } else {
                                 allUnrevealed = false;
-                                break;
                             }
                         }
-                        if (!allUnrevealed) break;
                     }
                     
+                    // Categorize the block
                     if (allUnrevealed) {
-                        validCenters.add(new int[]{centerRow, centerCol});
+                        fullyUnrevealedCenters.add(new int[]{centerRow, centerCol});
+                    } else if (hasUnrevealed) {
+                        partiallyUnrevealedCenters.add(new int[]{centerRow, centerCol});
                     }
                 }
             }
+            
+            // Choose block: prefer fully unrevealed, fallback to partially unrevealed
+            java.util.List<int[]> validCenters = !fullyUnrevealedCenters.isEmpty() ? 
+                                                  fullyUnrevealedCenters : 
+                                                  partiallyUnrevealedCenters;
             
             // If we found valid 3x3 blocks, pick one randomly and reveal it
             if (!validCenters.isEmpty()) {
@@ -821,16 +838,17 @@ public class MinesweeperGame extends JFrame {
                     }
                 }
                 
-                System.out.println("Revealed " + revealedCount + " tiles in 3x3 unrevealed block at (" + 
-                                 centerRow + ", " + centerCol + ")");
+                String blockType = !fullyUnrevealedCenters.isEmpty() ? "fully unrevealed" : "partially unrevealed";
+                System.out.println("Revealed " + revealedCount + " tiles in " + blockType + 
+                                 " 3x3 block at (" + centerRow + ", " + centerCol + ")");
             } else {
-                System.out.println("No valid 3x3 unrevealed block found (without overlap with question tile)");
+                System.out.println("No valid 3x3 block found (without overlap with question tile)");
             }
         }
 
         private void activateSurpriseTile() {
             if (gameSession.getSharedScore() < gameSession.getDifficulty().activationCost) {
-                JOptionPane.showMessageDialog(MinesweeperGame.this, 
+                JOptionPane.showMessageDialog(GameView.this, 
                     "Not enough points! Need " + 
                     gameSession.getDifficulty().activationCost + " points.",
                     "Cannot Activate", JOptionPane.WARNING_MESSAGE);
@@ -867,7 +885,7 @@ public class MinesweeperGame extends JFrame {
                 "🎉 Good surprise! +" + pointChange + " points, +1 life" :
                 "💔 Bad surprise! " + pointChange + " points, -1 life";
 
-            JOptionPane.showMessageDialog(MinesweeperGame.this, message, "Surprise!",
+            JOptionPane.showMessageDialog(GameView.this, message, "Surprise!",
                 isGood ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
 
             updateDisplay();

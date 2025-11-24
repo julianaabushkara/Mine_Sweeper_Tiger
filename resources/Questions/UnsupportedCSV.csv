@@ -1,0 +1,11 @@
+﻿ID,Question,Difficulty,A,B,C,D,Correct Answer
+1,Valid question for testing,1,Option A,Option B,Option C,Option D,A
+abc,Invalid ID - not a number,1,a,b,c,d,A
+3,Invalid difficulty - too high,5,a,b,c,d,A
+4,Invalid correct answer,1,a,b,c,d,X
+5,,1,a,b,c,d,A
+6,Missing options,1,a,b,,,
+7,Valid question two,2,Alpha,Beta,Gamma,Delta,B
+-8,Negative ID invalid,1,a,b,c,d,A
+9,Another valid question,3,Red,Green,Blue,Yellow,C
+10,Invalid difficulty - zero,0,a,b,c,d,A
