@@ -1,19 +1,15 @@
-package minesweeper.view;
 
+package src.minesweeper.view;
 
 import model.*;
 import javax.swing.*;
-
-import minesweeper.model.GameSession;
-import minesweeper.model.Question;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.Queue;
 import java.util.LinkedList;
 
-public class GameView extends JFrame {
+public class MinesweeperGame extends JFrame {
     private GameSession gameSession;
     private JPanel topPanel;
     private JPanel boardsPanel;
@@ -29,12 +25,12 @@ public class GameView extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            GameView game = new GameView();
+            MinesweeperGame game = new MinesweeperGame();
             game.setVisible(true);
         });
     }
 
-    public GameView() {
+    public MinesweeperGame() {
         setTitle("Minesweeper Boards");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -385,7 +381,7 @@ public class GameView extends JFrame {
                 @Override
                 public void mousePressed(MouseEvent e) {
                     if (gameSession.isPlayerATurn() != isPlayerA) {
-                        JOptionPane.showMessageDialog(GameView.this, 
+                        JOptionPane.showMessageDialog(MinesweeperGame.this, 
                             "It's not your turn!", "Invalid Action", 
                             JOptionPane.WARNING_MESSAGE);
                         return;
@@ -408,7 +404,7 @@ public class GameView extends JFrame {
                     case MINE:
                         addLives(-1);
                         board.incrementRevealedMines();
-                        JOptionPane.showMessageDialog(GameView.this, 
+                        JOptionPane.showMessageDialog(MinesweeperGame.this, 
                             "💣 Mine discovered! -1 life\nMines discovered: " + 
                             board.getRevealedMines() + "/" + board.getTotalMines(),
                             "Mine!", JOptionPane.WARNING_MESSAGE);
@@ -448,13 +444,13 @@ public class GameView extends JFrame {
                 if (cell.getType() == Cell.CellType.MINE) {
                     addScore(1);
                     board.incrementRevealedMines();
-                    JOptionPane.showMessageDialog(GameView.this, 
+                    JOptionPane.showMessageDialog(MinesweeperGame.this, 
                         "✓ Correct flag! +1 point\nMines discovered: " + 
                         board.getRevealedMines() + "/" + board.getTotalMines(),
                         "Good Job!", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     addScore(-3);
-                    JOptionPane.showMessageDialog(GameView.this, 
+                    JOptionPane.showMessageDialog(MinesweeperGame.this, 
                         "✗ Wrong flag! -3 points", "Penalty", 
                         JOptionPane.ERROR_MESSAGE);
                 }
@@ -565,7 +561,7 @@ public class GameView extends JFrame {
 
         private void activateQuestionTile() {
             if (gameSession.getSharedScore() < gameSession.getDifficulty().activationCost) {
-                JOptionPane.showMessageDialog(GameView.this, 
+                JOptionPane.showMessageDialog(MinesweeperGame.this, 
                     "Not enough points! Need " + 
                     gameSession.getDifficulty().activationCost + " points.",
                     "Cannot Activate", JOptionPane.WARNING_MESSAGE);
@@ -578,7 +574,7 @@ public class GameView extends JFrame {
             Question.QuestionDifficulty qDiff = Question.getRandomDifficulty();
 
             String[] options = {"Answer A", "Answer B", "Answer C", "Answer D"};
-            int answer = JOptionPane.showOptionDialog(GameView.this, 
+            int answer = JOptionPane.showOptionDialog(MinesweeperGame.this, 
                 "Question Type: " + qDiff.name() + 
                 "\n\nSample Question: What is 2 + 2?",
                 "Question Tile - " + gameSession.getDifficulty().name() + " Game Mode",
@@ -719,7 +715,7 @@ public class GameView extends JFrame {
                 String.format("%s\nPoints: %+d | Lives: %+d", result, points, lives) :
                 String.format("%s\nPoints: %+d | Lives: %+d", result, points, lives);
 
-            JOptionPane.showMessageDialog(GameView.this, details, 
+            JOptionPane.showMessageDialog(MinesweeperGame.this, details, 
                 "Question Result - " + qDiff.name(),
                 correct ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
         }
@@ -848,7 +844,7 @@ public class GameView extends JFrame {
 
         private void activateSurpriseTile() {
             if (gameSession.getSharedScore() < gameSession.getDifficulty().activationCost) {
-                JOptionPane.showMessageDialog(GameView.this, 
+                JOptionPane.showMessageDialog(MinesweeperGame.this, 
                     "Not enough points! Need " + 
                     gameSession.getDifficulty().activationCost + " points.",
                     "Cannot Activate", JOptionPane.WARNING_MESSAGE);
@@ -885,7 +881,7 @@ public class GameView extends JFrame {
                 "🎉 Good surprise! +" + pointChange + " points, +1 life" :
                 "💔 Bad surprise! " + pointChange + " points, -1 life";
 
-            JOptionPane.showMessageDialog(GameView.this, message, "Surprise!",
+            JOptionPane.showMessageDialog(MinesweeperGame.this, message, "Surprise!",
                 isGood ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
 
             updateDisplay();
