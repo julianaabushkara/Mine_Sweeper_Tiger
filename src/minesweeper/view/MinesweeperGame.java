@@ -1,13 +1,15 @@
 
-package src.minesweeper.view;
+package minesweeper.view;
 
-import model.*;
+import minesweeper.model.*;
+import minesweeper.controller.GameController;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.Queue;
 import java.util.LinkedList;
+
 
 public class MinesweeperGame extends JFrame {
     private GameSession gameSession;
