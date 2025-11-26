@@ -1,4 +1,3 @@
-
 package minesweeper.view;
 
 import minesweeper.model.*;
@@ -41,7 +40,7 @@ public class MinesweeperGame extends JFrame {
         controller.setView(this);
 
         setTitle("Minesweeper Boards");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(15, 20, 25));
 
@@ -214,7 +213,7 @@ public class MinesweeperGame extends JFrame {
         int choice = JOptionPane.showConfirmDialog(this,
                 "Return to main menu?", "Confirm", JOptionPane.YES_NO_OPTION);
         if (choice == JOptionPane.YES_OPTION) {
-            System.exit(0);
+            this.dispose();
         }
     }
 
@@ -668,4 +667,3 @@ public class MinesweeperGame extends JFrame {
         }
     }
 }
-
