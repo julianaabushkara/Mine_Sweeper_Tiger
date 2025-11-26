@@ -3,6 +3,8 @@ package minesweeper.view;
 
 import minesweeper.model.*;
 import minesweeper.controller.GameController;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.Question;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -557,14 +559,14 @@ public class MinesweeperGame extends JFrame {
             
             // Handle special rewards for EASY mode
             if (session.getDifficulty() == GameSession.Difficulty.EASY) {
-                if (qDiff == Question.QuestionDifficulty.MEDIUM && correct) {
+                if (qDiff == Question.getDifficulty().MEDIUM && correct) {
                     int[] minePos = controller.revealRandomMineTile(board);
                     if (minePos != null) {
                         BoardPanel boardPanel = isPlayerA ? playerABoard : playerBBoard;
                         boardPanel.getButton(minePos[0], minePos[1]).updateDisplay();
                         feedback += "\n\n🎁 Bonus: Random mine revealed!";
                     }
-                } else if (qDiff == Question.QuestionDifficulty.HARD && correct) {
+                } else if (qDiff == Question && correct) {
                     java.util.List<int[]> revealedCells = controller.reveal3x3Area(row, col, board);
                     if (!revealedCells.isEmpty()) {
                         BoardPanel boardPanel = isPlayerA ? playerABoard : playerBBoard;

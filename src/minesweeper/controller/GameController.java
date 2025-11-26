@@ -130,7 +130,7 @@ public class GameController {
     private int cachedLives = 0;
     
     // Get feedback for question tile before activation (and cache the outcome)
-    public String getQuestionFeedback(Question.QuestionDifficulty qDiff, boolean correct) {
+    public String getQuestionFeedback(Question qDiff, boolean correct) {
         Random rand = new Random();
         GameSession.Difficulty gameDiff = gameSession.getDifficulty();
         
