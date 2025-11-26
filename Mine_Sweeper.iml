@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/out/production/Mine_Sweeper" />
     <output-test url="file://$MODULE_DIR$/out/test/Mine_Sweeper" />
     <exclude-folder url="file://$MODULE_DIR$/out" />
@@ -12,5 +12,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="json-20240303" level="project" />
     <orderEntry type="library" name="json-simple-1.1.1" level="project" />
+    <orderEntry type="library" name="lib (3)" level="project" />
   </component>
 </module>
