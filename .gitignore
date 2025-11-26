@@ -4,11 +4,6 @@
 *.ear
 *.log
 
-# ===== Build directories =====
-/out/
-/build/
-/target/
-
 # ===== IntelliJ IDEA =====
 .idea/
 
