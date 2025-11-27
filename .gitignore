@@ -1,0 +1,18 @@
+# ===== Java =====
+*.class
+*.war
+*.ear
+*.log
+
+# ===== IntelliJ IDEA =====
+.idea/
+
+# ===== OS-specific =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===== Temporary files =====
+*.tmp
+*.swp
+*.swo

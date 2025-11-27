@@ -1,9 +1,30 @@
 package minesweeper;
 
+import minesweeper.model.MinesweeperApp;
+
+/**
+ * Main - Application Entry Point
+ *
+ * Launches the Minesweeper Tiger Edition application
+ *
+ * @author Group Tiger
+ * @version 1.0
+ */
 public class Main {
+
+    /**
+     * Main method - entry point of the application
+     * @param args Command line arguments (not used)G
+     */
     public static void main(String[] args) {
+        System.out.println("╔═══════════════════════════════════════╗");
+        System.out.println("║   MINESWEEPER - TIGER EDITION v1.0   ║");
+        System.out.println("║          Group Tiger Project          ║");
+        System.out.println("╚═══════════════════════════════════════╝");
+        System.out.println();
 
-
-        System.out.println("Hello world!");
+        // Create and start the application
+        MinesweeperApp app = new MinesweeperApp();
+        app.start();
     }
 }
