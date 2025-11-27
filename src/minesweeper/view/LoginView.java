@@ -1,218 +1,283 @@
 package minesweeper.view;
 
+import minesweeper.controller.LoginController;
+import minesweeper.model.User;
+
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.*;
+import javax.swing.border.EmptyBorder;
 
 public class LoginView extends JFrame {
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton togglePasswordBtn;
+    private boolean passwordVisible = false;
 
     public LoginView() {
-        super("Mine Sweeper - Tiger Edition");
-        initUI();
-    }
-
-    private void initUI() {
-        // Basic frame settings
+        setTitle("Mine Sweeper - Tiger Edition");
+        setSize(700, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(700, 800);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Background panel with subtle gradient
-        JPanel bg = new GradientPanel();
-        bg.setLayout(new BorderLayout());
-        bg.setBorder(new EmptyBorder(40, 40, 40, 40));
-        setContentPane(bg);
+        // Main panel with dark background
+        JPanel mainPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(new Color(15, 15, 15));
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        mainPanel.setLayout(null);
+        mainPanel.setBackground(new Color(15, 15, 15));
 
-        // Title (top)
-        JPanel titlePanel = new JPanel();
-        titlePanel.setOpaque(false);
-        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+        // Logo
+        JLabel logoLabel = new JLabel(new ImageIcon(""));
+        logoLabel.setBounds(300, 40, 100, 100);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel mainTitle = new JLabel("MINE SWEEPER", SwingConstants.CENTER);
-        mainTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        mainTitle.setForeground(Color.WHITE);
-        mainTitle.setFont(new Font("SansSerif", Font.BOLD, 38));
+        // Title
+        JLabel titleLabel = new JLabel("MINE SWEEPER");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setBounds(0, 150, 700, 50);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel subTitle = new JLabel("TIGER EDITION", SwingConstants.CENTER);
-        subTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subTitle.setForeground(new Color(180, 190, 255));
-        subTitle.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        // Subtitle
+        JLabel subtitleLabel = new JLabel("TIGER EDITION");
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        subtitleLabel.setForeground(new Color(150, 150, 150));
+        subtitleLabel.setBounds(0, 200, 700, 30);
+        subtitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        titlePanel.add(mainTitle);
-        titlePanel.add(Box.createVerticalStrut(5));
-        titlePanel.add(subTitle);
-
-        bg.add(titlePanel, BorderLayout.NORTH);
-
-        // Center – card
-        JPanel center = new JPanel(new GridBagLayout());
-        center.setOpaque(false);
-        bg.add(center, BorderLayout.CENTER);
-
-        RoundedPanel card = new RoundedPanel(30);
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBorder(new EmptyBorder(30, 40, 30, 40));
-        card.setOpaque(false);
+        // Login form panel
+        JPanel formPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(new Color(25, 25, 30));
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+            }
+        };
+        formPanel.setLayout(null);
+        formPanel.setBounds(175, 260, 350, 280);
+        formPanel.setOpaque(false);
 
         // Username field
-        JTextField usernameField = new JTextField();
-        styleTextField(usernameField, "Username");
+        usernameField = createStyledTextField("Username");
+        usernameField.setBounds(25, 30, 300, 45);
 
-        // Password field + eye icon
-        JPasswordField passwordField = new JPasswordField();
-        styleTextField(passwordField, "Password");
+        // Password panel (field + toggle button)
+        JPanel passwordPanel = new JPanel();
+        passwordPanel.setLayout(null);
+        passwordPanel.setBounds(25, 90, 300, 45);
+        passwordPanel.setOpaque(false);
 
-        JPanel passwordRow = new JPanel(new BorderLayout());
-        passwordRow.setOpaque(false);
-        passwordRow.add(passwordField, BorderLayout.CENTER);
+        passwordField = createStyledPasswordField("Password");
+        passwordField.setBounds(0, 0, 255, 45);
 
-        JButton eyeButton = new JButton("");
-        eyeButton.setIcon(new ImageIcon("eye.png"));
-        //eyeButton.setFocusPainted(false);
-        eyeButton.setBorderPainted(false);
-        eyeButton.setContentAreaFilled(false);
-        //eyeButton.setPreferredSize(new Dimension(40, 40));
+        // Eye toggle button
+        togglePasswordBtn = new JButton(new ImageIcon("src/minesweeper/view/assets/eye.png"));
+        togglePasswordBtn.setBounds(260, 0, 40, 45);
+        togglePasswordBtn.setFocusPainted(false);
+        togglePasswordBtn.setBorderPainted(false);
+        togglePasswordBtn.setContentAreaFilled(false);
+        togglePasswordBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        togglePasswordBtn.addActionListener(e -> togglePasswordVisibility());
 
-        // toggle password visibility
-        eyeButton.addActionListener(e -> {
-            if (passwordField.getEchoChar() == 0) {
-                passwordField.setEchoChar('•');
-            } else {
-                passwordField.setEchoChar((char) 0);
-            }
+        passwordPanel.add(passwordField);
+        passwordPanel.add(togglePasswordBtn);
+
+        // Login button
+        JButton loginBtn = createGlowButton("LOGIN", new Color(0, 200, 100));
+        loginBtn.setBounds(25, 150, 300, 45);
+        loginBtn.addActionListener(e -> {
+            LoginController.login(new User(usernameField.getText(), passwordField.getPassword()));
         });
 
-        passwordRow.add(eyeButton, BorderLayout.EAST);
+        // Create Account button
+        JButton createAccountBtn = createGlowButton("CREATE ACCOUNT", new Color(0, 150, 255));
+        createAccountBtn.setBounds(25, 205, 300, 45);
+        createAccountBtn.addActionListener(e -> {
+           LoginController.addUser(new User(usernameField.getText(), passwordField.getPassword()));
+        });
 
-        // Buttons
-        JButton loginBtn = new JButton("LOGIN");
-        styleMainButton(loginBtn, new Color(0, 220, 130));
+        formPanel.add(usernameField);
+        formPanel.add(passwordPanel);
+        formPanel.add(loginBtn);
+        formPanel.add(createAccountBtn);
 
-        JButton createBtn = new JButton("CREATE ACCOUNT");
-        styleMainButton(createBtn, new Color(0, 170, 255));
-
-        // Forgot password
-        JLabel forgot = new JLabel("Forgot Password?", SwingConstants.CENTER);
-        forgot.setForeground(new Color(160, 160, 170));
-        forgot.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        forgot.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Assemble card
-        card.add(usernameField);
-        card.add(Box.createVerticalStrut(15));
-        card.add(passwordRow);
-        card.add(Box.createVerticalStrut(25));
-        card.add(loginBtn);
-        card.add(Box.createVerticalStrut(15));
-        card.add(createBtn);
-        card.add(Box.createVerticalStrut(20));
-        card.add(forgot);
-
-        center.add(card); // GridBagLayout centers it automatically
+        // Forgot Password link
+        JLabel forgotLabel = new JLabel("Forgot Password?");
+        forgotLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        forgotLabel.setForeground(new Color(120, 120, 120));
+        forgotLabel.setBounds(0, 555, 700, 20);
+        forgotLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        forgotLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Footer
-        JLabel footer = new JLabel("Group Tiger · 2025", SwingConstants.CENTER);
-        footer.setForeground(new Color(140, 140, 150));
-        footer.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        bg.add(footer, BorderLayout.SOUTH);
+        JLabel footerLabel = new JLabel("Group Tiger · 2025");
+        footerLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        footerLabel.setForeground(new Color(80, 80, 80));
+        footerLabel.setBounds(0, 620, 700, 20);
+        footerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        mainPanel.add(logoLabel);
+        mainPanel.add(titleLabel);
+        mainPanel.add(subtitleLabel);
+        mainPanel.add(formPanel);
+        mainPanel.add(forgotLabel);
+        mainPanel.add(footerLabel);
+
+        add(mainPanel);
     }
 
-    private static void styleTextField(JTextField field, String placeholder) {
-        field.setOpaque(false);
+    private JTextField createStyledTextField(String placeholder) {
+        JTextField field = new JTextField(placeholder) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(new Color(20, 20, 25));
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                g2d.setColor(new Color(0, 255, 255));
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                super.paintComponent(g);
+            }
+        };
+        field.setFont(new Font("Arial", Font.PLAIN, 14));
         field.setForeground(Color.WHITE);
-        field.setCaretColor(Color.WHITE);
-        field.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        field.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0, 200, 255)),
-                new EmptyBorder(10, 10, 10, 10)
-        ));
+        field.setCaretColor(new Color(0, 255, 255));
+        field.setOpaque(false);
+        field.setBorder(new EmptyBorder(5, 15, 5, 15));
 
-        // simple placeholder behavior
-        field.setText(placeholder);
-        field.setForeground(new Color(160, 160, 170));
-
-        field.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) {
+        field.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
                 if (field.getText().equals(placeholder)) {
                     field.setText("");
                     field.setForeground(Color.WHITE);
                 }
             }
-
-            public void focusLost(java.awt.event.FocusEvent e) {
+            public void focusLost(FocusEvent e) {
                 if (field.getText().isEmpty()) {
                     field.setText(placeholder);
-                    field.setForeground(new Color(160, 160, 170));
+                    field.setForeground(new Color(100, 100, 100));
                 }
             }
         });
+
+        field.setForeground(new Color(100, 100, 100));
+        return field;
     }
 
-    private static void styleMainButton(JButton button, Color glow) {
-        button.setFocusPainted(false);
-        button.setFont(new Font("SansSerif", Font.BOLD, 14));
-        button.setForeground(glow);
-        button.setBackground(new Color(10, 10, 15));
-        button.setBorder(BorderFactory.createLineBorder(glow));
-        button.setPreferredSize(new Dimension(0, 40));
-    }
+    private JPasswordField createStyledPasswordField(String placeholder) {
+        JPasswordField field = new JPasswordField(placeholder) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(new Color(20, 20, 25));
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                g2d.setColor(new Color(138, 43, 226));
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                super.paintComponent(g);
+            }
+        };
+        field.setFont(new Font("Arial", Font.PLAIN, 14));
+        field.setForeground(Color.WHITE);
+        field.setCaretColor(new Color(138, 43, 226));
+        field.setOpaque(false);
+        field.setBorder(new EmptyBorder(5, 15, 5, 15));
+        field.setEchoChar('●');
 
-    // Background gradient panel
-    private static class GradientPanel extends JPanel {
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Color top = new Color(5, 10, 25);
-            Color bottom = new Color(5, 5, 10);
-            GradientPaint gp = new GradientPaint(0, 0, top, 0, getHeight(), bottom);
-            g2.setPaint(gp);
-            g2.fillRect(0, 0, getWidth(), getHeight());
-            g2.dispose();
-        }
-    }
-
-    // Rounded dark card with subtle glow outline
-    private static class RoundedPanel extends JPanel {
-        private final int radius;
-
-        public RoundedPanel(int radius) {
-            this.radius = radius;
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int w = getWidth();
-            int h = getHeight();
-
-            // main card
-            g2.setColor(new Color(10, 10, 15, 230));
-            g2.fillRoundRect(0, 0, w - 1, h - 1, radius, radius);
-
-            // glow outline
-            g2.setColor(new Color(0, 200, 255, 100));
-            g2.setStroke(new BasicStroke(2f));
-            g2.drawRoundRect(1, 1, w - 3, h - 3, radius, radius);
-
-            g2.dispose();
-            super.paintComponent(g);
-        }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(new ImageIcon("mine.png").getImageLoadStatus());
-        SwingUtilities.invokeLater(() -> {
-            LoginView frame = new LoginView();
-            frame.setVisible(true);
+        field.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+                if (String.valueOf(field.getPassword()).equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.WHITE);
+                }
+            }
+            public void focusLost(FocusEvent e) {
+                if (String.valueOf(field.getPassword()).isEmpty()) {
+                    field.setText(placeholder);
+                    field.setForeground(new Color(100, 100, 100));
+                    field.setEchoChar((char) 0);
+                } else {
+                    field.setEchoChar('●');
+                }
+            }
         });
+
+        field.setForeground(new Color(100, 100, 100));
+        field.setEchoChar((char) 0);
+        return field;
+    }
+
+    private JButton createGlowButton(String text, Color baseColor) {
+        JButton btn = new JButton(text) {
+            private boolean hover = false;
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                if (hover) {
+                    g2d.setColor(new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 30));
+                    for (int i = 0; i < 15; i++) {
+                        g2d.drawRoundRect(i, i, getWidth() - 2 * i - 1, getHeight() - 2 * i - 1, 8, 8);
+                    }
+                }
+
+                g2d.setColor(new Color(20, 20, 25));
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                g2d.setColor(baseColor);
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+
+                super.paintComponent(g);
+            }
+        };
+
+        btn.setFont(new Font("Arial", Font.BOLD, 14));
+        btn.setForeground(baseColor);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                try {
+                    btn.getClass().getDeclaredField("hover").set(btn, true);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                btn.repaint();
+            }
+            public void mouseExited(MouseEvent e) {
+                try {
+                    btn.getClass().getDeclaredField("hover").set(btn, false);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                btn.repaint();
+            }
+        });
+
+        return btn;
+    }
+
+    private void togglePasswordVisibility() {
+        passwordVisible = !passwordVisible;
+        if (passwordVisible) {
+            passwordField.setEchoChar((char) 0);
+        } else {
+            passwordField.setEchoChar('●');
+        }
     }
 }
