@@ -1,3 +1,4 @@
+
 package minesweeper.model;
 
 import java.util.Random;
