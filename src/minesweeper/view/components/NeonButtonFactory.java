@@ -28,7 +28,6 @@ public class NeonButtonFactory {
     }
 
 
-    /** MAIN STYLE APPLIED TO ALL NEON BUTTONS */
     private static void styleNeon(AbstractButton btn, Color neonColor) {
 
         btn.setFocusPainted(false);
@@ -38,27 +37,59 @@ public class NeonButtonFactory {
 
         btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
-        // Neon rounded border with glow
         btn.setBorder(BorderFactory.createCompoundBorder(
                 new NeonRoundBorder(neonColor, 18),
                 BorderFactory.createEmptyBorder(12, 26, 12, 26)
         ));
 
-        // Hover effect → intensify glow
-        btn.addMouseListener(new MouseAdapter() {
+        // 🔵 Custom background painter for pressed/selected effect
+        btn.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
             @Override
-            public void mouseEntered(MouseEvent e) { btn.repaint(); }
+            public void paint(Graphics g, JComponent c) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            @Override
-            public void mouseExited(MouseEvent e) { btn.repaint(); }
-        });
+                AbstractButton b = (AbstractButton) c;
 
-        // Selected glow for toggle buttons
-        btn.addActionListener(e -> {
-            if (btn instanceof JToggleButton) {
-                btn.repaint();
+                int width = c.getWidth();
+                int height = c.getHeight();
+                int arc = 20;
+
+                boolean pressed  = b.getModel().isPressed();
+                boolean hovered  = b.getModel().isRollover();
+                boolean selected = (b instanceof JToggleButton) && ((JToggleButton) b).isSelected();
+
+                // 🔥 FILL EFFECT (pressed or selected)
+                if (pressed || selected) {
+                    g2.setColor(new Color(neonColor.getRed(), neonColor.getGreen(),
+                            neonColor.getBlue(), 80));
+                    g2.fillRoundRect(4, 4, width - 8, height - 8, arc, arc);
+                }
+
+                // LIGHT hover background (optional)
+                else if (hovered) {
+                    g2.setColor(new Color(neonColor.getRed(), neonColor.getGreen(),
+                            neonColor.getBlue(), 40));
+                    g2.fillRoundRect(4, 4, width - 8, height - 8, arc, arc);
+                }
+
+                g2.dispose();
+
+                // Paint text + border normally
+                super.paint(g, c);
             }
         });
+
+        // ❗ Repaint on hover/press
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { btn.repaint(); }
+            public void mouseExited(MouseEvent e) { btn.repaint(); }
+            public void mousePressed(MouseEvent e) { btn.repaint(); }
+            public void mouseReleased(MouseEvent e) { btn.repaint(); }
+        });
+
+        // ❗ For toggle buttons
+        btn.addActionListener(e -> btn.repaint());
     }
 
 

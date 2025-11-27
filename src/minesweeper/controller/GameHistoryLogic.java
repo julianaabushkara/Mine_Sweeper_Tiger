@@ -55,7 +55,7 @@ public class GameHistoryLogic {
             // if your JSON is { "History": [ ... ] }
             if (root instanceof JSONObject) {
                 JSONObject doc = (JSONObject) root;
-                historyArray = (JSONArray) doc.get("History");
+                historyArray = (JSONArray) doc.get("history");
             } else {
                 // or if JSON *is* just [ ... ]
                 historyArray = (JSONArray) root;
