@@ -73,8 +73,7 @@ public class MinesweeperGame extends JFrame {
         JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
         centerPanel.setBackground(new Color(15, 20, 25));
         livesLabel = createStyledLabel("LIVES: " + getHeartsString(session.getSharedLives()), 16, Color.WHITE);
-        scoreLabel = createStyledLabel("SCORE: 0000 (EASY)", 16, new Color(0, 255, 100));
-        centerPanel.add(livesLabel);
+        scoreLabel = createStyledLabel(String.format("SCORE: %04d (%s)", session.getSharedScore(), session.getDifficulty().name()), 16, new Color(0, 255, 100));        centerPanel.add(livesLabel);
         centerPanel.add(scoreLabel);
 
         // Right: Mines count 

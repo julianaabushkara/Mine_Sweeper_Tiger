@@ -5,8 +5,8 @@ public enum Difficulty {
     EASY(
             9,      // grid size
             10,     // mines
-            8,      // question cells
-            3,      // surprise cells
+            6,      // question cells (FIXED: was 8)
+            2,      // surprise cells (FIXED: was 3)
             1,      // safe-cell points
             -5,     // mine hit penalty
             3,      // correct question bonus
@@ -14,25 +14,25 @@ public enum Difficulty {
     ),
 
     MEDIUM(
-            13,
-            25,
-            15,
-            6,
-            2,
-            -10,
-            5,
-            -3
+            13,     // grid size
+            26,     // mines (FIXED: was 25)
+            7,      // question cells (FIXED: was 15)
+            3,      // surprise cells (FIXED: was 6)
+            2,      // safe-cell points
+            -10,    // mine hit penalty
+            5,      // correct question bonus
+            -3      // wrong question penalty
     ),
 
     HARD(
-            16,
-            40,
-            20,
-            10,
-            3,
-            -15,
-            7,
-            -4
+            16,     // grid size
+            44,     // mines (FIXED: was 40)
+            11,     // question cells (FIXED: was 20)
+            4,      // surprise cells (FIXED: was 10)
+            3,      // safe-cell points
+            -15,    // mine hit penalty
+            7,      // correct question bonus
+            -4      // wrong question penalty
     );
 
     private final int gridSize;
