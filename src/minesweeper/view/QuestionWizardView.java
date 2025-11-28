@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * View component for the Question Wizard screen.
- * Features a dark, sci-fi themed aesthetic with colored difficulty badges.
+ * Based on project wireframes athestic
  */
 public class QuestionWizardView extends JFrame {
 

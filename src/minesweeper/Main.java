@@ -21,6 +21,7 @@ public class Main {
         System.out.println("║   MINESWEEPER - TIGER EDITION v1.0   ║");
         System.out.println("║          Group Tiger Project          ║");
         System.out.println("╚═══════════════════════════════════════╝");
+
         System.out.println();
 
         // Create and start the application

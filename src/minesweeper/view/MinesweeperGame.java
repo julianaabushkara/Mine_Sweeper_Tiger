@@ -3,7 +3,6 @@ package minesweeper.view;
 import minesweeper.model.*;
 import minesweeper.controller.GameController;
 import minesweeper.model.QuestionDifficulty;
-import minesweeper.model.Question;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;

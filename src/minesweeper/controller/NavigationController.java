@@ -246,7 +246,6 @@ public class NavigationController {
 
     /**
      * Navigate to Question Wizard screen
-     * Note: Question Wizard is a JFrame, so it opens in a separate window
      */
     public void navigateToQuestionWizard() {
         if (questionWizardView == null) {

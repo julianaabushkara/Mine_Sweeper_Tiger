@@ -30,7 +30,7 @@ public class QuestionWizardApp {
         }
 
         // Get optional CSV file path from command line
-        String csvPath = null;
+        String csvPath = "/Questions/Questions.csv";
         if (args.length > 0) {
             csvPath = args[0];
             System.out.println("Loading CSV file: " + csvPath);
@@ -49,7 +49,6 @@ public class QuestionWizardApp {
      * @param csvPath Optional path to a CSV file to load automatically
      */
     private static void launchQuestionWizard(String csvPath) {
-        // Create Model
         QuestionBank questionBank;
         if (csvPath != null) {
             questionBank = new QuestionBank(csvPath);
