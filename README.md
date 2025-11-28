@@ -1,4 +1,8 @@
 # Minesweeper Game - Tiger Edition- Iteration 1.0v
+
+# Important note: This is not the complete game module but the first iteration. Some aspects that will be devolped in later Iterations are currently hardcoded or tech debt implemented. For example: History is mostly hardcoded. Scoring doesn't change according to question difficulty. Question Wizard is view only.  
+# **Please see entire implementation plan  in SDP_Tiger**
+
 ## By:
 
 ## ● יותם נחתומי-כץ 211718366
