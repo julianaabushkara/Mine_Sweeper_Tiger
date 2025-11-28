@@ -178,7 +178,4 @@ public class MinesweeperApp {
      * Get the navigation controller
      * @return NavigationController instance
      */
-    public NavigationController getNavigationController() {
-        return navigationController;
-    }
 }

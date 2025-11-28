@@ -18,11 +18,23 @@ public class Main {
      */
     public static void main(String[] args) {
         System.out.println("╔═══════════════════════════════════════╗");
-        System.out.println("║   MINESWEEPER - TIGER EDITION v1.0   ║");
-        System.out.println("║          Group Tiger Project          ║");
-        System.out.println("╚═══════════════════════════════════════╝");
+        System.out.println("║   MINESWEEPER - TIGER EDITION v1.0    ║");
+        System.out.println("║             Tiger Group               ║");
+        System.out.println("╚═══════════════════════════════════════╝\n");
 
-        System.out.println();
+        System.out.println("                       ___......----:'\"\":--....(\\\n" +
+                "                .-':'\"\":   :  :  :   :  :  :.(1\\.`-.\n" +
+                "              .'`.  `.  :  :  :   :   : : : : : :  .';\n" +
+                "             :-`. :   .  : :  `.  :   : :.   : :`.`. a;\n" +
+                "             : ;-. `-.-._.  :  :   :  ::. .' `. `., =  ;\n" +
+                "             :-:.` .-. _-.,  :  :  : ::,.'.-' ;-. ,'''\"\n" +
+                "           .'.' ;`. .-' `-.:  :  : : :;.-'.-.'   `-'\n" +
+                "    :.   .'.'.-' .'`-.' -._;..:---'''\"~;._.-;\n" +
+                "    :`--'.'  : :'     ;`-.;            :.`.-'`.\n" +
+                "     `'\"`    : :      ;`.;             :=; `.-'`.\n" +
+                "             : '.    :  ;              :-:   `._-`.\n" +
+                "              `'\"'    `. `.            `--'     `._;\n" +
+                "                        `'\"'\n");
 
         // Create and start the application
         MinesweeperApp app = new MinesweeperApp();
