@@ -1,11 +1,10 @@
 package minesweeper.model;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class GameHistory {
 
-    private Difficulty difficulty;
+    private GameSession.Difficulty difficulty;
     private String player1;
     private String player2;
 
@@ -14,7 +13,7 @@ public class GameHistory {
     private String duration;            // "mm:ss"
     private LocalDateTime dateTime;     // full timestamp
 
-    public GameHistory(Difficulty difficulty,
+    public GameHistory(GameSession.Difficulty difficulty,
                        String player1,
                        String player2,
                        int finalScore,
@@ -35,7 +34,7 @@ public class GameHistory {
     // GETTERS
     // =====================================================
 
-    public Difficulty getDifficulty() {
+    public GameSession.Difficulty getDifficulty() {
         return difficulty;
     }
 

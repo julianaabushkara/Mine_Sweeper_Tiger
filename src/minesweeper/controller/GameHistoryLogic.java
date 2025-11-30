@@ -1,13 +1,13 @@
 package minesweeper.controller;
 
 import minesweeper.model.GameHistory;
-import minesweeper.model.Difficulty;
 
 // NEW (correct for 1.1.1)
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import minesweeper.model.GameSession;
 
 
 import java.io.File;
@@ -64,8 +64,9 @@ public class GameHistoryLogic {
             for (Object item : historyArray) {
                 JSONObject obj = (JSONObject) item;
 
-                String difficultyStr = (String) obj.get("difficulty");
-                Difficulty difficulty = Difficulty.valueOf(difficultyStr);
+                String difficultyStr = ((String) obj.get("difficulty")).trim().toUpperCase();
+                GameSession.Difficulty difficulty = GameSession.Difficulty.valueOf(difficultyStr);
+
 
                 String player1  = (String) obj.get("player1");
                 String player2  = (String) obj.get("player2");

@@ -4,7 +4,8 @@ import minesweeper.view.components.PlaceholderTextField;
 import javax.swing.*;
 import java.awt.*;
 import minesweeper.view.components.NeonDialog;
-import minesweeper.model.Difficulty;
+import minesweeper.model.GameSession;
+
 
 
 
@@ -163,58 +164,17 @@ public class NewGameView extends JPanel {
 
 
     private void createEvents() {
-        Difficulty medium = Difficulty.MEDIUM;
-        Difficulty easy = Difficulty.EASY;
-        Difficulty hard = Difficulty.HARD;
+        easyToggle.addActionListener(e ->
+                showDifficultyInfo(GameSession.Difficulty.EASY)
+        );
 
+        mediumToggle.addActionListener(e ->
+                showDifficultyInfo(GameSession.Difficulty.MEDIUM)
+        );
 
-        // ===== EASY =====
-            easyToggle.addActionListener(e -> {
-                showDifficultyInfo(
-
-                        "EASY",
-                        easy.getGridSize(),
-                        easy.getMines(),   // mines
-                        easy.getQuestionCells(),    // question cells
-                        easy.getSurpriseCells(),    // surprise cells
-                        easy.getSafeCellPoints(),    // safe cell points
-                        easy.getMineHitPenalty(),   // mine hit
-                        easy.getCorrectQuestionPoints(),    // correct question
-                        easy.getWrongQuestionPenalty()    // wrong question
-                );
-            });
-
-            // ===== MEDIUM =====
-            mediumToggle.addActionListener(e -> {
-                showDifficultyInfo(
-                        "MEDIUM",
-                        medium.getGridSize(),
-                        medium.getMines(),
-                        medium.getQuestionCells(),
-                        medium.getSurpriseCells(),
-                        medium.getSafeCellPoints(),
-                        medium.getMineHitPenalty(),
-                        medium.getCorrectQuestionPoints(),
-                        medium.getWrongQuestionPenalty()
-                );
-            });
-
-            // ===== HARD =====
-            hardToggle.addActionListener(e -> {
-                showDifficultyInfo(
-                        "HARD",
-                        hard.getGridSize(),
-                        hard.getMines(),
-                        hard.getQuestionCells(),
-                        hard.getSurpriseCells(),
-                        hard.getSafeCellPoints(),
-                        hard.getMineHitPenalty(),
-                        hard.getCorrectQuestionPoints(),
-                        hard.getWrongQuestionPenalty()
-                );
-            });
-
-
+        hardToggle.addActionListener(e ->
+                showDifficultyInfo(GameSession.Difficulty.HARD)
+        );
 
     }
 
@@ -241,57 +201,50 @@ public class NewGameView extends JPanel {
                 BorderFactory.createEmptyBorder(10, 12, 10, 12)
         ));
     }
-    private void showDifficultyInfo(
-            String difficulty,
-            int gridSize,
-            int mines,
-            int questions,
-            int surprise,
-            int pointsReveal,
-            int pointsMine,
-            int pointsQuestionCorrect,
-            int pointsQuestionWrong
-    ) {
 
-        int safeCells = gridSize * gridSize - mines - questions - surprise;
+    private void showDifficultyInfo(GameSession.Difficulty d) {
 
-        // ===== HTML with ICONS (no top icon) =====
+        int gridSize = d.gridSize;
+        int mines = d.mines;
+        int questions = d.questions;
+        int surprises = d.surprises;
+
+        int safeCells = gridSize * gridSize - mines - questions - surprises;
+
         String message =
                 "<html><body style='color:white; font-family:Segoe UI; font-size:14px;'>" +
 
-                        "<span style='font-size:20px; font-weight:bold;'>Difficulty: " + difficulty + "</span><br>" +
+                        "<span style='font-size:20px; font-weight:bold;'>Difficulty: " + d.name() + "</span><br>" +
                         "<b>Grid Size:</b> " + gridSize + " × " + gridSize + "<br><br>" +
 
                         "<span style='color:#00FFB4; font-size:16px;'><b>Cells Breakdown:</b></span><br><br>" +
 
                         "<img src='" + getClass().getResource("/minesweeper/view/assets/mine.PNG") +
-                        "' width='22' height='22' style='vertical-align:middle;'> Mines: " + mines + "<br>" +
+                        "' width='22' height='22'> Mines: " + mines + "<br>" +
 
-                        "<img src='" + getClass().getResource("/minesweeper/view/assets/question.PNG") +
-                        "' width='22' height='22' style='vertical-align:middle;'> Question Cells: " + questions + "<br>" +
+                                "<img src='" + getClass().getResource("/minesweeper/view/assets/question.PNG") +
+                                "' width='22' height='22'> Question Cells: " + questions + "<br>" +
 
-                        "<img src='" + getClass().getResource("/minesweeper/view/assets/surprise.PNG") +
-                        "' width='22' height='22' style='vertical-align:middle;'> Surprise Cells: " + surprise + "<br>" +
+                                        "<img src='" + getClass().getResource("/minesweeper/view/assets/surprise.PNG") +
+                                        "' width='22' height='22'> Surprise Cells: " + surprises + "<br>" +
 
-                        "<img src='" + getClass().getResource("/minesweeper/view/assets/tile.PNG") +
-                        "' width='22' height='22' style='vertical-align:middle;'> Safe/Number Cells: " + safeCells + "<br><br>" +
+                                                "<img src='" + getClass().getResource("/minesweeper/view/assets/tile.PNG") +
+                                                "' width='22' height='22'> Safe/Number Cells: " + safeCells + "<br><br>" +
 
-                        "<span style='color:#00FFB4; font-size:16px;'><b>Scoring Rules:</b></span><br><br>" +
-                        "• Reveal Safe Cell: +" + pointsReveal + " pts<br>" +
-                        "• Hit a Mine: " + pointsMine + " pts<br>" +
-                        "• Correct Question: +" + pointsQuestionCorrect + " pts<br>" +
-                        "• Wrong Question: " + pointsQuestionWrong + " pts<br>" +
+                                                        "<span style='color:#00FFB4; font-size:16px;'><b>Additional Info:</b></span><br><br>" +
+                                                        "Starting Lives: " + d.startingLives + "<br>" +
+                                                        "Activation Cost: " + d.activationCost + "<br>" +
 
-                        "</body></html>";
+                                                        "</body></html>";
 
-        // ===== Show dialog (no top icon needed) =====
         NeonDialog.showNeonDialog(
                 SwingUtilities.getWindowAncestor(this),
                 "Difficulty Details",
                 message,
-                null   // no icon
+                null
         );
     }
+
 
 
 
