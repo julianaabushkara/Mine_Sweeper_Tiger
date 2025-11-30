@@ -36,7 +36,7 @@ public class LoginView extends JFrame {
         mainPanel.setBackground(new Color(15, 15, 15));
 
         // Logo
-        JLabel logoLabel = new JLabel(new ImageIcon(""));
+        JLabel logoLabel = new JLabel(new ImageIcon("src/minesweeper/view/assets/target.png"));
         logoLabel.setBounds(300, 40, 100, 100);
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -101,7 +101,7 @@ public class LoginView extends JFrame {
         });
 
         // Create Account button
-        JButton createAccountBtn = createGlowButton("CREATE ACCOUNT", new Color(0, 150, 255));
+        JButton createAccountBtn = createGlowButton("CREATE ACCOUNT", new Color(20, 155, 200));
         createAccountBtn.setBounds(25, 205, 300, 45);
         createAccountBtn.addActionListener(e -> {
            LoginController.addUser(new User(usernameField.getText(), passwordField.getPassword()));
@@ -218,59 +218,79 @@ public class LoginView extends JFrame {
         return field;
     }
 
-    private JButton createGlowButton(String text, Color baseColor) {
+    private JButton createGlowButton(String text, Color borderColor) {
         JButton btn = new JButton(text) {
-            private boolean hover = false;
-
             @Override
             protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                if (hover) {
-                    g2d.setColor(new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 30));
-                    for (int i = 0; i < 15; i++) {
-                        g2d.drawRoundRect(i, i, getWidth() - 2 * i - 1, getHeight() - 2 * i - 1, 8, 8);
+                int w = getWidth();
+                int h = getHeight();
+                int arc = 10;
+
+                // Base dark background
+                Color baseBg = new Color(15, 15, 15);
+                Color bg = baseBg;
+
+                // Glow = lighten the background toward the borderColor
+                if (getModel().isRollover()) {
+                    bg = new Color(
+                            (baseBg.getRed() + borderColor.getRed()) / 2,
+                            (baseBg.getGreen() + borderColor.getGreen()) / 2,
+                            (baseBg.getBlue() + borderColor.getBlue()) / 2
+                    );
+                }
+
+                // Pressed = darker
+                if (getModel().isPressed()) {
+                    bg = bg.darker();
+                }
+
+                // Glow fill (soft halo)
+                if (getModel().isRollover()) {
+                    int glowSize = 6;
+                    for (int i = glowSize; i >= 1; i--) {
+                        g2.setColor(new Color(
+                                borderColor.getRed(),
+                                borderColor.getGreen(),
+                                borderColor.getBlue(),
+                                18   // translucent halo
+                        ));
+                        g2.fillRoundRect(
+                                -i, -i,
+                                w + i * 2,
+                                h + i * 2,
+                                arc + i, arc + i
+                        );
                     }
                 }
 
-                g2d.setColor(new Color(20, 20, 25));
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-                g2d.setColor(baseColor);
-                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                // Fill background
+                g2.setColor(bg);
+                g2.fillRoundRect(0, 0, w, h, arc, arc);
 
+                // Border
+                g2.setColor(borderColor);
+                g2.setStroke(new BasicStroke(2f));
+                g2.drawRoundRect(1, 1, w - 2, h - 2, arc, arc);
+
+                g2.dispose();
                 super.paintComponent(g);
             }
         };
 
-        btn.setFont(new Font("Arial", Font.BOLD, 14));
-        btn.setForeground(baseColor);
+        btn.setContentAreaFilled(false);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
-        btn.setContentAreaFilled(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                try {
-                    btn.getClass().getDeclaredField("hover").set(btn, true);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-                btn.repaint();
-            }
-            public void mouseExited(MouseEvent e) {
-                try {
-                    btn.getClass().getDeclaredField("hover").set(btn, false);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-                btn.repaint();
-            }
-        });
+        btn.setOpaque(false);
+        btn.setRolloverEnabled(true);
+        btn.setForeground(Color.WHITE);
 
         return btn;
     }
+
+
 
     private void togglePasswordVisibility() {
         passwordVisible = !passwordVisible;

@@ -1,6 +1,8 @@
 package minesweeper;
 
+import minesweeper.controller.LoginController;
 import minesweeper.model.MinesweeperApp;
+import minesweeper.view.LoginView;
 
 /**
  * Main - Application Entry Point
@@ -37,7 +39,7 @@ public class Main {
                 "                        `'\"'\n");
 
         // Create and start the application
-        MinesweeperApp app = new MinesweeperApp();
-        app.start();
+        LoginView loginView = new LoginView();
+        LoginController loginController = new LoginController(loginView);
     }
 }

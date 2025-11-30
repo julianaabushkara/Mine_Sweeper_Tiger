@@ -33,9 +33,14 @@ public class NeonDialog {
         // ---- RESPONSIVE TEXT AREA ----
         JTextPane textPane = new JTextPane();
         textPane.setContentType("text/html");
-        textPane.setEditable(false);
+        textPane.setEditable(false);// Force white text via inline CSS
+        String styledHtml =
+                "<html><body style='color:#FFFFFF; font-family:Segoe UI; font-size:14px;'>"
+                        + htmlMessage +
+                        "</body></html>";
+
+        textPane.setText(styledHtml);
         textPane.setOpaque(false);
-        textPane.setText(htmlMessage);
 
         JScrollPane scrollPane = new JScrollPane(textPane);
         scrollPane.setOpaque(false);
