@@ -63,7 +63,7 @@ public class StartMenuView extends JPanel {
         // =========================================
         subtitleLabel = new JLabel("TIGER EDITION", SwingConstants.CENTER);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        subtitleLabel.setForeground(new Color(150, 150, 160));
+        subtitleLabel.setForeground(Color.YELLOW.brighter());
 
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 20, 40, 20);

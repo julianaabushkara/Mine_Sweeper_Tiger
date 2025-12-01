@@ -22,7 +22,7 @@ public class LoginView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
-        ImageIcon tigerIcon = new ImageIcon("src/minesweeper/view/assets/tiger.png");
+        ImageIcon tigerIcon = new ImageIcon("src/minesweeper/resources/assets/tiger.png");
         setIconImage(tigerIcon.getImage());
         // Main panel with dark background
         JPanel mainPanel = new JPanel() {
@@ -87,7 +87,7 @@ public class LoginView extends JFrame {
         passwordField.setBounds(0, 0, 255, 45);
 
         // Eye toggle button
-        togglePasswordBtn = new JButton(new ImageIcon("src/minesweeper/view/assets/eye.png"));
+        togglePasswordBtn = new JButton(new ImageIcon("src/minesweeper/resources/assets/eye.png"));
         togglePasswordBtn.setBounds(260, 0, 40, 45);
         togglePasswordBtn.setFocusPainted(false);
         togglePasswordBtn.setBorderPainted(false);
