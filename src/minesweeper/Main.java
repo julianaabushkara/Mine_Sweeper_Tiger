@@ -1,12 +1,11 @@
 package minesweeper;
 
 import minesweeper.controller.LoginController;
-import minesweeper.model.MinesweeperApp;
 import minesweeper.view.LoginView;
 
 /**
  * Main - Application Entry Point
- *
+ * </p>
  * Launches the Minesweeper Tiger Edition application
  *
  * @author Group Tiger

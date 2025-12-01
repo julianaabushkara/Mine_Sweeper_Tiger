@@ -241,7 +241,7 @@ public class NewGameView extends JPanel {
                 SwingUtilities.getWindowAncestor(this),
                 "Difficulty Details",
                 message,
-                null
+                null, true, false
         );
     }
 

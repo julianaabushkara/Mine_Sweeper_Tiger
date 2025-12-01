@@ -26,8 +26,8 @@ public class LoginController {
         for (User u : users) {
             if (u.getUsername().equals(user.getUsername())) {
                 System.out.println("User with username '" + user.getUsername() + "' already exists!");
-                NeonDialog.showNeonDialog(view, "Username already exists", "User with username '"
-                        + user.getUsername() + "' already exists!", "src/minesweeper/view/assets/eye.png");
+                NeonDialog.showNeonDialog(view, "Register Failed", "User with username '"
+                        + user.getUsername() + "' already exists!", new ImageIcon("src/minesweeper/view/assets/eye.png"), true, false);
                 return;
             }
         }
@@ -166,13 +166,14 @@ public class LoginController {
 
     public static void login(User user){
         System.out.println(retrieveUser(user.getUsername()));
+        ImageIcon eyeIcon = new ImageIcon("src/minesweeper/view/assets/eye.png");
         if (retrieveUser(user.getUsername()) == null){
-            NeonDialog.showNeonDialog(view, "Login Failed", "User: " + user.getUsername() + " Not Found", "src/minesweeper/view/assets/eye.png");
+            NeonDialog.showNeonDialog(view, "Login Failed", "User: " + user.getUsername() + " Not Found", eyeIcon, true, false);
         } else if (user.getPassword().compareTo(retrieveUser(user.getUsername()).getPassword()) == 0){
             MinesweeperApp app = new MinesweeperApp();
             app.start();
         } else {
-            NeonDialog.showNeonDialog(view, "Login Failed", "Password Incorrect", "src/minesweeper/view/assets/eye.png");
+            NeonDialog.showNeonDialog(view, "Login Failed", "Password Incorrect", eyeIcon, true, false);
         }
 
 
