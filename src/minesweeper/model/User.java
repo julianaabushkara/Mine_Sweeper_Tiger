@@ -5,10 +5,17 @@ import java.util.Objects;
 public class User {
     private String username;
     private String password;
+    private String securityAnswer;
 
     public User(String username, char[] password) {
         this.username = username;
         this.password = new String(password);
+    }
+
+    public User(String username, char[] password,  String securityAnswer) {
+        this.username = username;
+        this.password = new String(password);
+        this.securityAnswer = securityAnswer;
     }
 
     public String getUsername() {
@@ -31,13 +38,23 @@ public class User {
         this.password =  password;
     }
 
-    public String toJson() {
-        return String.format("{\"username\":\"%s\",\"password\":\"%s\"}",
-                escapeJson(username), escapeJson(password));
+    public String getSecurityAnswer() {
+        return securityAnswer;
     }
 
-    private String escapeJson(String str) {
-        return str.replace("\\", "\\\\")
+    public void setSecurityAnswer(String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
+    public String toJson() {
+        return String.format("{\"username\":\"%s\",\"password\":\"%s\",\"securityAnswer\":\"%s\"}",
+                escapeJson(username), escapeJson(password), escapeJson(securityAnswer));
+    }
+
+    private String escapeJson(String value) {
+        if (value == null) return "";
+        return value
+                .replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
@@ -46,13 +63,11 @@ public class User {
 
     @Override
     public String toString() {
-        return ("User: " + username + ", Password: " + password);
+        return ("User: " + username + ", Password: " + password +  ", Security Answer: " + securityAnswer);
     }
 
     public boolean equals(User user) {
-        if (Objects.equals(this.username, user.username) &&  Objects.equals(this.password, user.password)) {
-            return true;
-        }
-        return false;
+        return Objects.equals(this.username, user.username) && Objects.equals(this.password, user.password)
+                && Objects.equals(this.securityAnswer, user.securityAnswer);
     }
 }

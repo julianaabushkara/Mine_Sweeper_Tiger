@@ -28,7 +28,7 @@ ID,Question,Difficulty,A,B,C,D,Correct Answer
 27,What is the difference between stateless and stateful protocols in network communication?,4,Stateless is faster stateful is more reliable,Stateless doesn't retain session information stateful does,They are the same,Stateful is only used in HTTP,B
 28,In object-oriented programming what is polymorphism?,4,Having multiple classes,Ability of different classes to respond to the same message,Creating new objects,Deleting unused objects,B
 29,What is the main advantage of using microservices architecture over monolithic architecture?,4,Easier to develop initially,Better for small applications,Independent deployment and scalability of services,Requires less infrastructure,C
-30,What does TDD (Test-Driven Development) emphasize?,4,Testing after development,Writing tests before writing code,Manual testing only,No testing required,B
+30,What does TDD (JunitTest-Driven Development) emphasize?,4,Testing after development,Writing tests before writing code,Manual testing only,No testing required,B
 31,In REST API design what does idempotency mean?,4,Every request returns the same response,Multiple identical requests have the same effect as a single request,Requests are processed in order,Requests cannot be duplicated,B
 32,What is the purpose of a design pattern in software engineering?,4,To make code slower,To provide reusable solutions to common problems,To complicate the codebase,To avoid documentation,B
 33,Which data structure is best suited for implementing a priority queue?,4,Array,Linked List,Heap,Stack,C

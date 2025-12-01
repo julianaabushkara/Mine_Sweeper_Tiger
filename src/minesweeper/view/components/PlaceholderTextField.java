@@ -8,7 +8,7 @@ import java.awt.event.FocusEvent;
 public class PlaceholderTextField extends JTextField {
 
     private String placeholder;
-    private Color placeholderColor = new Color(150, 150, 150);
+    private Color placeholderColor = new Color(130, 130, 130);
 
     public PlaceholderTextField(String placeholder) {
         super(15);

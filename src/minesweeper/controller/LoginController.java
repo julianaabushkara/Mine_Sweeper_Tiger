@@ -13,13 +13,26 @@ import java.util.List;
 
 public class LoginController {
     static LoginView view;
+    private static final ImageIcon eyeIcon = new ImageIcon("resources/assets/eye.png");
     public LoginController(LoginView view){
         LoginController.view = view;
         view.setVisible(true);
     }
     static File UserData = new File("src/minesweeper/data/userData.json");
 
-    public static void addUser(User user) {
+    public static void addUser(User user, String passwordRepeat) {
+        if (user.getPassword().compareTo(passwordRepeat) != 0) {
+            System.out.println("Passwords don't match: " + user.getPassword() + ", " + passwordRepeat);
+            NeonDialog.showNeonDialog(view, "Register Failed", "Passwords don't match",
+                    eyeIcon, true, false);
+            return;
+        } else if (user.getSecurityAnswer().compareTo("Answer") == 0) {
+            System.out.println("No security answer");
+            NeonDialog.showNeonDialog(view, "Register Failed", "Please insert a security answer",
+                    eyeIcon, true, false);
+            return;
+        }
+
         List<User> users = loadUsers();
 
         // Check if username already exists
@@ -27,7 +40,7 @@ public class LoginController {
             if (u.getUsername().equals(user.getUsername())) {
                 System.out.println("User with username '" + user.getUsername() + "' already exists!");
                 NeonDialog.showNeonDialog(view, "Register Failed", "User with username '"
-                        + user.getUsername() + "' already exists!", new ImageIcon("src/minesweeper/view/assets/eye.png"), true, false);
+                        + user.getUsername() + "' already exists!", eyeIcon, true, false);
                 return;
             }
         }

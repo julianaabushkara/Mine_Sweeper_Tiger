@@ -1,10 +1,4 @@
 [
-  {"username":"Avi","password":"Vainbalt"},
-  {"username":"Admin","password":"Admin"},
-  {"username":"Aviv","password":"Vainblat"},
-  {"username":"admin","password":"admin"},
-  {"username":"Username","password":"Password"},
-  {"username":"Avivv","password":"Password"},
-  {"username":"A","password":"A"},
-  {"username":"Aadad","password":"Admin"}
+  {"username":"Avi","password":"Vainblat","securityAnswer":""},
+  {"username":"a","password":"a","securityAnswer":"a"}
 ]
