@@ -48,9 +48,9 @@ The Question Wizard is a component of the Minesweeper Quiz Game that allows cont
 - Tests for invalid data types (ID, Difficulty, Correct Answer)
 - Tests for edge cases (BOM, quoted fields)
 
-### T6. Smoke Test ✓
+### T6. Smoke JunitTest ✓
 - Sample CSV file provided
-- Test file with intentional errors provided
+- JunitTest file with intentional errors provided
 - "Back to Start" navigation functional
 
 ## Project Structure
@@ -72,7 +72,7 @@ question-wizard/
 │       └── QuestionWizardApp.java   # Application entry point
 ├── resources/
 │   ├── sample_questions.csv     # Valid sample data (20 questions)
-│   └── test_with_errors.csv     # Test file with intentional errors
+│   └── test_with_errors.csv     # JunitTest file with intentional errors
 ├── build.sh                     # Build and run script
 └── README.md                    # This file
 ```
@@ -206,9 +206,9 @@ public void openQuestionWizard() {
 
 ## Testing
 
-### Unit Test Coverage
+### Unit JunitTest Coverage
 
-| Test | Description | Status |
+| JunitTest | Description | Status |
 |------|-------------|--------|
 | testValidCSVParsing | Parse well-formed CSV | ✓ |
 | testEmptyFile | Handle empty file | ✓ |
@@ -244,7 +244,7 @@ Expected output:
 ...
 
 ========================================
-  Test Summary
+  JunitTest Summary
 ========================================
 Total tests:  15
 Passed:       15
