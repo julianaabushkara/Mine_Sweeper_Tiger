@@ -1,4 +1,3 @@
-
 package minesweeper.controller;
 
 import minesweeper.model.*;
@@ -47,11 +46,63 @@ public class GameController {
                     break;
                 case EMPTY:
                     gameSession.addScore(1);
+                    // Cascade: reveal all adjacent cells when clicking an empty cell
+                    revealAdjacentCells(row, col, board);
                     break;
                 case QUESTION:
                 case SURPRISE:
                     gameSession.addScore(1);
                     break;
+            }
+        }
+    }
+
+
+    /**
+     * Recursively reveals adjacent cells when an empty cell is clicked.
+     * Cascade Rules:
+     * - EMPTY cells: Revealed and cascade continues recursively
+     * - NUMBER cells: Revealed but cascade stops (act as boundary)
+     * - MINE cells: not revelaed by cascade
+     *
+     * @param row The row of the empty cell
+     * @param col The column of the empty cell
+     * @param board The game board
+     */
+    private void revealAdjacentCells(int row, int col, Board board) {
+        // Check all 8 adjacent cells
+        for (int dr = -1; dr <= 1; dr++) {
+            for (int dc = -1; dc <= 1; dc++) {
+                // Skip the center cell
+                if (dr == 0 && dc == 0) continue;
+
+                int newRow = row + dr;
+                int newCol = col + dc;
+
+                // Check if the adjacent cell is valid
+                if (board.isValid(newRow, newCol)) {
+                    Cell adjacentCell = board.getCell(newRow, newCol);
+
+                    // Only reveal if not already revealed and not flagged
+                    if (!adjacentCell.isRevealed() && !adjacentCell.isFlagged()) {
+
+                        Cell.CellType type = adjacentCell.getType();
+
+                        // CASCADE RULE: Only reveal EMPTY and NUMBER tiles
+                        // Do NOT reveal MINE, QUESTION, or SURPRISE during cascade
+                        if (type == Cell.CellType.EMPTY || type == Cell.CellType.NUMBER) {
+                            adjacentCell.setRevealed(true);
+                            gameSession.addScore(1);
+
+                            // Recursively continue ONLY for EMPTY cells
+                            if (type == Cell.CellType.EMPTY) {
+                                revealAdjacentCells(newRow, newCol, board);
+                            }
+                            // NUMBER cells are revealed but stop the cascade (act as boundary)
+                        }
+
+                    }
+                }
             }
         }
     }
