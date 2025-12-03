@@ -13,13 +13,21 @@ import java.awt.event.*;
 
 public class LoginView extends JFrame {
     private JTextField usernameField;
+    private JPanel passwordPanel;
+    private JPanel formPanel;
     private JPasswordField passwordField;
     private JPasswordField repeatPasswordField;
-    private JLabel forgotLabel;
+    private JButton forgotBtn;
+    private JButton createAccountBtn;
+    private JButton loginBtn;
     private JLabel footerLabel;
     private JButton togglePasswordBtn;
     private JTextField securityAnswer;
+    private JTextField answer;
+    private JTextField question;
     private boolean isFirstTime = true;
+    private boolean forgotPassword = false;
+    private JButton backBtn;
     //Privacy Questions
     private JComboBox<String> securityQuestion = new  JComboBox<>(new  String[]{
             "Birth Month",
@@ -70,7 +78,7 @@ public class LoginView extends JFrame {
         subtitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         // Login form panel
-        JPanel formPanel = new JPanel() {
+        formPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g;
@@ -89,14 +97,16 @@ public class LoginView extends JFrame {
         usernameField.setBounds(25, 30, 300, 45);
 
         // Password panel
-        JPanel passwordPanel = new JPanel();
+        passwordPanel = new JPanel();
         passwordPanel.setLayout(null);
         passwordPanel.setBounds(25, 85, 300, 45);
         passwordPanel.setOpaque(false);
 
+        // Password field
         passwordField = createStyledPasswordField("Password", Color.CYAN.brighter());
         passwordField.setBounds(0, 0, 255, 45);
 
+        // Repeat password field
         repeatPasswordField = createStyledPasswordField("Repeat Password", Color.CYAN.brighter());
         repeatPasswordField.setBounds(0, 55, 300, 45);
         repeatPasswordField.setVisible(false);
@@ -114,62 +124,103 @@ public class LoginView extends JFrame {
         passwordPanel.add(repeatPasswordField);
         passwordPanel.add(togglePasswordBtn);
 
+        // Security question combobox
         securityQuestion.setBounds(25,195,300,45);
         styleNeonComboBox(securityQuestion, Color.CYAN.brighter());
         securityQuestion.setVisible(false);
 
+
+        // Security answer field
         securityAnswer = new PlaceholderTextField("Answer");
         styleNeonTextField(securityAnswer, Color.CYAN.brighter());
         securityAnswer.setVisible(false);
         securityAnswer.setBounds(25,250,300,45);
 
+        // Back button
+        backBtn = NeonButtonFactory.createNeonButton("BACK", Color.RED.brighter());
+        backBtn.setVisible(false);
+        backBtn.addActionListener(e -> {
+           loginFormat();
+        });
 
         // Login button
-        JButton loginBtn = NeonButtonFactory.createNeonButton("LOGIN", new Color(0, 200, 100));
+        loginBtn = NeonButtonFactory.createNeonButton("LOGIN", new Color(0, 200, 100));
         loginBtn.setBounds(25, 155, 300, 45);
         loginBtn.addActionListener(e -> {
-            LoginController.login(new User(usernameField.getText(), passwordField.getPassword()));
+            if (!forgotPassword) {
+                LoginController.login(new User(usernameField.getText(), passwordField.getPassword()));
+            } else if (LoginController.retrievePassword(usernameField.getText(), answer.getText().toUpperCase())) {
+                loginFormat();
+            }
         });
 
         // Create Account button
-        JButton createAccountBtn = NeonButtonFactory.createNeonButton("CREATE ACCOUNT", new Color(20, 155, 200));
+        createAccountBtn = NeonButtonFactory.createNeonButton("CREATE ACCOUNT", new Color(20, 155, 200));
         createAccountBtn.setBounds(25, 205, 300, 45);
         createAccountBtn.addActionListener(e -> {
             if (isFirstTime) {
                 repeatPasswordField.setVisible(true);
-                setSize(500, 650);
-                footerLabel.setBounds(0,570,500,10);
+                setSize(500, 700);
+                footerLabel.setBounds(0,620,500,10);
                 loginBtn.setVisible(false);
-                formPanel.setBounds(75, 180, 350, 350);
+                formPanel.setBounds(75, 180, 350, 405);
                 passwordPanel.setBounds(25, 85, 300, 100);
                 createAccountBtn.setBounds(25, 305, 300, 45);
-                forgotLabel.setVisible(false);
+                forgotBtn.setVisible(false);
                 securityQuestion.setVisible(true);
                 securityAnswer.setVisible(true);
                 isFirstTime = false;
-            } else {
-                LoginController.addUser(new User(usernameField.getText(), passwordField.getPassword(), securityAnswer.getText()),
-                        new String(repeatPasswordField.getPassword()));
+                backBtn.setBounds(25,355,300,45);
+                backBtn.setVisible(true);
+            } else if (LoginController.addUser(new User(usernameField.getText(), passwordField.getPassword(), securityAnswer.getText().toUpperCase(), (String) securityQuestion.getSelectedItem()),
+                    new String(repeatPasswordField.getPassword()))){
+                loginFormat();
             }
         });
 
+        question = new JTextField();
+        question.setBounds(25,85,300,45);
+        styleNeonTextField(question, Color.CYAN.brighter());
+        question.setEnabled(false);
+        question.setVisible(false);
+
+        answer = new PlaceholderTextField("Answer");
+        answer.setBounds(25,140,300,45);
+        styleNeonTextField(answer, Color.CYAN.brighter());
+        answer.setVisible(false);
+
+        formPanel.add(question);
+        formPanel.add(answer);
         formPanel.add(securityQuestion);
         formPanel.add(securityAnswer);
         formPanel.add(usernameField);
         formPanel.add(passwordPanel);
         formPanel.add(loginBtn);
         formPanel.add(createAccountBtn);
+        formPanel.add(backBtn);
 
         // Forgot Password link
-        forgotLabel = new JLabel("Forgot Password?");
-        forgotLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        forgotLabel.setForeground(new Color(120, 120, 120));
-        forgotLabel.setBounds(0, 490, 500, 20);
-        forgotLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        forgotLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        forgotBtn = new JButton("Forgot Password?");
+        styleLinkButton(forgotBtn);
+        forgotBtn.setBounds(0, 480, 500, 20);
+        forgotBtn.addActionListener(e -> {
+            User user = LoginController.retrieveUser(usernameField.getText());
+            forgotPassword = true;
+            passwordPanel.setVisible(false);
+            createAccountBtn.setVisible(false);
+            forgotBtn.setVisible(false);
+            question.setText(user.getSecurityQuestion());
+            answer.setVisible(true);
+            question.setVisible(true);
+            backBtn.setVisible(true);
+
+            backBtn.setBounds(25,245,300,45);
+            loginBtn.setBounds(25, 195, 300, 45);
+            loginBtn.setText("Retrieve Password");
+        });
 
         // Footer
-        footerLabel = new JLabel("Group Tiger · 2025");
+        footerLabel = new JLabel("Group Tiger · Version 1.1 · 2025");
         footerLabel.setFont(new Font("Arial", Font.PLAIN, 11));
         footerLabel.setForeground(new Color(80, 80, 80));
         footerLabel.setBounds(0, 520, 500, 20);
@@ -179,7 +230,7 @@ public class LoginView extends JFrame {
         mainPanel.add(titleLabel);
         mainPanel.add(subtitleLabel);
         mainPanel.add(formPanel);
-        mainPanel.add(forgotLabel);
+        mainPanel.add(forgotBtn);
         mainPanel.add(footerLabel);
 
         add(mainPanel);
@@ -243,7 +294,7 @@ public class LoginView extends JFrame {
     private void styleNeonComboBox(JComboBox<?> comboBox, Color borderColor) {
         comboBox.setBackground(new Color(25, 25, 30));
         comboBox.setForeground(Color.WHITE);
-            comboBox.setFocusable(false);
+        comboBox.setFocusable(false);
         comboBox.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
         comboBox.setBorder(BorderFactory.createCompoundBorder(
@@ -273,5 +324,49 @@ public class LoginView extends JFrame {
             passwordField.setEchoChar('●');
             repeatPasswordField.setEchoChar('●');
         }
+    }
+
+    public static void styleLinkButton(JButton button) {
+        button.setFont(new Font("Arial", Font.PLAIN, 12));
+        button.setForeground(new Color(150, 150, 150));  // default gray
+        button.setBackground(new Color(0, 0, 0, 0));     // transparent
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                button.setForeground(new Color(80, 160, 255)); // light blue hover
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                button.setForeground(new Color(150, 150, 150)); // back to gray
+            }
+        });
+    }
+
+    public void loginFormat() {
+        loginBtn.setText("LOGIN");
+        loginBtn.setVisible(true);
+        createAccountBtn.setBounds(25, 205, 300, 45);
+        repeatPasswordField.setVisible(false);
+        setSize(500,600);
+        forgotBtn.setVisible(true);
+        securityAnswer.setVisible(false);
+        securityQuestion.setVisible(false);
+        footerLabel.setBounds(0, 520, 500, 20);
+        passwordPanel.setBounds(25, 85, 300, 45);
+        backBtn.setVisible(false);
+        isFirstTime = true;
+        formPanel.setBounds(75, 180, 350, 300);
+        forgotPassword = false;
+        answer.setVisible(false);
+        question.setVisible(false);
+        passwordPanel.setVisible(true);
+        loginBtn.setBounds(25,155,300,45);
+        createAccountBtn.setVisible(true);
     }
 }
