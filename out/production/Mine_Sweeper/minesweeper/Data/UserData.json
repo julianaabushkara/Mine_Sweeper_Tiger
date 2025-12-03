@@ -1,7 +1,5 @@
 [
-  {"username":"Avi","password":"Vainbalt"},
-  {"username":"Admin","password":"Admin"},
-  {"username":"Aviv","password":"Vainblat"},
-  {"username":"admin","password":"admin"},
-  {"username":"Username","password":"Password"}
+  {"username":"Avi","password":"Vainblat","securityAnswer":""},
+  {"username":"a","password":"a","securityAnswer":""},
+  {"username":"yotam","password":"iceage3","securityAnswer":"march"}
 ]
