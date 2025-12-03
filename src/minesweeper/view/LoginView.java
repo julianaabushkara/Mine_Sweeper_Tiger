@@ -204,19 +204,21 @@ public class LoginView extends JFrame {
         styleLinkButton(forgotBtn);
         forgotBtn.setBounds(0, 480, 500, 20);
         forgotBtn.addActionListener(e -> {
-            User user = LoginController.retrieveUser(usernameField.getText());
-            forgotPassword = true;
-            passwordPanel.setVisible(false);
-            createAccountBtn.setVisible(false);
-            forgotBtn.setVisible(false);
-            question.setText(user.getSecurityQuestion());
-            answer.setVisible(true);
-            question.setVisible(true);
-            backBtn.setVisible(true);
+            if (LoginController.doesUserExist(usernameField.getText())) {
+                User user = LoginController.retrieveUser(usernameField.getText());
+                forgotPassword = true;
+                passwordPanel.setVisible(false);
+                createAccountBtn.setVisible(false);
+                forgotBtn.setVisible(false);
+                question.setText(user.getSecurityQuestion());
+                answer.setVisible(true);
+                question.setVisible(true);
+                backBtn.setVisible(true);
 
-            backBtn.setBounds(25,245,300,45);
-            loginBtn.setBounds(25, 195, 300, 45);
-            loginBtn.setText("Retrieve Password");
+                backBtn.setBounds(25,245,300,45);
+                loginBtn.setBounds(25, 195, 300, 45);
+                loginBtn.setText("Retrieve Password");
+            }
         });
 
         // Footer

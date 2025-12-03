@@ -63,6 +63,15 @@ public class LoginController {
     }
     static File UserData = new File("src/minesweeper/data/userData.json");
 
+    public static boolean doesUserExist(String username) {
+        ImageIcon eyeIcon = new ImageIcon("src/minesweeper/view/assets/eye.png");
+        if (retrieveUser(username) == null){
+            NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "User: " + username + " Not Found", eyeIcon, true, false);
+            return false;
+        }
+        return true;
+    }
+
     public static boolean addUser(User user, String passwordRepeat) {
         // Check if username already exists
         List<User> users = loadUsers();
