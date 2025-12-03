@@ -5,7 +5,6 @@
 *.log
 
 # ===== IntelliJ IDEA =====
-.idea/
 
 # ===== OS-specific =====
 .DS_Store

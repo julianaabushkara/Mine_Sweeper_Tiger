@@ -66,8 +66,19 @@ public class StartMenuView extends JPanel {
         subtitleLabel.setForeground(Color.YELLOW.brighter());
 
         gbc.gridy = 1;
-        gbc.insets = new Insets(0, 20, 40, 20);
+        gbc.insets = new Insets(0, 20, 0, 20);
         add(subtitleLabel, gbc);
+
+        // =========================================
+        // LOGO - TIGER ICON
+        // =========================================
+        ImageIcon tigerIcon = new ImageIcon("resources/assets/tiger.png");
+        JLabel logoLabel = new JLabel(tigerIcon);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 20, 0, 20);
+        add(logoLabel, gbc);
 
         // =========================================
         // NEW GAME BUTTON (Green)
@@ -78,7 +89,7 @@ public class StartMenuView extends JPanel {
         );
         newGameButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.insets = new Insets(10, 20, 10, 20);
         add(newGameButton, gbc);
 
@@ -91,7 +102,7 @@ public class StartMenuView extends JPanel {
         );
         questionWizardButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         add(questionWizardButton, gbc);
 
         // =========================================
@@ -103,7 +114,7 @@ public class StartMenuView extends JPanel {
         );
         historyButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         add(historyButton, gbc);
 
         // =========================================
@@ -115,7 +126,7 @@ public class StartMenuView extends JPanel {
         );
         exitButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         add(exitButton, gbc);
 
         // =========================================
@@ -125,7 +136,7 @@ public class StartMenuView extends JPanel {
         versionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         versionLabel.setForeground(new Color(100, 100, 110));
 
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         gbc.insets = new Insets(40, 20, 10, 20);
         add(versionLabel, gbc);
     }

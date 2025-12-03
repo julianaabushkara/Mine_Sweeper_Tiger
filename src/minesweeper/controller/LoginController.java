@@ -11,6 +11,49 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @version 1.1
+ *  Login controller - Minesweeper Tiger Edition
+ *  Provides the main start menu interface for the application. This view
+ *  arranges and displays the title, subtitle, tiger logo, and all primary
+ *  navigation buttons using a GridBagLayout. It handles only visual structure;
+ *  button actions are delegated to the controller.
+ *      ⢀⣴⣿⣷⣶⣄⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣠⣤⣤⣤⣴⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣤⣤⣤⣤⣀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣶⡄⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣼⡏⣶⣄⠉⠛⠿⢿⣿⣿⣷⣶⣿⣿⣿⠿⠟⠋⢉⣩⣷⣿⣿⣿⡿⠛⢿⣿⣿⣿⣾⣍⡉⠙⠻⠿⣿⣿⣿⣶⣶⣿⣿⡿⠿⠛⠉⢀⣀⢹⣷⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢀⣿⠃⣿⣿⣿⣄⡀⠀⠀⠉⠻⣿⡿⠋⢀⣠⣴⣾⣿⠿⠿⠛⠛⠁⠀⠀⠀⠈⠙⠛⠿⠿⣿⣿⣦⣄⡀⠙⢿⣿⠟⠉⠀⠀⠀⣠⣴⣿⣿⠈⣿⡄⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣼⡟⠀⣿⣿⣿⣿⣷⣄⠀⠀⢠⠟⠀⠀⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣿⣿⠀⠀⠻⡆⠀⠀⢠⣾⣿⣿⣿⣿⠀⢹⣧⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣿⡇⠀⢿⣿⣿⣿⣿⣿⡆⠀⠈⠀⠀⣰⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣧⠀⠀⠈⠀⢈⣿⣿⣿⣿⣿⣿⠀⢸⣿⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣿⡇⠀⢸⣿⣿⣿⣿⣿⡿⠀⢀⣴⣿⡿⠃⠀⢀⣀⣀⣠⣤⣶⣶⣾⡿⠛⣿⣷⣶⣶⣤⣄⣀⣀⡀⠀⠘⠿⣿⣦⡀⠀⣿⣿⣿⣿⣿⣿⡏⡀⢸⣿⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣿⣿⣄⠀⢻⣿⣿⡿⠛⠁⣴⣿⡟⠁⢀⣴⣾⡿⠿⠿⠿⠿⠛⠛⠉⠀⠀⠀⠉⠛⠛⠿⠿⠿⠿⢿⣷⣤⡀⠈⢻⣿⣦⠝⢿⣿⣿⣿⣿⡟⢠⣾⣿⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠘⣿⣿⣦⡄⢻⡟⠀⠀⢀⣼⠿⠃⣠⡿⠋⠁⠀⠀⠀⠀⠀⠀⣠⡾⠀⠀⠈⢳⣄⠀⠀⠀⠀⠀⠀⠈⠙⢿⣄⠘⠿⣷⡄⠀⠙⣿⡿⢋⣴⣿⣿⠋⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢘⣿⣿⠟⣫⠀⢀⣴⠟⠁⠀⠜⠁⠀⠀⠀⣀⣤⣴⣶⣶⣾⡿⠀⠀⠀⠀⠀⣿⣷⣶⣶⣶⣤⣀⠀⠀⠀⠈⠳⠀⠈⠻⣦⡀⠈⢙⠻⣿⣿⡃⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⡟⠁⠠⠞⠁⠀⠀⠀⠀⢀⠤⠴⠿⠿⠛⠋⠀⠀⠉⠛⠀⠀⠀⠀⠀⠛⠉⠀⠈⠙⠛⠿⠿⠦⠤⠄⠀⠀⠀⠀⠀⠳⠄⠈⢻⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⢀⡤⠂⠀⠀⠀⠀⠀⢀⣠⣤⡴⠂⠀⠘⢦⣤⣄⡀⠀⠀⠀⠀⠀⠀⢠⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⠃⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⣠⣿⣿⡿⠃⠀⠀⠀⠀⠀⠀⠀⣠⣾⠟⠀⠀⣠⣤⣶⣶⡾⠿⠛⠁⠀⠀⠀⠀⠀⠈⠛⠿⢷⣶⣶⣦⣄⠀⠀⠻⣷⣄⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣆⠀⠀⠀⠀⠀
+⠀⠀⠀⢀⣾⣿⣿⠟⠁⠀⠀⢀⣠⡞⠁⣰⣾⣿⠟⠀⠀⢰⡿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⡄⠀⠀⠹⣿⣷⣦⠀⢳⣤⡀⠀⠀⠀⠙⣿⣿⣷⣄⠀⠀⠀
+⠀⠀⣰⣿⣿⡿⠁⠀⠀⠀⣴⣿⡟⠀⣼⣿⠟⠁⠀⠀⠀⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢳⡀⠀⠀⠈⠻⣿⣧⠀⢻⣿⣦⡀⠀⠀⠈⢻⣿⣿⣆⠀⠀
+⠀⣰⣿⣿⠏⠀⠀⠀⢀⣾⣿⣿⡇⢰⣿⡇⢤⣤⣤⣤⣤⣄⣀⠀⠀⡤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣦⠀⠀⣀⣤⣤⣤⣤⣤⡤⠸⣿⡆⠘⣿⣿⡳⡀⠀⠀⠀⠹⣿⣿⣧⠀
+⢠⣿⣿⡏⠀⠀⠀⠀⢘⣾⣿⣿⡇⠘⣿⠀⠀⠹⠿⣿⠟⢻⣿⢿⣾⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣷⡿⣿⡟⠿⣿⠿⠏⠀⠀⣿⠁⢀⣿⣿⣷⡀⠀⠀⠀⠀⢹⣿⣿⡆
+⣸⣿⣿⠁⠀⠀⠀⠀⢸⣿⣿⣿⣷⡀⠙⠀⠀⠀⠀⣿⣧⡈⠃⢀⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⡀⠘⣁⣼⣿⠀⠀⠀⠀⠋⠀⣼⣿⣿⣿⣧⠀⠀⠀⠀⠀⢿⣿⣷
+⣿⣿⡇⢠⡄⠀⠀⠀⢸⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠈⠛⠛⠛⠛⠿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⠿⠛⠛⠛⠋⠁⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⡟⠀⠀⠀⠀⡄⢸⣿⣿
+⢿⣿⣧⣿⡀⠀⠀⠀⠘⣿⢿⣿⣿⣧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⡿⠃⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣿⣿⣿⣿⠇⠀⠀⠀⠀⣿⣼⣿⡟
+⢸⣿⣿⣿⡇⠀⠀⠀⠀⠙⢸⣿⣿⣿⠛⠷⠤⠀⠀⠀⠀⠀⠀⠀⣼⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣆⠀⠀⠀⠀⠀⠀⠀⠤⠾⠛⣿⣿⣿⡏⠋⠀⠀⠀⠀⢀⣿⣿⣿⡇
+⠘⣿⡿⣿⣇⢰⡄⠀⠀⠀⠀⢿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⣰⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣆⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⠁⠀⠀⠀⢀⡄⢸⣿⢿⣿⠃
+⠀⠻⠁⣿⣿⣾⣷⠀⠀⠀⠀⠈⢿⣿⣿⣷⡀⠀⠀⠀⠀⠀⢸⣿⠋⣰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣆⠹⣿⡇⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⠁⠀⠀⠀⠀⣼⣧⣿⣿⡀⠛⠀
+⠀⠀⠀⣿⣿⣿⣿⡇⠀⣀⠀⠀⠈⢻⣿⣿⣧⢀⡄⠀⠀⠀⣿⡇⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢹⣷⠀⠀⠀⢠⡀⣸⣿⣿⡟⠁⠀⠀⠀⠀⢰⣿⣿⣿⣿⠃⠀⠀
+⠀⠀⠀⠹⣿⣿⣿⣿⡄⣿⣧⡀⠀⠀⠻⢿⣿⣸⣷⡀⠀⠀⢿⠀⢠⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⡇⠀⣿⠀⠀⠀⣼⣇⣿⣿⠟⠀⠀⢀⣴⣿⢠⣿⣿⣿⣿⡟⠀⠀⠀
+⠀⠀⠀⠀⠙⣿⠻⣿⣷⣿⣿⣿⣦⡀⠀⠘⣿⣿⣿⣷⣤⣀⠀⢀⣾⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⡄⢀⣀⣤⣾⣿⣿⣿⠇⠀⠀⣠⣿⣿⣿⣾⣿⠟⣿⠏⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠈⠂⠙⢿⣿⣿⣿⣿⣿⣦⡀⠀⠉⠉⠹⣿⣿⡇⠈⣿⡁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⠇⢸⣿⣿⡏⠉⠉⠀⢀⣴⣾⣿⣿⣿⣿⣿⠋⠀⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⠿⣿⡘⣿⣿⣿⣷⣤⣤⣼⣿⠿⣿⡀⢻⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⡟⠀⣾⠿⣿⣧⣤⣤⣾⣿⣿⣿⠃⣿⠿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⠿⠿⢿⣿⣿⣿⡆⠈⠓⠀⠹⢷⣤⣄⣀⡀⠀⠀⠀⠀⣀⣤⣤⣾⠟⠀⠘⠁⢠⣿⣿⣿⡿⠿⠿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠒⠒⢻⣿⣿⠛⠿⣶⣤⣀⠙⠿⢿⣿⣿⣿⣿⣿⣿⠿⠋⢁⣤⣶⠾⠟⣿⣿⡿⠒⠒⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠤⠔⠒⢿⣿⡟⠻⠶⠤⠤⠀⠀⠀⠀⠙⣿⠋⠁⠀⠀⠀⠠⠤⠶⠿⢛⣿⡿⠓⠲⠤⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠒⠚⢿⣿⣟⠳⠶⠄⠀⠀⠀⠀⢀⣿⡀⠀⠀⠀⠀⠰⠶⠾⣛⣿⡿⠛⠒⠦⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣶⣶⣶⣶⡶⠾⢿⣿⡿⠷⢶⣶⣶⣶⣶⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠿⣿⣿⣦⣀⡀⠀⠀⠀⠀⠀⢀⣀⣤⣾⣿⡿⠿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠿⢿⣷⣶⣶⡿⠿⠟⠛⠉⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+**/
+
 public class LoginController {
     static LoginView view;
     private static final ImageIcon eyeIcon = new ImageIcon("resources/assets/eye.png");
@@ -20,36 +63,64 @@ public class LoginController {
     }
     static File UserData = new File("src/minesweeper/data/userData.json");
 
-    public static void addUser(User user, String passwordRepeat) {
-        if (user.getPassword().compareTo(passwordRepeat) != 0) {
-            System.out.println("Passwords don't match: " + user.getPassword() + ", " + passwordRepeat);
-            NeonDialog.showNeonDialog(view, "Register Failed", "Passwords don't match",
-                    eyeIcon, true, false);
-            return;
-        } else if (user.getSecurityAnswer().compareTo("Answer") == 0) {
-            System.out.println("No security answer");
-            NeonDialog.showNeonDialog(view, "Register Failed", "Please insert a security answer",
-                    eyeIcon, true, false);
-            return;
+    public static boolean doesUserExist(String username) {
+        ImageIcon eyeIcon = new ImageIcon("src/minesweeper/view/assets/eye.png");
+        if (retrieveUser(username) == null){
+            NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "User: " + username + " Not Found", eyeIcon, true, false);
+            return false;
         }
+        return true;
+    }
 
-        List<User> users = loadUsers();
-
+    public static boolean addUser(User user, String passwordRepeat) {
         // Check if username already exists
+        List<User> users = loadUsers();
         for (User u : users) {
             if (u.getUsername().equals(user.getUsername())) {
                 System.out.println("User with username '" + user.getUsername() + "' already exists!");
                 NeonDialog.showNeonDialog(view, "Register Failed", "User with username '"
                         + user.getUsername() + "' already exists!", eyeIcon, true, false);
-                return;
+                return false;
             }
         }
-
+        // Check if passwords match
+        if (user.getPassword().compareTo(passwordRepeat) != 0) {
+            System.out.println("Passwords don't match: " + user.getPassword() + ", " + passwordRepeat);
+            NeonDialog.showNeonDialog(view, "Register Failed", "Passwords don't match",
+                    eyeIcon, true, false);
+            return false;
+        } else if (user.getSecurityAnswer().compareTo("Answer") == 0) {
+            System.out.println("No security answer");
+            NeonDialog.showNeonDialog(view, "Register Failed", "Please insert a security answer",
+                    eyeIcon, true, false);
+            return false;
+        }
+        // Add user
         users.add(user);
         saveUsers(users);
         System.out.println("User '" + user.getUsername() + "' added successfully!");
-        MinesweeperApp app =  new MinesweeperApp();
-        app.start();
+        return true;
+    }
+
+    public static boolean retrievePassword(String userName, String securityAnswer) {
+        if (retrieveUser(userName) == null) {
+            NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "User: " + userName + " Not Found",
+                    eyeIcon, true, false);
+            return false;
+        }
+        User user = retrieveUser(userName);
+        System.out.println(user.toString());
+        if (user.getSecurityAnswer().compareTo(securityAnswer) == 0) {
+            System.out.println("Retrieving password for user: " + userName + " - password: " + user.getPassword());
+            NeonDialog.showNeonDialog(view, "Password Retrieved Successfully", "Password is: " +  user.getPassword(),
+                    eyeIcon, true, false);
+            return true;
+        } else {
+            System.out.println("Security answer incorrect");
+            NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "Incorrect answer or security question",
+                    eyeIcon, true, false);
+        }
+        return false;
     }
 
     public static User retrieveUser(String username) {
@@ -126,7 +197,9 @@ public class LoginController {
     private static User parseUser(String json) {
         String username = extractValue(json, "username");
         String password = extractValue(json, "password");
-        return new User(username, password.toCharArray());
+        String securityAnswer = extractValue(json, "securityAnswer");
+        String securityQuestion = extractValue(json, "securityQuestion");
+        return new User(username, password.toCharArray(),  securityAnswer, securityQuestion);
     }
 
     private static String extractValue(String json, String key) {
@@ -183,6 +256,8 @@ public class LoginController {
         if (retrieveUser(user.getUsername()) == null){
             NeonDialog.showNeonDialog(view, "Login Failed", "User: " + user.getUsername() + " Not Found", eyeIcon, true, false);
         } else if (user.getPassword().compareTo(retrieveUser(user.getUsername()).getPassword()) == 0){
+            System.out.println("Successfully logged in with user: " + user.getUsername());
+            view.dispose();
             MinesweeperApp app = new MinesweeperApp();
             app.start();
         } else {

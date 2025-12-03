@@ -36,7 +36,7 @@ public class HistoryView extends JPanel {
     private void initComponents() {
 
         setLayout(new BorderLayout());
-        setBackground(new Color(20, 20, 30));
+        setBackground(new Color(15, 15, 20));
 
         // =======================
         // TITLE
