@@ -20,7 +20,6 @@ import java.util.*;
  *
  *  JUnit unit test suite for QuestionBank CSV parsing functionality.
  * Handles all types of invalid CSV inputs as addressed by QuestionBank.loadFromCsv
- * @author Yotam - Team Tiger
  */
 public class CSVParsingJUnitTest {
 
