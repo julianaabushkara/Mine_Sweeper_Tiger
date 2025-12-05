@@ -1,24 +1,23 @@
 package test;
 
 import minesweeper.model.QuestionBank;
-import minesweeper.model.QuestionDifficulty;
 import org.junit.*;
 import static org.junit.Assert.*;
 
 import java.io.*;
 
 /**
- * WB-01: White Box Test for CSV Validation Logic (JUnit Format)
- *
- * This test examines the internal control flow of the CSV validation process
- * in the QuestionBank class, focusing on path coverage and branch testing.
+ * WB-01: White Box Test for CSV Validation Logic for the Question Wizard
+ * Checks that only CSV's in the correct format can be added to the Question Wizard
+ * Uses the logic implemented in the QuestionBank Class
+ * All check the error handling configs in the QuestionBank.loadFromCsv method
  *
  * Control Flow Graph Analysis:
  * - validateHeaders() has 3 decision points
  * - parseDifficulty() has multiple branches
  * - parseCorrectAnswer() has validation branches
  *
- * @author Yotam - Team Tiger
+ * @author of CSV Wizard is Yotam
  */
 public class WhiteBoxCSVValidationTest {
 
@@ -41,6 +40,7 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC01: Valid Headers Path
      * Path: Entry → Count Check (Pass) → Name Loop (All Pass) → Exit
+     * Check that the question wizard accepts valid headers and valid questions without any parse errors
      */
     @Test
     public void testValidHeaders() throws Exception {
@@ -57,6 +57,7 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC02: Invalid Header Count Branch
      * Path: Entry → Count Check (Fail) → Exception
+     * Opposite of TC02, should check if System notifies on invalid header
      */
     @Test
     public void testInvalidHeaderCount() {
@@ -79,6 +80,8 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC03: Invalid Header Name Branch
      * Path: Entry → Count Check (Pass) → Name Loop → Name Check (Fail) → Exception
+     * Header contains an invalid column 'Answer' when it should be 'Correct Answer' and therefore
+     * correctly throws an exception
      */
     @Test
     public void testInvalidHeaderName() {
@@ -101,6 +104,7 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC04: Case-Insensitive Branch
      * Tests the toLowerCase() branch in header comparison
+     * Checks that it's ok if the header of the csv is lowercase
      */
     @Test
     public void testCaseInsensitiveHeaders() throws Exception {
@@ -116,6 +120,7 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC05: Difficulty Validation - Valid Branches
      * Tests parseDifficulty() valid branches (1, 2, 3, 4)
+     * Checks that the valid difficulties Work
      */
     @Test
     public void testValidDifficultyValues() throws Exception {
@@ -143,6 +148,7 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC06: Difficulty Validation - Invalid Branches
      * Tests parseDifficulty() invalid branches (0, 5, negative)
+     * Checks that the only valid difficulties are 1,2,3,4 (easy, medium, hard, expert)
      */
     @Test
     public void testInvalidDifficultyValues() throws Exception {
@@ -167,6 +173,7 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC07: Answer Validation - Valid Branches
      * Tests parseCorrectAnswer() valid branches (A-D, case insensitive)
+     * Checks that answers A, B, C, D and thier lowercase versions are accepted as valid in the Question wizard
      */
     @Test
     public void testValidCorrectAnswers() throws Exception {
@@ -187,6 +194,7 @@ public class WhiteBoxCSVValidationTest {
     /**
      * WB-01-TC08: Answer Validation - Invalid Branches
      * Tests parseCorrectAnswer() invalid branches (E-Z, numbers, empty)
+     * Checks that answers that are not A, B, C, D (or their lowercase versions) correctly throw an exception
      */
     @Test
     public void testInvalidCorrectAnswers() throws Exception {

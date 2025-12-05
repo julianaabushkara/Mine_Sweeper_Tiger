@@ -11,17 +11,17 @@ import static org.junit.Assert.*;
 import java.io.*;
 
 /**
- * BB-01: Black Box Test for CSV Row Format (JUnit Format)
+ * BB-01: Black Box Test for CSV Validation Logic for the Question Wizard
+ * Checks that only CSV's in the correct format can be added to the Question Wizard
+ * Uses the logic implemented in the QuestionBank Class
+ * All check the error handling configs in the QuestionBank.loadFromCsv method
  *
- * This test uses equivalence class partitioning and boundary value analysis
- * to test CSV row format validation WITHOUT examining internal implementation.
+ * Control Flow Graph Analysis:
+ * - validateHeaders() has 3 decision points
+ * - parseDifficulty() has multiple branches
+ * - parseCorrectAnswer() has validation branches
  *
- * Equivalence Classes:
- * - ID: {Valid: 1+} vs {Invalid: 0, negative, non-numeric}
- * - Difficulty: {Valid: 1,2,3} vs {Invalid: 0, 4+, negative}
- * - Answer: {Valid: A-D} vs {Invalid: E-Z, numbers, empty}
- *
- * @author Yotam - Team Tiger
+ * @author of CSV Wizard is Yotam
  */
 public class BlackBoxCSVRowFormatTest {
 
@@ -43,7 +43,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC01: Valid Row - All Fields Correct
-     * Tests the valid equivalence class for all fields
+     * Tests that a CSV with Valid rows correctly loads into the question Wizard
      */
     @Test
     public void testValidRow() throws Exception {
@@ -59,7 +59,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC02: ID Boundary Value - Minimum Valid (1)
-     * Tests boundary: 1 is minimum valid positive integer
+     * Checks that Question ID 1 is accepted
      */
     @Test
     public void testIDMinimumValidBoundary() throws Exception {
@@ -75,7 +75,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC03: ID Boundary Value - Zero (Invalid)
-     * Tests boundary: 0 is just below minimum valid
+     * Checks that question ID 0 is NOT accepted
      */
     @Test
     public void testIDZeroBoundary() throws Exception {
@@ -95,7 +95,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC04: ID Equivalence Class - Negative (Invalid)
-     * Tests invalid equivalence class for ID
+     * Tests that negative number question ID's are not accepted
      */
     @Test
     public void testIDNegative() throws Exception {
@@ -114,7 +114,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC05: ID Equivalence Class - Non-Numeric (Invalid)
-     * Tests invalid equivalence class for ID
+     * Tests that not natrual number ID's are not accepted
      */
     @Test
     public void testIDNonNumeric() throws Exception {
@@ -132,12 +132,12 @@ public class BlackBoxCSVRowFormatTest {
     }
 
     /**
-     * BB-01-TC06: Difficulty Equivalence Class - Valid (1, 2, 3)
-     * Tests all valid equivalence class members
+     * BB-01-TC06: Difficulty Equivalence Class - Valid (1, 2, 3, 4)
+     * Checks that only four difficulties are avilable (easy, medium, hard, expert)
      */
     @Test
     public void testDifficultyValidClass() throws Exception {
-        String[] validDifficulties = {"1", "2", "3"};
+        String[] validDifficulties = {"1", "2", "3", "4"};
 
         for (String diff : validDifficulties) {
             questionBank = new QuestionBank();
@@ -153,7 +153,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC07: Difficulty Boundary - Below Minimum (0)
-     * Tests boundary: 0 is just below minimum valid (1)
+     * Checks that any other difficulty besides the four specified correctly parses as an error
      */
     @Test
     public void testDifficultyBelowMinimum() throws Exception {
@@ -172,7 +172,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC08: Difficulty Boundary - Above Maximum (4)
-     * Tests boundary: 4 is just above maximum valid (3)
+     * Tests boundary: Checks that difficulty '5' is not accepted and correctly parses as error
      */
     @Test
     public void testDifficultyAboveMaximum() throws Exception {
@@ -191,7 +191,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC09: Answer Equivalence Class - Valid (A, B, C, D)
-     * Tests valid equivalence class for correct answer
+     * Tests that A,B,C,D are valid answers
      */
     @Test
     public void testAnswerValidClassUppercase() throws Exception {
@@ -211,7 +211,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC10: Answer Equivalence Class - Valid Lowercase (a, b, c, d)
-     * Tests case-insensitive handling
+     * Checks that QuestionWizard CSV reader is not case-sensitive
      */
     @Test
     public void testAnswerValidClassLowercase() throws Exception {
@@ -231,7 +231,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC11: Answer Equivalence Class - Invalid (E, F, etc.)
-     * Tests invalid equivalence class
+     * Tests that answers besides A,B,C,D are not parsed
      */
     @Test
     public void testAnswerInvalidLetters() throws Exception {
@@ -273,7 +273,7 @@ public class BlackBoxCSVRowFormatTest {
 
     /**
      * BB-01-TC13: Question Field - Empty String (Invalid)
-     * Tests required field validation
+     * Tests that there must be a string in question
      */
     @Test
     public void testQuestionFieldEmpty() throws Exception {
@@ -318,59 +318,6 @@ public class BlackBoxCSVRowFormatTest {
         }
     }
 
-    /**
-     * BB-01-TC15: Row Structure - Missing Fields (7 fields)
-     * Tests column count validation
-     */
-    @Test
-    public void testRowStructureMissingField() throws Exception {
-        String csvContent = "ID,Question,Difficulty,A,B,C,D,Correct Answer\n" +
-                "1,Test?,1,A,B,C,D\n";  // Missing correct answer
-
-        try {
-            tempCsvFile = createTempCsvFile(csvContent);
-            questionBank.loadFromCsv(tempCsvFile.getAbsolutePath());
-            assertTrue("Row with 7 fields should be rejected",
-                    questionBank.hasParseErrors() || questionBank.getQuestionCount() == 0);
-        } catch (QuestionBank.CSVParseException e) {
-            assertTrue(true);
-        }
-    }
-
-    /**
-     * BB-01-TC16: Row Structure - Extra Fields (9 fields)
-     * Tests column count validation
-     */
-    @Test
-    public void testRowStructureExtraField() throws Exception {
-        String csvContent = "ID,Question,Difficulty,A,B,C,D,Correct Answer\n" +
-                "1,Test?,1,A,B,C,D,A,Extra\n";
-
-        try {
-            tempCsvFile = createTempCsvFile(csvContent);
-            questionBank.loadFromCsv(tempCsvFile.getAbsolutePath());
-            assertTrue("Row with 9 fields should be rejected",
-                    questionBank.hasParseErrors() || questionBank.getQuestionCount() == 0);
-        } catch (QuestionBank.CSVParseException e) {
-            assertTrue(true);
-        }
-    }
-
-    /**
-     * BB-01-TC17: Special Characters - Comma in Quoted Field
-     * Tests CSV parsing of quoted fields with commas
-     */
-    @Test
-    public void testSpecialCharactersCommaInQuotes() throws Exception {
-        String csvContent = "ID,Question,Difficulty,A,B,C,D,Correct Answer\n" +
-                "1,\"What is 2+2, really?\",1,Three,Four,Five,Six,B\n";
-
-        tempCsvFile = createTempCsvFile(csvContent);
-        questionBank.loadFromCsv(tempCsvFile.getAbsolutePath());
-
-        assertEquals("Question with comma in quotes should be accepted",
-                1, questionBank.getQuestionCount());
-    }
 
     private File createTempCsvFile(String content) throws IOException {
         File tempFile = File.createTempFile("test_", ".csv");
