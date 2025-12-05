@@ -6,19 +6,20 @@ import minesweeper.model.QuestionDifficulty;
 import org.junit.*;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
+import org.junit.runner.notification.RunListener;
 
 import static org.junit.Assert.*;
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
 
 /**
  * UT-01: Unit Test for CSV Parsing (JUnit Format)
  *
- * Comprehensive JUnit test suite for QuestionBank CSV parsing functionality.
- * Uses JUnit 4 annotations and assertions for automated testing.
- *
+ *  JUnit unit test suite for QuestionBank CSV parsing functionality.
+ * Handles all types of invalid CSV inputs as addressed by QuestionBank.loadFromCsv
  * @author Yotam - Team Tiger
  */
 public class CSVParsingJUnitTest {
@@ -411,13 +412,166 @@ public class CSVParsingJUnitTest {
         return tempFile;
     }
 
-    public static void main(String[] args) {
+    /**
+     * Custom RunListener to track test results for table display
+     */
+    static class TestResultTracker extends RunListener {
+        static class TestResult {
+            String testId;
+            String description;
+            String expectedValue;
+            String actualValue;
+            String result;
+            String developer;
 
+            TestResult(String testId, String description, String expectedValue, String developer) {
+                this.testId = testId;
+                this.description = description;
+                this.expectedValue = expectedValue;
+                this.developer = developer;
+                this.actualValue = "";
+                this.result = "pass";
+            }
+        }
+
+        private List<TestResult> results = new ArrayList<>();
+        private Map<Description, TestResult> testMap = new HashMap<>();
+
+        @Override
+        public void testStarted(Description description) {
+            String methodName = description.getMethodName();
+            TestResult testResult = createTestResult(methodName);
+            testMap.put(description, testResult);
+            results.add(testResult);
+        }
+
+        @Override
+        public void testFinished(Description description) {
+            TestResult testResult = testMap.get(description);
+            if (testResult != null && testResult.result.equals("pass")) {
+                testResult.actualValue = "pass";
+            }
+        }
+
+        @Override
+        public void testFailure(Failure failure) {
+            TestResult testResult = testMap.get(failure.getDescription());
+            if (testResult != null) {
+                testResult.result = "fail";
+                testResult.actualValue = "fail";
+            }
+        }
+
+        private TestResult createTestResult(String methodName) {
+            String testId = extractTestId(methodName);
+            String description = extractDescription(methodName);
+            String expectedValue = extractExpectedValue(methodName);
+
+            return new TestResult(testId, description, expectedValue, "Yotam");
+        }
+
+        private String extractTestId(String methodName) {
+            Map<String, String> testIds = new HashMap<>();
+            testIds.put("testValidCSVParsing", "UT-01-TC01");
+            testIds.put("testFileNotFound", "UT-01-TC02");
+            testIds.put("testEmptyCSVFile", "UT-01-TC03");
+            testIds.put("testInvalidHeaders", "UT-01-TC04");
+            testIds.put("testInvalidIDFormat", "UT-01-TC05");
+            testIds.put("testInvalidDifficulty", "UT-01-TC06");
+            testIds.put("testInvalidCorrectAnswer", "UT-01-TC07");
+            testIds.put("testMissingRequiredFields", "UT-01-TC08");
+            testIds.put("testWrongColumnCount", "UT-01-TC09");
+            testIds.put("testCaseInsensitiveAnswer", "UT-01-TC10");
+            testIds.put("testBOMHandling", "UT-01-TC11");
+            testIds.put("testMultipleQuestionsDataIntegrity", "UT-01-TC12");
+            testIds.put("testSpecialCharactersInFields", "UT-01-TC13");
+            testIds.put("testUnmodifiableQuestionList", "UT-01-TC14");
+            testIds.put("testIsLoadedStateTracking", "UT-01-TC15");
+            testIds.put("testReloadBehavior", "UT-01-TC16");
+            testIds.put("testWhitespaceTrimming", "UT-01-TC17");
+
+            return testIds.getOrDefault(methodName, "N/A");
+        }
+
+        private String extractDescription(String methodName) {
+            Map<String, String> descriptions = new HashMap<>();
+            descriptions.put("testValidCSVParsing", "Valid CSV Parsing");
+            descriptions.put("testFileNotFound", "File Not Found");
+            descriptions.put("testEmptyCSVFile", "Empty CSV File");
+            descriptions.put("testInvalidHeaders", "Invalid Headers");
+            descriptions.put("testInvalidIDFormat", "Invalid ID Format");
+            descriptions.put("testInvalidDifficulty", "Invalid Difficulty Value");
+            descriptions.put("testInvalidCorrectAnswer", "Invalid Correct Answer");
+            descriptions.put("testMissingRequiredFields", "Missing Required Fields");
+            descriptions.put("testWrongColumnCount", "Wrong Column Count");
+            descriptions.put("testCaseInsensitiveAnswer", "Case Insensitive Answer");
+            descriptions.put("testBOMHandling", "BOM Handling");
+            descriptions.put("testMultipleQuestionsDataIntegrity", "Multiple Questions Data Integrity");
+            descriptions.put("testSpecialCharactersInFields", "Special Characters in Fields");
+            descriptions.put("testUnmodifiableQuestionList", "Question List Immutability");
+            descriptions.put("testIsLoadedStateTracking", "IsLoaded State Tracking");
+            descriptions.put("testReloadBehavior", "Reload Behavior");
+            descriptions.put("testWhitespaceTrimming", "Whitespace Trimming");
+
+            return descriptions.getOrDefault(methodName, methodName);
+        }
+
+        private String extractExpectedValue(String methodName) {
+            // All tests expect to pass (the test itself passing means correct behavior)
+            return "pass";
+        }
+
+        public void printTable() {
+            System.out.println("\n" + "=".repeat(110));
+            System.out.println("TEST RESULTS TABLE");
+            System.out.println("=".repeat(110));
+
+            // Print header
+            System.out.printf("| %-15s | %-35s | %-15s | %-15s | %-8s | %-10s |\n",
+                    "Test ID", "Description", "Expected Value", "Actual Value", "Result", "Developer");
+            System.out.println("|" + "-".repeat(17) + "|" + "-".repeat(37) + "|" +
+                    "-".repeat(17) + "|" + "-".repeat(17) + "|" +
+                    "-".repeat(10) + "|" + "-".repeat(12) + "|");
+
+            // Print each test result
+            for (TestResult result : results) {
+                System.out.printf("| %-15s | %-35s | %-15s | %-15s | %-8s | %-10s |\n",
+                        result.testId,
+                        truncate(result.description, 35),
+                        result.expectedValue,
+                        result.actualValue,
+                        result.result,
+                        result.developer);
+            }
+
+            System.out.println("=".repeat(110));
+
+            // Print summary
+            long passed = results.stream().filter(r -> r.result.equals("pass")).count();
+            long failed = results.stream().filter(r -> r.result.equals("fail")).count();
+            System.out.printf("\nSummary: %d tests run, %d passed, %d failed\n",
+                    results.size(), passed, failed);
+        }
+
+        private String truncate(String str, int maxLength) {
+            if (str.length() <= maxLength) return str;
+            return str.substring(0, maxLength - 3) + "...";
+        }
+    }
+
+    public static void main(String[] args) {
         System.out.println("Running CSVParsingJUnitTest...");
 
-        Result result = JUnitCore.runClasses(CSVParsingJUnitTest.class);
+        // Create JUnit runner with custom listener
+        JUnitCore junit = new JUnitCore();
+        TestResultTracker tracker = new TestResultTracker();
+        junit.addListener(tracker);
 
-        System.out.println("\n=== TEST RESULTS ===");
+        // Run tests
+        Result result = junit.run(CSVParsingJUnitTest.class);
+
+        // Print standard results
+        System.out.println("\n=== STANDARD TEST RESULTS ===");
         System.out.println("Run count: " + result.getRunCount());
         System.out.println("Failures : " + result.getFailureCount());
         System.out.println("Ignored  : " + result.getIgnoreCount());
@@ -431,5 +585,8 @@ public class CSVParsingJUnitTest {
         } else {
             System.out.println("\nALL TESTS PASSED ✔️");
         }
+
+        // Print custom table
+        tracker.printTable();
     }
 }
