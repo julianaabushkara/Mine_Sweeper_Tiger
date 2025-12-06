@@ -22,6 +22,8 @@ public class MinesweeperGame extends JFrame {
     private JLabel livesLabel;
     private JLabel scoreLabel;
     private JLabel minesLabel;
+    private JLabel timerLabel;
+    private javax.swing.Timer gameTimer;
     private boolean gameEnded = false;
 
     private int elapsedSeconds;
@@ -52,6 +54,7 @@ public class MinesweeperGame extends JFrame {
 
         pack();
         setLocationRelativeTo(null);
+        startTimer();
 
     }
 
@@ -83,10 +86,25 @@ public class MinesweeperGame extends JFrame {
         int totalMines = session.getDifficulty().mines * 2;
         minesLabel = createStyledLabel("MINES:\n" + totalMines, 16, new Color(255, 80, 80));
 
-
-
+     // Timer with red rectangular background
+        timerLabel = new JLabel("00:00");
+        timerLabel.setFont(new Font("Monospaced", Font.BOLD, 20));
+        timerLabel.setForeground(Color.WHITE);
+        timerLabel.setOpaque(true);
+        timerLabel.setBackground(new Color(100, 150, 255));
+        timerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        timerLabel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(50, 50, 50), 2),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        
+        ));
+        
+        
+        
         rightPanel.add(minesLabel);
-
+        rightPanel.add(timerLabel);
+        
+        
 
         topPanel.add(turnLabel, BorderLayout.WEST);
         topPanel.add(centerPanel, BorderLayout.CENTER);
@@ -129,7 +147,9 @@ public class MinesweeperGame extends JFrame {
     private void checkGameEnd() {
         if (controller.isGameOver()) {
             gameEnded = true;  // Set flag to prevent further interactions
+             gameTimer.stop();
             endGame(controller.isVictory());
+            
         }
     }
 
@@ -207,7 +227,17 @@ public class MinesweeperGame extends JFrame {
         return label;
     }
 
-
+    
+    private void startTimer() {
+        gameTimer = new javax.swing.Timer(1000, e -> {
+            elapsedSeconds++;
+            int minutes = elapsedSeconds / 60;
+            int seconds = elapsedSeconds % 60;
+            timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
+        });
+        gameTimer.start();
+  
+    }
 
     private void showMenu() {
         int choice = JOptionPane.showConfirmDialog(this,
