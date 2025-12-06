@@ -1,7 +1,8 @@
 [
-  {"username":"Avi","password":"Vainbalt"},
-  {"username":"Admin","password":"Admin"},
-  {"username":"Aviv","password":"Vainblat"},
-  {"username":"admin","password":"admin"},
-  {"username":"Username","password":"Password"}
+  {"username":"Avi","password":"Vainblat","securityAnswer":"JUNE","securityQuestion":"Hello Avi <3"},
+  {"username":"yotam","password":"iceage3","securityAnswer":"MARCH","securityQuestion":"Hello Yotam =)"},
+  {"username":"Username","password":"Password","securityAnswer":"ANSWER","securityQuestion":"Birth Month"},
+  {"username":"b","password":"b","securityAnswer":"B","securityQuestion":"Birth Month"},
+  {"username":"d","password":"d","securityAnswer":"HAIFA","securityQuestion":"Birth City"},
+  {"username":"f","password":"f","securityAnswer":"F","securityQuestion":"Birth Month"}
 ]
