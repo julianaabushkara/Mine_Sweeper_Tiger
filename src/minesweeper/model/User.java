@@ -6,16 +6,18 @@ public class User {
     private String username;
     private String password;
     private String securityAnswer;
+    private String securityQuestion;
 
     public User(String username, char[] password) {
         this.username = username;
         this.password = new String(password);
     }
 
-    public User(String username, char[] password,  String securityAnswer) {
+    public User(String username, char[] password,  String securityAnswer, String securityQuestion) {
         this.username = username;
         this.password = new String(password);
         this.securityAnswer = securityAnswer;
+        this.securityQuestion = securityQuestion;
     }
 
     public String getUsername() {
@@ -47,8 +49,8 @@ public class User {
     }
 
     public String toJson() {
-        return String.format("{\"username\":\"%s\",\"password\":\"%s\",\"securityAnswer\":\"%s\"}",
-                escapeJson(username), escapeJson(password), escapeJson(securityAnswer));
+        return String.format("{\"username\":\"%s\",\"password\":\"%s\",\"securityAnswer\":\"%s\",\"securityQuestion\":\"%s\"}",
+                escapeJson(username), escapeJson(password), escapeJson(securityAnswer), escapeJson(securityQuestion));
     }
 
     private String escapeJson(String value) {
@@ -63,11 +65,20 @@ public class User {
 
     @Override
     public String toString() {
-        return ("User: " + username + ", Password: " + password +  ", Security Answer: " + securityAnswer);
+        return ("User: " + username + ", Password: " + password +  ", Security Answer: " + securityAnswer +
+                ", Security Question: " + securityQuestion);
     }
 
     public boolean equals(User user) {
         return Objects.equals(this.username, user.username) && Objects.equals(this.password, user.password)
-                && Objects.equals(this.securityAnswer, user.securityAnswer);
+                && Objects.equals(this.securityAnswer, user.securityAnswer) && Objects.equals(this.securityQuestion, user.securityQuestion);
+    }
+
+    public String getSecurityQuestion() {
+        return securityQuestion;
+    }
+
+    public void setSecurityQuestion(String securityQuestion) {
+        this.securityQuestion = securityQuestion;
     }
 }
