@@ -83,6 +83,21 @@ public class MinesweeperApp {
      * Constructor - initializes the application
      */
     public MinesweeperApp() {
+        try {
+            questionBank = new QuestionBank("resources/Questions/Questions.csv");
+            questionBank.loadFromCsv();
+            System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from CSV.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Failed to load Questions.csv\n" + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            questionBank = new QuestionBank(); // prevent null issues
+        }
+
         initializeResources();
         initializeMainFrame();
         initializeNavigation();

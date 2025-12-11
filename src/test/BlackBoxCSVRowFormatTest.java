@@ -26,8 +26,30 @@ import java.io.*;
  * - Juliana: Difficulty field (valid range + boundaries)
  * - Avi: Correct Answer field (valid/invalid values)
  * - Osman: Question text + Options A–D content validation
+ * /*
+ *  * Test Case Overview – BlackBoxCSVRowFormatTest
+ *  *
+ *  * | Test Case ID | Method Name                     | Short Description                                  | Owner   | Main Technique(s)                                   |
+ *  * |-------------:|----------------------------------|----------------------------------------------------|--------|-----------------------------------------------------|
+ *  * | BB-01-TC01   | testValidRow                    | Valid CSV row – all fields correct                 | Yotam  | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC02   | testIDMinimumValidBoundary      | ID minimum valid boundary (ID = 1)                 | Yotam  | Boundary Value Analysis                             |
+ *  * | BB-01-TC03   | testIDZeroBoundary              | ID = 0 (invalid boundary)                          | Mor    | Boundary Value Analysis                             |
+ *  * | BB-01-TC04   | testIDNegative                  | Negative ID value (e.g., -1)                       | Mor    | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC05   | testIDNonNumeric                | Non-numeric ID (e.g., "abc")                       | Mor    | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC06   | testDifficultyValidClass        | Valid difficulty values {1,2,3,4}                  | Juliana| Equivalence Class Partitioning                      |
+ *  * | BB-01-TC07   | testDifficultyBelowMinimum      | Difficulty below minimum (0)                       | Juliana| Boundary Value Analysis                             |
+ *  * | BB-01-TC08   | testDifficultyAboveMaximum      | Difficulty above maximum (5)                       | Juliana| Boundary Value Analysis                             |
+ *  * | BB-01-TC09   | testAnswerValidClassUppercase   | Valid uppercase answers {A,B,C,D}                  | Avi    | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC10   | testAnswerValidClassLowercase   | Valid lowercase answers {a,b,c,d}                  | Avi    | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC11   | testAnswerInvalidLetters        | Invalid letters as answers (E, F, Z, etc.)         | Avi    | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC12   | testAnswerNumeric               | Numeric answer instead of letter                   | Avi    | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC13   | testQuestionFieldEmpty          | Empty question text                                | Osman  | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC14   | testOptionFieldsEmpty           | Empty option A/B/C/D                               | Osman  | Equivalence Class Partitioning, Error Guessing      |
+ *  *
+ *
  *
  * @author of CSV Wizard is Yotam (mintycake420)
+ *
  */
 public class BlackBoxCSVRowFormatTest {
 

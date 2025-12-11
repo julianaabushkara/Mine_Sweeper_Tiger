@@ -27,6 +27,7 @@ public class MinesweeperGame extends JFrame {
     private boolean gameEnded = false;
 
     private int elapsedSeconds;
+    private QuestionBank questionBank;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -41,6 +42,21 @@ public class MinesweeperGame extends JFrame {
         this.controller = controller;
         controller.setView(this);
 
+        try {
+            questionBank = new QuestionBank("resources/Questions/Questions.csv");
+            questionBank.loadFromCsv();
+            System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from CSV.");
+        } catch (QuestionBank.CSVParseException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to load questions from CSV:\n" + e.getMessage(),
+                    "Question Bank Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            questionBank = new QuestionBank();
+        }
+
         setTitle("Minesweeper Boards");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -51,12 +67,8 @@ public class MinesweeperGame extends JFrame {
         createTopPanel();
         createBoardsPanel();
         createBottomPanel();
-
-        pack();
-        setLocationRelativeTo(null);
-        startTimer();
-
     }
+
 
     private void createTopPanel() {
         topPanel = new JPanel(new BorderLayout(20, 0));
@@ -561,34 +573,76 @@ public class MinesweeperGame extends JFrame {
 
         private void activateQuestionTile() {
             GameSession session = controller.getGameSession();
+
             if (session.getSharedScore() < session.getDifficulty().activationCost) {
-                JOptionPane.showMessageDialog(MinesweeperGame.this,
-                        "Not enough points! Need " +
-                                session.getDifficulty().activationCost + " points.",
-                        "Cannot Activate", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        MinesweeperGame.this,
+                        "Not enough points! Need " + session.getDifficulty().activationCost + " points.",
+                        "Cannot Activate",
+                        JOptionPane.WARNING_MESSAGE
+                );
                 return;
             }
 
-            // Randomly select a question difficulty
+            if (questionBank == null || !questionBank.isLoaded() || questionBank.getQuestionCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        MinesweeperGame.this,
+                        "No questions loaded – cannot activate question tile.",
+                        "Question Bank Empty",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
             QuestionDifficulty[] difficulties = QuestionDifficulty.values();
             QuestionDifficulty qDiff = difficulties[new Random().nextInt(difficulties.length)];
 
-            String[] options = {"Answer A", "Answer B", "Answer C", "Answer D"};
-            int answer = JOptionPane.showOptionDialog(MinesweeperGame.this,
-                    "Question Type: " + qDiff.name() +
-                            "\n\nSample Question: What is 2 + 2?",
-                    "Question Tile - " + session.getDifficulty().name() + " Game Mode",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    null, options, options[0]);
+            java.util.List<Question> candidates = new java.util.ArrayList<>();
+            for (Question q : questionBank.getAllQuestions()) {
+                if (q.getDifficulty() == qDiff) {
+                    candidates.add(q);
+                }
+            }
 
-            if (answer == -1) return; // User closed dialog
+            if (candidates.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        MinesweeperGame.this,
+                        "No questions available for difficulty: " + qDiff,
+                        "Question Bank",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
 
-            boolean correct = (answer == 0);
+            Question question = candidates.get(new Random().nextInt(candidates.size()));
 
-            // Get feedback before activation
+            String[] options = {
+                    question.getOptionA(),
+                    question.getOptionB(),
+                    question.getOptionC(),
+                    question.getOptionD()
+            };
+
+            int answerIndex = JOptionPane.showOptionDialog(
+                    MinesweeperGame.this,
+                    question.getText(),
+                    "Question (" + qDiff.toString() + ")",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+
+            if (answerIndex == -1) {
+                return;
+            }
+
+            char chosenOption = (char) ('A' + answerIndex); // 0->A, 1->B, 2->C, 3->D
+            boolean correct = question.isCorrectAnswer(chosenOption);
+
             String feedback = controller.getQuestionFeedback(qDiff, correct);
 
-            // Handle special rewards for EASY mode
             if (session.getDifficulty() == GameSession.Difficulty.EASY) {
                 if (qDiff == QuestionDifficulty.MEDIUM && correct) {
                     int[] minePos = controller.revealRandomMineTile(board);
@@ -611,10 +665,12 @@ public class MinesweeperGame extends JFrame {
 
             controller.activateQuestionTile(cell, qDiff, correct, row, col, board);
 
-            // Show feedback
-            JOptionPane.showMessageDialog(MinesweeperGame.this, feedback,
+            JOptionPane.showMessageDialog(
+                    MinesweeperGame.this,
+                    feedback,
                     "Question Result - " + qDiff.name(),
-                    correct ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+                    correct ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE
+            );
 
             updateDisplay();
             updateGameDisplay();
