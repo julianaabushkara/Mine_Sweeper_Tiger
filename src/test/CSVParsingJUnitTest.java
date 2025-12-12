@@ -20,7 +20,38 @@ import java.util.*;
  *
  *  JUnit unit test suite for QuestionBank CSV parsing functionality.
  * Handles all types of invalid CSV inputs as addressed by QuestionBank.loadFromCsv
+ *
+ * Ownership distribution:
+ * - Yotam: Valid parsing, multi-question integrity, special characters
+ * - Mor: File/structure/header/ID error handling
+ * - Juliana: Difficulty validation and state/reload behavior
+ * - Avi: Correct answer validation and list immutability
+ * - Osman: Required fields, BOM, whitespace & similar robustness checks
+
+ * Test Case Overview – CSVParsingJUnitTest
+ *
+ * | Test Case ID | Method Name                          | Short Description                              | Owner   | Main Focus                                      |
+ * |-------------:|--------------------------------------|------------------------------------------------|--------|-------------------------------------------------|
+ * | UT-01-TC01   | testValidCSVParsing                  | Valid CSV parsing, 3 questions, basic sanity   | Yotam  | Happy path, data correctness                   |
+ * | UT-01-TC02   | testFileNotFound                     | Loading non-existing CSV file                  | Mor    | File error handling                             |
+ * | UT-01-TC03   | testEmptyCSVFile                     | Empty CSV content                              | Mor    | Content validation, error handling              |
+ * | UT-01-TC04   | testInvalidHeaders                   | Wrong header names                             | Mor    | Header validation                               |
+ * | UT-01-TC05   | testInvalidIDFormat                  | Non-numeric question ID                        | Mor    | ID format validation                            |
+ * | UT-01-TC06   | testInvalidDifficulty                | Difficulty outside 1–4 or non-numeric          | Juliana| Difficulty validation                            |
+ * | UT-01-TC07   | testInvalidCorrectAnswer             | Correct answer outside A–D / invalid           | Avi    | Answer validation                               |
+ * | UT-01-TC08   | testMissingRequiredFields            | Missing required fields (empty question text)  | Osman  | Required-field validation                       |
+ * | UT-01-TC09   | testWrongColumnCount                 | Too few / too many columns in row              | Mor    | Structural CSV validation                       |
+ * | UT-01-TC10   | testCaseInsensitiveAnswer            | Accept lowercase a–d answers                   | Avi    | Case-insensitive answer handling                |
+ * | UT-01-TC11   | testBOMHandling                      | UTF-8 BOM at start of file                     | Osman  | Encoding robustness                             |
+ * | UT-01-TC12   | testMultipleQuestionsDataIntegrity   | Multi-question parsing & correctness           | Yotam  | Data integrity across multiple rows             |
+ * | UT-01-TC13   | testSpecialCharactersInFields        | Commas and quotes inside fields                | Yotam  | Special characters, CSV quoting                 |
+ * | UT-01-TC14   | testUnmodifiableQuestionList         | Returned list is unmodifiable                  | Avi    | API immutability                                |
+ * | UT-01-TC15   | testIsLoadedStateTracking            | isLoaded() before/after loading                | Juliana| Load-state tracking                             |
+ * | UT-01-TC16   | testReloadBehavior                   | Reloading replaces previous data               | Juliana| Reload semantics                                |
+ * | UT-01-TC17   | testWhitespaceTrimming               | Trimming whitespace around fields              | Osman  | Data normalization (trimming)                   |
+ *
  */
+
 public class CSVParsingJUnitTest {
 
     private QuestionBank questionBank;
@@ -42,6 +73,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC01: Valid CSV Parsing
      * Verifies successful parsing of a well-formed CSV file
+     *
+     * TEST OWNER: Yotam
      */
     @Test
     public void testValidCSVParsing() throws Exception {
@@ -72,6 +105,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC02: File Not Found
      * Verifies proper exception when file doesn't exist
+     *
+     * TEST OWNER: Mor
      */
     @Test(expected = QuestionBank.CSVParseException.class)
     public void testFileNotFound() throws QuestionBank.CSVParseException {
@@ -81,6 +116,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC03: Empty CSV File
      * Verifies handling of empty CSV files
+     *
+     * TEST OWNER: Mor
      */
     @Test(expected = QuestionBank.CSVParseException.class)
     public void testEmptyCSVFile() throws Exception {
@@ -91,6 +128,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC04: Invalid Headers
      * Verifies rejection of CSV with wrong header names
+     *
+     * TEST OWNER: Mor
      */
     @Test
     public void testInvalidHeaders() throws Exception {
@@ -110,6 +149,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC05: Invalid ID Format
      * Verifies rejection of non-numeric IDs
+     *
+     * TEST OWNER: Mor
      */
     @Test
     public void testInvalidIDFormat() throws Exception {
@@ -130,6 +171,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC06: Invalid Difficulty Value
      * Verifies rejection of difficulty values outside 1-4 range
+     *
+     * TEST OWNER: Juliana
      */
     @Test
     public void testInvalidDifficulty() throws Exception {
@@ -155,6 +198,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC07: Invalid Correct Answer
      * Verifies rejection of answer values outside A-D range
+     *
+     * TEST OWNER: Avi
      */
     @Test
     public void testInvalidCorrectAnswer() throws Exception {
@@ -180,6 +225,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC08: Missing Required Fields
      * Verifies rejection when required fields are empty
+     *
+     * TEST OWNER: Osman
      */
     @Test
     public void testMissingRequiredFields() throws Exception {
@@ -199,6 +246,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC09: Wrong Column Count
      * Verifies rejection of rows with incorrect number of columns
+     *
+     * TEST OWNER: Mor
      */
     @Test
     public void testWrongColumnCount() throws Exception {
@@ -233,6 +282,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC10: Case Insensitive Answer
      * Verifies that lowercase answers (a-d) are accepted
+     *
+     * TEST OWNER: Avi
      */
     @Test
     public void testCaseInsensitiveAnswer() throws Exception {
@@ -252,6 +303,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC11: BOM (Byte Order Mark) Handling
      * Verifies proper handling of UTF-8 BOM character
+     *
+     * TEST OWNER: Osman
      */
     @Test
     public void testBOMHandling() throws Exception {
@@ -270,6 +323,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC12: Multiple Questions Data Integrity
      * Verifies that multiple questions are parsed with correct data
+     *
+     * TEST OWNER: Yotam
      */
     @Test
     public void testMultipleQuestionsDataIntegrity() throws Exception {
@@ -308,6 +363,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC13: Special Characters in Fields
      * Verifies handling of special characters like commas in quoted fields
+     *
+     * TEST OWNER: Yotam
      */
     @Test
     public void testSpecialCharactersInFields() throws Exception {
@@ -326,6 +383,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC14: Question List Immutability
      * Verifies that returned question list cannot be modified
+     *
+     * TEST OWNER: Avi
      */
     @Test(expected = UnsupportedOperationException.class)
     public void testUnmodifiableQuestionList() throws Exception {
@@ -343,6 +402,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC15: IsLoaded State Tracking
      * Verifies that isLoaded() correctly tracks loading state
+     *
+     * TEST OWNER: Juliana
      */
     @Test
     public void testIsLoadedStateTracking() throws Exception {
@@ -360,6 +421,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC16: Reload Behavior
      * Verifies that reloading clears previous data
+     *
+     * TEST OWNER: Juliana
      */
     @Test
     public void testReloadBehavior() throws Exception {
@@ -387,6 +450,8 @@ public class CSVParsingJUnitTest {
     /**
      * UT-01-TC17: Whitespace Trimming
      * Verifies that leading/trailing whitespace is properly trimmed
+     *
+     * TEST OWNER: Osman
      */
     @Test
     public void testWhitespaceTrimming() throws Exception {
@@ -465,8 +530,9 @@ public class CSVParsingJUnitTest {
             String testId = extractTestId(methodName);
             String description = extractDescription(methodName);
             String expectedValue = extractExpectedValue(methodName);
+            String developer = extractDeveloper(methodName);
 
-            return new TestResult(testId, description, expectedValue, "Yotam");
+            return new TestResult(testId, description, expectedValue, developer);
         }
 
         private String extractTestId(String methodName) {
@@ -518,6 +584,29 @@ public class CSVParsingJUnitTest {
         private String extractExpectedValue(String methodName) {
             // All tests expect to pass (the test itself passing means correct behavior)
             return "pass";
+        }
+
+        private String extractDeveloper(String methodName) {
+            Map<String, String> devs = new HashMap<>();
+            devs.put("testValidCSVParsing", "Yotam");
+            devs.put("testFileNotFound", "Mor");
+            devs.put("testEmptyCSVFile", "Mor");
+            devs.put("testInvalidHeaders", "Mor");
+            devs.put("testInvalidIDFormat", "Mor");
+            devs.put("testInvalidDifficulty", "Juliana");
+            devs.put("testInvalidCorrectAnswer", "Avi");
+            devs.put("testMissingRequiredFields", "Osman");
+            devs.put("testWrongColumnCount", "Mor");
+            devs.put("testCaseInsensitiveAnswer", "Avi");
+            devs.put("testBOMHandling", "Osman");
+            devs.put("testMultipleQuestionsDataIntegrity", "Yotam");
+            devs.put("testSpecialCharactersInFields", "Yotam");
+            devs.put("testUnmodifiableQuestionList", "Avi");
+            devs.put("testIsLoadedStateTracking", "Juliana");
+            devs.put("testReloadBehavior", "Juliana");
+            devs.put("testWhitespaceTrimming", "Osman");
+
+            return devs.getOrDefault(methodName, "Yotam");
         }
 
         public void printTable() {

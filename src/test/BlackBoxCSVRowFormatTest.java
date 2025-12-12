@@ -20,7 +20,36 @@ import java.io.*;
  * - Boundary Value Analysis: Testing at the edges of valid ranges
  * - Error Guessing: Testing common error scenarios
  *
+ * Ownership distribution:
+ * - Yotam: Valid row + ID minimum valid boundary
+ * - Mor: Invalid ID cases (0, negative, non-numeric)
+ * - Juliana: Difficulty field (valid range + boundaries)
+ * - Avi: Correct Answer field (valid/invalid values)
+ * - Osman: Question text + Options A–D content validation
+ * /*
+ *  * Test Case Overview – BlackBoxCSVRowFormatTest
+ *  *
+ *  * | Test Case ID | Method Name                     | Short Description                                  | Owner   | Main Technique(s)                                   |
+ *  * |-------------:|----------------------------------|----------------------------------------------------|--------|-----------------------------------------------------|
+ *  * | BB-01-TC01   | testValidRow                    | Valid CSV row – all fields correct                 | Yotam  | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC02   | testIDMinimumValidBoundary      | ID minimum valid boundary (ID = 1)                 | Yotam  | Boundary Value Analysis                             |
+ *  * | BB-01-TC03   | testIDZeroBoundary              | ID = 0 (invalid boundary)                          | Mor    | Boundary Value Analysis                             |
+ *  * | BB-01-TC04   | testIDNegative                  | Negative ID value (e.g., -1)                       | Mor    | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC05   | testIDNonNumeric                | Non-numeric ID (e.g., "abc")                       | Mor    | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC06   | testDifficultyValidClass        | Valid difficulty values {1,2,3,4}                  | Juliana| Equivalence Class Partitioning                      |
+ *  * | BB-01-TC07   | testDifficultyBelowMinimum      | Difficulty below minimum (0)                       | Juliana| Boundary Value Analysis                             |
+ *  * | BB-01-TC08   | testDifficultyAboveMaximum      | Difficulty above maximum (5)                       | Juliana| Boundary Value Analysis                             |
+ *  * | BB-01-TC09   | testAnswerValidClassUppercase   | Valid uppercase answers {A,B,C,D}                  | Avi    | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC10   | testAnswerValidClassLowercase   | Valid lowercase answers {a,b,c,d}                  | Avi    | Equivalence Class Partitioning                      |
+ *  * | BB-01-TC11   | testAnswerInvalidLetters        | Invalid letters as answers (E, F, Z, etc.)         | Avi    | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC12   | testAnswerNumeric               | Numeric answer instead of letter                   | Avi    | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC13   | testQuestionFieldEmpty          | Empty question text                                | Osman  | Equivalence Class Partitioning, Error Guessing      |
+ *  * | BB-01-TC14   | testOptionFieldsEmpty           | Empty option A/B/C/D                               | Osman  | Equivalence Class Partitioning, Error Guessing      |
+ *  *
+ *
+ *
  * @author of CSV Wizard is Yotam (mintycake420)
+ *
  */
 public class BlackBoxCSVRowFormatTest {
 
@@ -58,6 +87,8 @@ public class BlackBoxCSVRowFormatTest {
      * This is the baseline test - if valid input fails, the system is broken.
      * Establishes that the "happy path" works before testing error cases.
      *
+     * TEST OWNER: Yotam
+     *
      * EXPECTED BEHAVIOR: CSV loads successfully with 1 question
      */
     @Test
@@ -90,6 +121,8 @@ public class BlackBoxCSVRowFormatTest {
      * Boundary values are where bugs often occur (off-by-one errors).
      * Verifies that ID=1 is accepted as the smallest valid question ID.
      * Common mistake: Systems might require ID > 1 instead of ID ≥ 1.
+     *
+     * TEST OWNER: Yotam
      *
      * EXPECTED BEHAVIOR: ID=1 accepted successfully
      */
@@ -125,6 +158,8 @@ public class BlackBoxCSVRowFormatTest {
      * Common mistake: Systems might accept 0 as a valid ID.
      * Critical for data integrity - question IDs must be positive.
      *
+     * TEST OWNER: Mor
+     *
      * EXPECTED BEHAVIOR: ID=0 rejected with error
      */
     @Test
@@ -159,6 +194,8 @@ public class BlackBoxCSVRowFormatTest {
      * Ensures data validation prevents illogical question IDs.
      * Representative value (-1) stands for entire negative number class.
      *
+     * TEST OWNER: Mor
+     *
      * EXPECTED BEHAVIOR: Negative ID rejected with error
      */
     @Test
@@ -191,6 +228,8 @@ public class BlackBoxCSVRowFormatTest {
      * Common user error: entering text instead of numbers.
      * Verifies the system handles type mismatch gracefully.
      * Prevents database corruption from non-integer ID values.
+     *
+     * TEST OWNER: Mor
      *
      * EXPECTED BEHAVIOR: Non-numeric ID rejected with error
      */
@@ -228,6 +267,8 @@ public class BlackBoxCSVRowFormatTest {
      * Critical for game functionality - questions need difficulty ratings.
      * Ensures no difficulty level is accidentally excluded.
      * Tests the complete valid range (not just boundaries).
+     *
+     * TEST OWNER: Juliana
      *
      * EXPECTED BEHAVIOR: All four difficulty values (1, 2, 3, 4) accepted
      */
@@ -267,6 +308,8 @@ public class BlackBoxCSVRowFormatTest {
      * Zero is a common edge case that needs explicit testing.
      * Prevents invalid difficulty levels from entering the system.
      *
+     * TEST OWNER: Juliana
+     *
      * EXPECTED BEHAVIOR: Difficulty=0 rejected with error
      */
     @Test
@@ -304,6 +347,8 @@ public class BlackBoxCSVRowFormatTest {
      * Prevents undefined difficulty levels from being added.
      * Common mistake: Systems might accept any positive number.
      *
+     * TEST OWNER: Juliana
+     *
      * EXPECTED BEHAVIOR: Difficulty=5 rejected with error
      */
     @Test
@@ -337,6 +382,8 @@ public class BlackBoxCSVRowFormatTest {
      * Critical for multiple-choice functionality - must support all options.
      * Tests that each valid answer choice can be marked as correct.
      * Ensures no valid answer option is accidentally excluded.
+     *
+     * TEST OWNER: Avi
      *
      * EXPECTED BEHAVIOR: All uppercase answers (A, B, C, D) accepted
      */
@@ -374,6 +421,8 @@ public class BlackBoxCSVRowFormatTest {
      * Verifies that case normalization works correctly.
      * Prevents rejection of valid answers due to case differences.
      *
+     * TEST OWNER: Avi
+     *
      * EXPECTED BEHAVIOR: All lowercase answers (a, b, c, d) accepted
      */
     @Test
@@ -407,6 +456,8 @@ public class BlackBoxCSVRowFormatTest {
      * Prevents invalid answer choices that don't match question options.
      * Common user error: typing E or F when only 4 options exist.
      * Ensures data consistency - answer must match available options.
+     *
+     * TEST OWNER: Avi
      *
      * EXPECTED BEHAVIOR: Letters E-Z rejected with error
      */
@@ -445,6 +496,8 @@ public class BlackBoxCSVRowFormatTest {
      * Prevents confusion between answer position and answer letter.
      * Ensures consistent answer format (letters only).
      *
+     * TEST OWNER: Avi
+     *
      * EXPECTED BEHAVIOR: Numeric answer rejected with error
      */
     @Test
@@ -478,6 +531,8 @@ public class BlackBoxCSVRowFormatTest {
      * Prevents invalid quiz questions from being created.
      * Common data quality issue - missing required content.
      * Ensures database integrity (no null/empty questions).
+     *
+     * TEST OWNER: Osman
      *
      * EXPECTED BEHAVIOR: Empty question rejected with error
      */
@@ -513,6 +568,8 @@ public class BlackBoxCSVRowFormatTest {
      * Ensures all answer options are meaningful.
      * Critical for game playability - users need valid choices.
      * Tests each field independently (not just one representative).
+     *
+     * TEST OWNER: Osman
      *
      * EXPECTED BEHAVIOR: Empty option (A, B, C, or D) rejected with error
      */

@@ -17,8 +17,30 @@ import java.io.*;
  * - parseDifficulty() has multiple branches
  * - parseCorrectAnswer() has validation branches
  *
+ * Ownership distribution:
+ * - Yotam: Valid header flow and general “happy path”
+ * - Mor: Malformed headers (count and name)
+ * - Juliana: Difficulty parsing logic (valid + invalid branches)
+ * - Avi: Correct answer parsing logic (valid + invalid branches)
+ * - Osman: Case-insensitive header normalization path
+ *
  * @author of CSV Wizard is Yotam
+
+ * Test Case Overview – WhiteBoxCSVValidationTest
+ *
+ * | Test Case ID | Method Name                | Short Description                                           | Owner   | Main Technique(s)                   |
+ * |-------------:|----------------------------|--------------------------------------------------------------|--------|-------------------------------------|
+ * | WB-01-TC01   | testValidHeaders           | Valid headers “happy path”, no parse errors                 | Yotam  | Statement Coverage, CFG path        |
+ * | WB-01-TC02   | testInvalidHeaderCount     | Incorrect number of header columns, exception branch        | Mor    | Branch Coverage                     |
+ * | WB-01-TC03   | testInvalidHeaderName      | Wrong header name with correct count, exception branch      | Mor    | Branch Coverage                     |
+ * | WB-01-TC04   | testCaseInsensitiveHeaders | Case-insensitive header comparison (lowercase headers)      | Osman  | Statement Coverage                  |
+ * | WB-01-TC05   | testValidDifficultyValues  | Valid difficulty parsing branches (1–4)                     | Juliana| Branch Coverage                     |
+ * | WB-01-TC06   | testInvalidDifficultyValues| Invalid difficulty branches (<1, >4, non-numeric)           | Juliana| Branch Coverage                     |
+ * | WB-01-TC07   | testValidCorrectAnswers    | Valid correct-answer parsing for A–D (upper/lowercase)      | Avi    | Branch Coverage                     |
+ * | WB-01-TC08   | testInvalidCorrectAnswers  | Invalid correct answers (E–Z, numbers, empty)               | Avi    | Branch Coverage                     |
+ *
  */
+
 public class WhiteBoxCSVValidationTest {
 
     private QuestionBank questionBank;
@@ -58,6 +80,8 @@ public class WhiteBoxCSVValidationTest {
      * Path: Entry → Count Check (Pass) → Name Loop (All Pass) → Exit
      *
      * Check that the question wizard accepts valid headers and valid questions without any parse errors
+     *
+     * TEST OWNER: Yotam
      */
     @Test
     public void testValidHeaders() throws Exception {
@@ -91,6 +115,8 @@ public class WhiteBoxCSVValidationTest {
      * Path: Entry → Count Check (Fail) → Exception
      *
      * Opposite of TC01, should check if System notifies on invalid header
+     *
+     * TEST OWNER: Mor
      */
     @Test
     public void testInvalidHeaderCount() {
@@ -133,6 +159,8 @@ public class WhiteBoxCSVValidationTest {
      *
      * Header contains an invalid column 'Answer' when it should be 'Correct Answer' and therefore
      * correctly throws an exception
+     *
+     * TEST OWNER: Mor
      */
     @Test
     public void testInvalidHeaderName() {
@@ -175,6 +203,8 @@ public class WhiteBoxCSVValidationTest {
      *
      * Tests the toLowerCase() branch in header comparison
      * Checks that it's ok if the header of the csv is lowercase
+     *
+     * TEST OWNER: Osman
      */
     @Test
     public void testCaseInsensitiveHeaders() throws Exception {
@@ -215,6 +245,8 @@ public class WhiteBoxCSVValidationTest {
      *
      * Tests parseDifficulty() valid branches (1, 2, 3, 4)
      * Checks that the valid difficulties Work
+     *
+     * TEST OWNER: Juliana
      */
     @Test
     public void testValidDifficultyValues() throws Exception {
@@ -272,6 +304,8 @@ public class WhiteBoxCSVValidationTest {
      *
      * Tests parseDifficulty() invalid branches (0, 5, negative)
      * Checks that the only valid difficulties are 1,2,3,4 (easy, medium, hard, expert)
+     *
+     * TEST OWNER: Juliana
      */
     @Test
     public void testInvalidDifficultyValues() throws Exception {
@@ -323,6 +357,8 @@ public class WhiteBoxCSVValidationTest {
      *
      * Tests parseCorrectAnswer() valid branches (A-D, case insensitive)
      * Checks that answers A, B, C, D and their lowercase versions are accepted as valid in the Question wizard
+     *
+     * TEST OWNER: Avi
      */
     @Test
     public void testValidCorrectAnswers() throws Exception {
@@ -368,6 +404,8 @@ public class WhiteBoxCSVValidationTest {
      *
      * Tests parseCorrectAnswer() invalid branches (E-Z, numbers, empty)
      * Checks that answers that are not A, B, C, D (or their lowercase versions) correctly throw an exception
+     *
+     * TEST OWNER: Avi
      */
     @Test
     public void testInvalidCorrectAnswers() throws Exception {
