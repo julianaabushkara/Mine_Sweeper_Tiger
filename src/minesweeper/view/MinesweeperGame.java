@@ -38,6 +38,31 @@ public class MinesweeperGame extends JFrame {
         });
     }
 
+    // PRIMARY CONSTRUCTOR - Uses shared QuestionBank from Question Wizard
+    public MinesweeperGame(GameController controller, QuestionBank sharedQuestionBank) {
+        this.controller = controller;
+        controller.setView(this);
+
+        // Use the shared question bank from the wizard
+        this.questionBank = sharedQuestionBank;
+        System.out.println("✓ Using shared QuestionBank with " + questionBank.getQuestionCount() + " questions.");
+
+        setTitle("Minesweeper Boards");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+        getContentPane().setBackground(new Color(15, 20, 25));
+
+        elapsedSeconds = 0;
+
+        createTopPanel();
+        createBoardsPanel();
+        createBottomPanel();
+
+        // Start the timer
+        startTimer();
+    }
+
+    // FALLBACK CONSTRUCTOR - Loads from hardcoded CSV (for backward compatibility)
     public MinesweeperGame(GameController controller) {
         this.controller = controller;
         controller.setView(this);
@@ -67,6 +92,9 @@ public class MinesweeperGame extends JFrame {
         createTopPanel();
         createBoardsPanel();
         createBottomPanel();
+
+        // Start the timer
+        startTimer();
     }
 
 
@@ -92,13 +120,13 @@ public class MinesweeperGame extends JFrame {
         centerPanel.add(livesLabel);
         centerPanel.add(scoreLabel);
 
-        // Right: Mines count 
+        // Right: Mines count
         JPanel rightPanel = new JPanel(new GridLayout(2, 1, 5, 5));
         rightPanel.setBackground(new Color(15, 20, 25));
         int totalMines = session.getDifficulty().mines * 2;
         minesLabel = createStyledLabel("MINES:\n" + totalMines, 16, new Color(255, 80, 80));
 
-     // Timer with red rectangular background
+        // Timer with red rectangular background
         timerLabel = new JLabel("00:00");
         timerLabel.setFont(new Font("Monospaced", Font.BOLD, 20));
         timerLabel.setForeground(Color.WHITE);
@@ -106,17 +134,17 @@ public class MinesweeperGame extends JFrame {
         timerLabel.setBackground(new Color(100, 150, 255));
         timerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         timerLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(50, 50, 50), 2),
-            BorderFactory.createEmptyBorder(5, 15, 5, 15)
-        
+                BorderFactory.createLineBorder(new Color(50, 50, 50), 2),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+
         ));
-        
-        
-        
+
+
+
         rightPanel.add(minesLabel);
         rightPanel.add(timerLabel);
-        
-        
+
+
 
         topPanel.add(turnLabel, BorderLayout.WEST);
         topPanel.add(centerPanel, BorderLayout.CENTER);
@@ -159,9 +187,13 @@ public class MinesweeperGame extends JFrame {
     private void checkGameEnd() {
         if (controller.isGameOver()) {
             gameEnded = true;  // Set flag to prevent further interactions
-             gameTimer.stop();
+
+            // Stop timer safely with null check
+            if (gameTimer != null && gameTimer.isRunning()) {
+                gameTimer.stop();
+            }
+
             endGame(controller.isVictory());
-            
         }
     }
 
@@ -239,7 +271,7 @@ public class MinesweeperGame extends JFrame {
         return label;
     }
 
-    
+
     private void startTimer() {
         gameTimer = new javax.swing.Timer(1000, e -> {
             elapsedSeconds++;
@@ -248,7 +280,7 @@ public class MinesweeperGame extends JFrame {
             timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
         });
         gameTimer.start();
-  
+
     }
 
     private void showMenu() {
@@ -638,7 +670,7 @@ public class MinesweeperGame extends JFrame {
                 return;
             }
 
-            char chosenOption = (char) ('A' + answerIndex); // 0->A, 1->B, 2->C, 3->D
+            char chosenOption = (char) ('A' + answerIndex);
             boolean correct = question.isCorrectAnswer(chosenOption);
 
             String feedback = controller.getQuestionFeedback(qDiff, correct);
@@ -689,7 +721,6 @@ public class MinesweeperGame extends JFrame {
 
             String feedback = controller.activateSurpriseTile(cell);
 
-            // Show feedback
             JOptionPane.showMessageDialog(MinesweeperGame.this, feedback,
                     "Surprise Tile", JOptionPane.INFORMATION_MESSAGE);
 

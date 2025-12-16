@@ -142,7 +142,7 @@ public class NavigationController {
                 gameController.startNewGame(difficulty);
 
                 // Create game view (JFrame)
-                MinesweeperGame gameView = new MinesweeperGame(gameController);
+                MinesweeperGame gameView = new MinesweeperGame(gameController, appModel.getQuestionBank());
 
                 // AGGRESSIVE FIX for EXIT_ON_CLOSE issue:
                 // 1. Use DISPOSE_ON_CLOSE instead of DO_NOTHING (more reliable)
