@@ -7,13 +7,14 @@ public class GameHistory {
     private GameSession.Difficulty difficulty;
     private String player1;
     private String player2;
-
     private int finalScore;
     private boolean coopWin;            // true = win, false = loss
-    private String duration;            // "mm:ss"
+    private String duration;// "mm:ss"
     private LocalDateTime dateTime;     // full timestamp
+    private String username;
 
     public GameHistory(GameSession.Difficulty difficulty,
+                       String username,
                        String player1,
                        String player2,
                        int finalScore,
@@ -28,6 +29,8 @@ public class GameHistory {
         this.coopWin = coopWin;
         this.duration = duration;
         this.dateTime = dateTime;
+        this.username = username;
+
     }
 
     // =====================================================
@@ -40,6 +43,10 @@ public class GameHistory {
 
     public String getPlayer1() {
         return player1;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getPlayer2() {
@@ -76,6 +83,20 @@ public class GameHistory {
 
     public void setCoopWin(boolean coopWin) {
         this.coopWin = coopWin;
+    }
+
+
+    public String toJson() {
+        return String.format(
+                "{\"difficulty\":\"%s\",\"duration\":\"%s\",\"dateTime\":\"%s\",\"finalScore\":%d,\"player1\":\"%s\",\"player2\":\"%s\",\"coopWin\":%b}",
+                difficulty.name(),
+                duration,
+                dateTime.toString(),
+                finalScore,
+                player1,
+                player2,
+                coopWin
+        );
     }
 
     // =====================================================

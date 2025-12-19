@@ -25,18 +25,22 @@ public class MinesweeperGame extends JFrame {
     private JLabel timerLabel;
     private javax.swing.Timer gameTimer;
     private boolean gameEnded = false;
+    GameSession session;
 
     private int elapsedSeconds;
     private QuestionBank questionBank;
+    /*
+    revealAllTiles(session.getPlayerABoard(), playerABoard);
+    revealAllTiles(session.getPlayerBBoard(), playerBBoard);
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             GameController controller = new GameController();
-            controller.startNewGame(GameSession.Difficulty.EASY);
+            controller.startNewGame(,,GameSession.Difficulty.EASY);
             MinesweeperGame game = new MinesweeperGame(controller);
             game.setVisible(true);
         });
-    }
+    }*/
 
     public MinesweeperGame(GameController controller) {
         this.controller = controller;
@@ -67,6 +71,15 @@ public class MinesweeperGame extends JFrame {
         createTopPanel();
         createBoardsPanel();
         createBottomPanel();
+        startTimer();
+        // Fit window to screen size
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int width = (int) (screenSize.width * 0.85);
+        int height = (int) (screenSize.height * 0.85);
+
+        setSize(width, height);
+        setLocationRelativeTo(null); // center
     }
 
 
@@ -78,10 +91,22 @@ public class MinesweeperGame extends JFrame {
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
 
-        GameSession session = controller.getGameSession();
+        session = controller.getGameSession();
 
         // Left: Turn info
-        turnLabel = createStyledLabel("CURRENT\nTURN: PLAYER A", 18, Color.WHITE);
+        //turnLabel = createStyledLabel("CURRENT\nTURN: PLAYER A", 18, Color.WHITE);
+
+        String currentPlayer = session.isPlayerATurn()
+                ? session.getPlayerAName()
+                : session.getPlayerBName();
+
+        turnLabel = createStyledLabel(
+                "<html>CURRENT<br>TURN: " + currentPlayer + "</html>",
+                18,
+                Color.WHITE
+        );
+
+
         turnLabel.setPreferredSize(new Dimension(200, 80));
 
         // Center: Lives and Score
@@ -138,11 +163,26 @@ public class MinesweeperGame extends JFrame {
         boardsPanel.setBackground(new Color(15, 20, 25));
         boardsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        GameSession session = controller.getGameSession();
+        /*session = controller.getGameSession();
         playerABoard = new BoardPanel("PLAYER A BOARD", session.getPlayerABoard(),
                 new Color(100, 50, 150), true);
         playerBBoard = new BoardPanel("PLAYER B BOARD", session.getPlayerBBoard(),
-                new Color(0, 150, 200), false);
+                new Color(0, 150, 200), false);*/
+
+        playerABoard = new BoardPanel(
+                session.getPlayerAName() + " BOARD",
+                session.getPlayerABoard(),
+                new Color(100, 50, 150),
+                true
+        );
+
+        playerBBoard = new BoardPanel(
+                session.getPlayerBName() + " BOARD",
+                session.getPlayerBBoard(),
+                new Color(0, 150, 200),
+                false
+        );
+
 
         boardsPanel.add(playerABoard);
         boardsPanel.add(playerBBoard);
@@ -155,7 +195,7 @@ public class MinesweeperGame extends JFrame {
         updateGameDisplay();
         checkGameEnd();
     }
-
+/*
     private void checkGameEnd() {
         if (controller.isGameOver()) {
             gameEnded = true;  // Set flag to prevent further interactions
@@ -163,7 +203,23 @@ public class MinesweeperGame extends JFrame {
             endGame(controller.isVictory());
             
         }
+    }*/
+
+
+    private void checkGameEnd() {
+        if (gameEnded) return;
+
+        if (controller.isGameOver()) {
+            gameEnded = true;
+
+            if (gameTimer != null) {
+                gameTimer.stop();
+            }
+
+            endGame(controller.isVictory());
+        }
     }
+
 
     private void endGame(boolean victory) {
         GameSession session = controller.getGameSession();
@@ -188,6 +244,9 @@ public class MinesweeperGame extends JFrame {
         JOptionPane.showMessageDialog(this, message,
                 victory ? "You Win!" : "Game Over",
                 victory ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        //  ADD THIS
+        controller.handleGameEndIfNeeded();
+
     }
 
     private void revealAllTiles(Board board, BoardPanel boardPanel) {
@@ -274,8 +333,29 @@ public class MinesweeperGame extends JFrame {
 
     public void updateGameDisplay() {
         GameSession session = controller.getGameSession();
-        String currentPlayer = session.isPlayerATurn() ? "PLAYER A" : "PLAYER B";
+
+
+        /* String currentPlayer = session.isPlayerATurn() ? "PLAYER A" : "PLAYER B";
+        turnLabel.setText("<html>CURRENT<br>TURN: " + currentPlayer + "</html>");*/
+        String currentPlayer = session.isPlayerATurn()
+                ? session.getPlayerAName()
+                : session.getPlayerBName();
+
+        boolean isATurn = session.isPlayerATurn();
+        // Highlight boards
+        playerABoard.setActive(isATurn);
+        playerBBoard.setActive(!isATurn);
+
         turnLabel.setText("<html>CURRENT<br>TURN: " + currentPlayer + "</html>");
+
+
+        System.out.println(
+                "Players: " +
+                        controller.getGameSession().getPlayerAName() + " / " +
+                        controller.getGameSession().getPlayerBName()
+        );
+
+
         livesLabel.setText("LIVES: " + getHeartsString(session.getSharedLives()));
         scoreLabel.setText(String.format("SCORE: %04d (%s)",
                 session.getSharedScore(), session.getDifficulty().name()));
@@ -311,6 +391,25 @@ public class MinesweeperGame extends JFrame {
 
             createHeader();
             createGrid();
+
+
+        }
+
+
+        public void setActive(boolean active) {
+            if (active) {
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(themeColor.brighter(), 5),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                ));
+                setBackground(new Color(25, 35, 45)); // slightly brighter
+            } else {
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(themeColor.darker(), 2),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                ));
+                setBackground(new Color(15, 20, 25)); // dim
+            }
         }
 
         private void createHeader() {
@@ -523,6 +622,8 @@ public class MinesweeperGame extends JFrame {
                     boardPanel.getButton(i, j).updateDisplay();
                 }
             }
+
+
         }
 
         private void performSpecialCascade(int startRow, int startCol) {

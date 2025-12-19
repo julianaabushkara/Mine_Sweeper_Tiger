@@ -1,4 +1,5 @@
 package minesweeper.controller;
+import minesweeper.model.SessionContext;
 
 import minesweeper.model.*;
 import minesweeper.view.MinesweeperGame;
@@ -8,13 +9,20 @@ import java.util.*;
 public class GameController {
     private GameSession gameSession;
     private MinesweeperGame view;
+    private boolean historySaved = false;
+
 
     public GameController() {
     }
 
-    public void startNewGame(GameSession.Difficulty difficulty) {
+    /*public void startNewGame(GameSession.Difficulty difficulty) {
         this.gameSession = new GameSession(difficulty);
+    }*/
+
+    public void startNewGame(String playerA, String playerB, GameSession.Difficulty difficulty) {
+        this.gameSession = new GameSession(playerA, playerB, difficulty);
     }
+
 
     public GameSession getGameSession() {
         return gameSession;
@@ -30,6 +38,8 @@ public class GameController {
         } else {
             handleRightClick(cell, row, col, board);
         }
+
+
     }
 
     private void handleLeftClick(Cell cell, int row, int col, Board board) {
@@ -56,6 +66,41 @@ public class GameController {
             }
         }
     }
+    public void handleGameEndIfNeeded() {
+        if (historySaved) return;
+        if (!isGameOver()) return;
+
+        historySaved = true;
+
+        boolean victory = isVictory();
+        int finalScore = calculateFinalScore();
+
+        //GameHistoryManager historyManager = new GameHistoryManager();
+
+       // String username = SessionContext.currentUser.getUsername();
+        String username = (SessionContext.currentUser != null)
+                ? SessionContext.currentUser.getUsername()
+                : "ANONYMOUS";
+
+        GameHistory history = new GameHistory(
+                gameSession.getDifficulty(),
+                username,
+                gameSession.getPlayerAName(),
+                gameSession.getPlayerBName(),
+                finalScore,
+                victory,
+                gameSession.getFormattedDuration(),
+                java.time.LocalDateTime.now()
+        );
+
+       //historyManager.addGameForUser(username, history);
+        GameHistoryLogic.getInstance()
+                .saveHistoryForUser(username, history);
+
+        System.out.println("✔ Game history saved");
+    }
+
+
 
 
     /**
@@ -492,7 +537,7 @@ public class GameController {
     public int calculateFinalScore() {
         int lifeBonus = gameSession.getSharedLives() *
                 gameSession.getDifficulty().activationCost;
-        gameSession.addScore(lifeBonus);
-        return gameSession.getSharedScore();
+        //gameSession.addScore(lifeBonus);
+        return gameSession.getSharedScore()+ lifeBonus;
     }
 }

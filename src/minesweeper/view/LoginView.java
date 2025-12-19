@@ -92,7 +92,7 @@ public class LoginView extends JFrame {
         formPanel.setOpaque(false);
 
         // Username field
-        usernameField  = new PlaceholderTextField("Username");
+        usernameField  = new PlaceholderTextField("Username",20);
         styleNeonTextField(usernameField, Color.CYAN.brighter());
         usernameField.setBounds(25, 30, 300, 45);
 
@@ -131,7 +131,7 @@ public class LoginView extends JFrame {
 
 
         // Security answer field
-        securityAnswer = new PlaceholderTextField("Answer");
+        securityAnswer = new PlaceholderTextField("Answer",20);
         styleNeonTextField(securityAnswer, Color.CYAN.brighter());
         securityAnswer.setVisible(false);
         securityAnswer.setBounds(25,250,300,45);
@@ -184,7 +184,7 @@ public class LoginView extends JFrame {
         question.setEnabled(false);
         question.setVisible(false);
 
-        answer = new PlaceholderTextField("Answer");
+        answer = new PlaceholderTextField("Answer",20);
         answer.setBounds(25,140,300,45);
         styleNeonTextField(answer, Color.CYAN.brighter());
         answer.setVisible(false);
