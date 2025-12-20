@@ -46,19 +46,17 @@ public class MinesweeperGame extends JFrame {
         this.controller = controller;
         controller.setView(this);
 
-        try {
-            this.questionBank = new QuestionBank("resources/Questions/Questions.csv");
-            this.questionBank.loadFromCsv();
-            System.out.println("Loaded " + this.questionBank.getQuestionCount() + " questions from CSV.");
-        } catch (QuestionBank.CSVParseException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Failed to load questions from CSV:\n" + e.getMessage(),
-                    "Question Bank Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            this.questionBank = new QuestionBank();
+        // Use the QuestionBank passed as parameter (contains the user's uploaded CSV)
+        this.questionBank = questionBank;
+
+        // Verify the question bank is loaded
+        if (questionBank != null && questionBank.isLoaded()) {
+            System.out.println("✓ Using loaded question bank with " +
+                    questionBank.getQuestionCount() + " questions.");
+        } else {
+            System.out.println("⚠ Warning: Question bank is empty or not loaded!");
+            // Keep the empty/unloaded questionBank - don't create a new one
+            // The game will show appropriate warnings when trying to activate question tiles
         }
 
         setTitle("Minesweeper Boards");
@@ -123,7 +121,7 @@ public class MinesweeperGame extends JFrame {
         int totalMines = session.getDifficulty().mines * 2;
         minesLabel = createStyledLabel("MINES:\n" + totalMines, 16, new Color(255, 80, 80));
 
-     // Timer with red rectangular background
+        // Timer with red rectangular background
         timerLabel = new JLabel("00:00");
         timerLabel.setFont(new Font("Monospaced", Font.BOLD, 20));
         timerLabel.setForeground(Color.WHITE);
@@ -131,17 +129,17 @@ public class MinesweeperGame extends JFrame {
         timerLabel.setBackground(new Color(100, 150, 255));
         timerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         timerLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(50, 50, 50), 2),
-            BorderFactory.createEmptyBorder(5, 15, 5, 15)
-        
+                BorderFactory.createLineBorder(new Color(50, 50, 50), 2),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+
         ));
-        
-        
-        
+
+
+
         rightPanel.add(minesLabel);
         rightPanel.add(timerLabel);
-        
-        
+
+
 
         topPanel.add(turnLabel, BorderLayout.WEST);
         topPanel.add(centerPanel, BorderLayout.CENTER);
@@ -298,7 +296,7 @@ public class MinesweeperGame extends JFrame {
         return label;
     }
 
-    
+
     private void startTimer() {
         gameTimer = new javax.swing.Timer(1000, e -> {
             elapsedSeconds++;
@@ -307,7 +305,7 @@ public class MinesweeperGame extends JFrame {
             timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
         });
         gameTimer.start();
-  
+
     }
 
     private void showMenu() {
