@@ -338,25 +338,42 @@ public class GameController {
             }
         }
 
+// Get activation cost
+        int activationCost = gameSession.getDifficulty().activationCost;
+
+        // Calculate net points (after activation cost deduction)
+        int netPoints = cachedPoints - activationCost;
+
         // Build feedback message
         StringBuilder feedback = new StringBuilder();
         feedback.append(correct ? "✓ CORRECT!\n\n" : "✗ WRONG!\n\n");
 
-        // Show appropriate feedback
+        // Show activation cost deduction
+        feedback.append("Activation Cost: -").append(activationCost).append(" points\n");
+
+        // Show appropriate feedback for points and lives
         if (cachedPoints == 0 && cachedLives == 0) {
-            feedback.append("No penalty this time!");
+            feedback.append("No additional changes\n");
+            feedback.append("\nNet Points: -").append(activationCost);
         } else {
             if (cachedPoints > 0) {
-                feedback.append("Points: +").append(cachedPoints).append("\n");
+                feedback.append("Points Gained: +").append(cachedPoints).append("\n");
             } else if (cachedPoints < 0) {
-                feedback.append("Points: ").append(cachedPoints).append("\n");
+                feedback.append("Points Lost: ").append(cachedPoints).append("\n");
             }
 
             if (cachedLives > 0) {
-                feedback.append("Lives: +").append(cachedLives).append(" 💖");
+                feedback.append("Lives: +").append(cachedLives).append(" 💖\n");
             } else if (cachedLives < 0) {
-                feedback.append("Lives: ").append(cachedLives).append(" 💔");
+                feedback.append("Lives: ").append(cachedLives).append(" 💔\n");
             }
+
+            // Show net points calculation
+            feedback.append("\nNet Points: ");
+            if (netPoints > 0) {
+                feedback.append("+");
+            }
+            feedback.append(netPoints).append(" (").append(cachedPoints).append(" - ").append(activationCost).append(")");
         }
 
         return feedback.toString();
