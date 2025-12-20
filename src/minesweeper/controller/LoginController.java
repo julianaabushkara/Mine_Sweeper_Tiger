@@ -1,6 +1,7 @@
 package minesweeper.controller;
 
 import minesweeper.model.MinesweeperApp;
+import minesweeper.model.SessionContext;
 import minesweeper.model.User;
 import minesweeper.view.LoginView;
 import minesweeper.view.components.NeonDialog;
@@ -257,6 +258,11 @@ public class LoginController {
             NeonDialog.showNeonDialog(view, "Login Failed", "User: " + user.getUsername() + " Not Found", eyeIcon, true, false);
         } else if (user.getPassword().compareTo(retrieveUser(user.getUsername()).getPassword()) == 0){
             System.out.println("Successfully logged in with user: " + user.getUsername());
+            //  STORE LOGGED-IN USER
+            SessionContext.currentUser = retrieveUser(user.getUsername());
+            assert SessionContext.currentUser != null;
+            System.out.println(SessionContext.currentUser.getUsername());
+
             view.dispose();
             MinesweeperApp app = new MinesweeperApp();
             app.start();

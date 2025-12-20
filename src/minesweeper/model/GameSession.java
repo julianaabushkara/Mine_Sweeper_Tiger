@@ -2,6 +2,9 @@
 package minesweeper.model;
 
 import java.util.Random;
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 
 public class GameSession {
     // Nested enum for game difficulty
@@ -17,6 +20,7 @@ public class GameSession {
         public final int startingLives;
         public final int activationCost;
 
+
         Difficulty(int gridSize, int mines, int questions, int surprises, 
                    int startingLives, int activationCost) {
             this.gridSize = gridSize;
@@ -25,6 +29,7 @@ public class GameSession {
             this.surprises = surprises;
             this.startingLives = startingLives;
             this.activationCost = activationCost;
+
         }
     }
     
@@ -34,12 +39,22 @@ public class GameSession {
     private int sharedLives;
     private int sharedScore;
     private boolean isPlayerATurn;
+    private String playerAName;
+    private String playerBName;
+    private LocalDateTime startTime;
 
-    public GameSession(Difficulty difficulty) {
+
+
+    public GameSession(String playerAName, String playerBName, Difficulty difficulty) {
+        this.playerAName = playerAName;
+        this.playerBName = playerBName;
+
         this.difficulty = difficulty;
         this.sharedLives = difficulty.startingLives;
         this.sharedScore = 0;
         this.isPlayerATurn = new Random().nextBoolean();
+        this.startTime = LocalDateTime.now();
+
 
         // Create boards for both players
         playerABoard = new Board(difficulty.gridSize, difficulty.mines, 
@@ -64,4 +79,21 @@ public class GameSession {
     public boolean isPlayerATurn() { return isPlayerATurn; }
     public void setPlayerATurn(boolean turn) { this.isPlayerATurn = turn; }
     public void switchTurn() { this.isPlayerATurn = !this.isPlayerATurn; }
+    public String getPlayerAName() {
+        return playerAName;
+    }
+
+    public String getFormattedDuration() {
+        Duration duration = Duration.between(startTime, LocalDateTime.now());
+        long minutes = duration.toMinutes();
+        long seconds = duration.minusMinutes(minutes).getSeconds();
+        return String.format("%02d:%02d", minutes, seconds);
+    }
+
+    public String getPlayerBName() {
+        return playerBName;
+    }
+
+
+
 }

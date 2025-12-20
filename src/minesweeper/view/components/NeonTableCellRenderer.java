@@ -30,9 +30,9 @@ public class NeonTableCellRenderer extends DefaultTableCellRenderer {
         cell.setForeground(Color.WHITE);
 
         // -------------------------------
-        // DIFFICULTY COLUMN PILL EFFECT
-        // -------------------------------
-        if (col == 1) {
+// DIFFICULTY COLUMN PILL EFFECT
+// -------------------------------
+        if (col == 2 && value != null) {   // ✅ Difficulty column
             String diff = value.toString().toUpperCase();
 
             Color glow;
@@ -43,34 +43,46 @@ public class NeonTableCellRenderer extends DefaultTableCellRenderer {
                 case "MEDIUM":
                     glow = new Color(255, 210, 0);
                     break;
-                default:
+                case "HARD":
                     glow = new Color(255, 80, 80);
                     break;
+                default:
+                    glow = Color.GRAY;
             }
 
             cell.setText("  " + diff + "  ");
             cell.setBorder(BorderFactory.createCompoundBorder(
-                    new RoundedGlowBorder(glow, 8),
-                    BorderFactory.createEmptyBorder(3, 10, 3, 10)
+                    new RoundedGlowBorder(glow, 10),
+                    BorderFactory.createEmptyBorder(3, 12, 3, 12)
             ));
+            cell.setFont(new Font("Segoe UI", Font.BOLD, 16));
         } else {
             cell.setBorder(null);
         }
 
+        // Extra padding for Date/Time column
+        if (col == 1) {
+            cell.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
+        }
+
+
         // -------------------------------
         // SCORE GLOWING GREEN
         // -------------------------------
-        if (col == 4) {
+        if (col == 5) {
             cell.setForeground(new Color(0, 255, 120)); // Neon green
             cell.setFont(new Font("Segoe UI", Font.BOLD, 16));
         }
 
-        // -------------------------------
-        // WINNER TEXT COLOR
-        // -------------------------------
-        if (col == 5) {
-            cell.setForeground(new Color(0, 255, 120));
+        if (col == 6 && value != null) {   // ✅ Winner
+            String result = value.toString();
+            if (result.contains("Win")) {
+                cell.setForeground(new Color(0, 255, 120));
+            } else {
+                cell.setForeground(new Color(255, 80, 80));
+            }
         }
+
 
         return cell;
     }

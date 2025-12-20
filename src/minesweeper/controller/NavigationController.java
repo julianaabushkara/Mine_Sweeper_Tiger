@@ -139,7 +139,7 @@ public class NavigationController {
             try {
                 // Create game controller
                 GameController gameController = new GameController();
-                gameController.startNewGame(difficulty);
+                gameController.startNewGame(player1Name, player2Name,difficulty);
 
                 // Create game view (JFrame)
                 MinesweeperGame gameView = new MinesweeperGame(gameController, appModel.getQuestionBank());
@@ -215,6 +215,14 @@ public class NavigationController {
             }
         });
     }
+
+    private boolean isValidPlayerName(String name) {
+        if (name == null) return false;
+
+        String trimmed = name.trim();
+        return !trimmed.isEmpty() && trimmed.length() <= 20;
+    }
+
 
     /**
      * Return to main menu from game

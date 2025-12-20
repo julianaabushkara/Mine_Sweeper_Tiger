@@ -77,7 +77,7 @@ public class MinesweeperApp {
 
     // Shared resources
     private QuestionBank questionBank;
-    private GameHistoryManager gameHistoryManager;  // FIXED: Changed from GameHistory to GameHistoryManager
+    //private GameHistoryManager gameHistoryManager;  // FIXED: Changed from GameHistory to GameHistoryManager
 
     /**
      * Constructor - initializes the application
@@ -112,7 +112,7 @@ public class MinesweeperApp {
             questionBank = new QuestionBank();
 
             // Initialize Game History Manager
-            gameHistoryManager = new GameHistoryManager();  // FIXED: Now uses manager class
+            //gameHistoryManager = new GameHistoryManager();  // FIXED: Now uses manager class
 
             System.out.println("Resources initialized successfully");
         } catch (Exception e) {
@@ -151,7 +151,7 @@ public class MinesweeperApp {
         navigationController.navigateToStartMenu();
     }
 
-    /**
+    /**a
      * Start the application - make the main window visible
      */
     public void start() {
@@ -177,9 +177,9 @@ public class MinesweeperApp {
      * Get the game history manager
      * @return GameHistoryManager instance
      */
-    public GameHistoryManager getGameHistoryManager() {  // FIXED: Changed return type
-        return gameHistoryManager;
-    }
+    //public GameHistoryManager getGameHistoryManager() {  // FIXED: Changed return type
+    //    return gameHistoryManager;
+    //}
 
     /**
      * Get the main frame

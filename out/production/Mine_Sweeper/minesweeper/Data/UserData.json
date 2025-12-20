@@ -5,6 +5,5 @@
   {"username":"b","password":"b","securityAnswer":"B","securityQuestion":"Birth Month"},
   {"username":"d","password":"d","securityAnswer":"HAIFA","securityQuestion":"Birth City"},
   {"username":"f","password":"f","securityAnswer":"F","securityQuestion":"Birth Month"},
-  {"username":"hi","password":"hi","securityAnswer":"HI","securityQuestion":"First Pet's Name"},
-  {"username":"meow","password":"meow","securityAnswer":"BONUS","securityQuestion":"First Pet's Name"}
+  {"username":"hi","password":"hi","securityAnswer":"HI","securityQuestion":"First Pet's Name"}
 ]

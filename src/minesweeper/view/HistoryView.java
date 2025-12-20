@@ -20,6 +20,8 @@ public class HistoryView extends JPanel {
     private JButton refreshButton;
     private JButton backButton;
     private JLabel title;
+    private String username;
+
     JScrollPane scrollPane;
     JPanel buttonPanel;
     JTableHeader header;
@@ -57,7 +59,7 @@ public class HistoryView extends JPanel {
         // TABLE MODEL
         // =======================
         String[] columns = {
-                "Date/Time", "Difficulty", "Player 1", "Player 2", "Score", "Winner"
+                "User","Date/Time", "Difficulty", "Player 1", "Player 2", "Score", "Winner"
         };
 
         tableModel = new DefaultTableModel(columns, 0) {
@@ -89,6 +91,20 @@ public class HistoryView extends JPanel {
                 BorderFactory.createLineBorder(new Color(0, 200, 255), 4, true)
         );
 
+        historyTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        // ---- COLUMN WIDTH TUNING (CRITICAL) ----
+        historyTable.getColumnModel().getColumn(0).setPreferredWidth(110); // User
+        historyTable.getColumnModel().getColumn(1).setPreferredWidth(210); // Date/Time
+        historyTable.getColumnModel().getColumn(2).setPreferredWidth(170); // Difficulty (PILL)
+        historyTable.getColumnModel().getColumn(3).setPreferredWidth(130); // Player 1
+        historyTable.getColumnModel().getColumn(4).setPreferredWidth(130); // Player 2
+        historyTable.getColumnModel().getColumn(5).setPreferredWidth(100);  // Score
+        historyTable.getColumnModel().getColumn(6).setPreferredWidth(130); // Winner
+
+
+
         add(scrollPane, BorderLayout.CENTER);
 
 
@@ -116,7 +132,8 @@ public class HistoryView extends JPanel {
 
         // Increase spacing and row height
         historyTable.setIntercellSpacing(new Dimension(0, 20));
-        historyTable.setRowHeight(60);
+        historyTable.setRowHeight(72);
+
 
 
         // =======================
@@ -130,6 +147,9 @@ public class HistoryView extends JPanel {
 
         buttonPanel.add(refreshButton);
         buttonPanel.add(backButton);
+
+
+
 
         add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -157,6 +177,7 @@ public class HistoryView extends JPanel {
 
         for (GameHistory h : GameHistoryLogic.getInstance().getAllHistory()) {
             tableModel.addRow(new Object[]{
+                    h.getUsername(),
                     h.getFormattedDate(),
                     h.getDifficulty(),
                     h.getPlayer1(),
