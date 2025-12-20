@@ -21,7 +21,8 @@ public class MinesweeperGame extends JFrame {
     private JLabel turnLabel;
     private JLabel livesLabel;
     private JLabel scoreLabel;
-    private JLabel minesLabel;
+    private JLabel minesLabelPlayerA;
+    private JLabel minesLabelPlayerB;
     private JLabel timerLabel;
     private javax.swing.Timer gameTimer;
     private boolean gameEnded = false;
@@ -115,11 +116,24 @@ public class MinesweeperGame extends JFrame {
         centerPanel.add(livesLabel);
         centerPanel.add(scoreLabel);
 
-        // Right: Mines count 
-        JPanel rightPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        // Right: Mines count for each player
+        JPanel rightPanel = new JPanel(new GridLayout(3, 1, 5, 5));
         rightPanel.setBackground(new Color(15, 20, 25));
-        int totalMines = session.getDifficulty().mines * 2;
-        minesLabel = createStyledLabel("MINES:\n" + totalMines, 16, new Color(255, 80, 80));
+
+        int minesPerPlayer = session.getDifficulty().mines;
+        int minesLeftPlayerA = minesPerPlayer - session.getPlayerABoard().getRevealedMines();
+        int minesLeftPlayerB = minesPerPlayer - session.getPlayerBBoard().getRevealedMines();
+
+        minesLabelPlayerA = createStyledLabel(
+                session.getPlayerAName() + " MINES: " + minesLeftPlayerA,
+                14,
+                new Color(200, 100, 200)
+        );
+        minesLabelPlayerB = createStyledLabel(
+                session.getPlayerBName() + " MINES: " + minesLeftPlayerB,
+                14,
+                new Color(100, 200, 255)
+        );
 
         // Timer with red rectangular background
         timerLabel = new JLabel("00:00");
@@ -136,7 +150,8 @@ public class MinesweeperGame extends JFrame {
 
 
 
-        rightPanel.add(minesLabel);
+        rightPanel.add(minesLabelPlayerA);
+        rightPanel.add(minesLabelPlayerB);
         rightPanel.add(timerLabel);
 
 
@@ -199,7 +214,7 @@ public class MinesweeperGame extends JFrame {
             gameEnded = true;  // Set flag to prevent further interactions
              gameTimer.stop();
             endGame(controller.isVictory());
-            
+
         }
     }*/
 
@@ -358,12 +373,16 @@ public class MinesweeperGame extends JFrame {
         scoreLabel.setText(String.format("SCORE: %04d (%s)",
                 session.getSharedScore(), session.getDifficulty().name()));
 
-        int totalMines = session.getPlayerABoard().getTotalMines() +
-                session.getPlayerBBoard().getTotalMines();
-        int revealedMines = session.getPlayerABoard().getRevealedMines() +
+        // Update mine counts for each player
+        int minesLeftPlayerA = session.getPlayerABoard().getTotalMines() -
+                session.getPlayerABoard().getRevealedMines();
+        int minesLeftPlayerB = session.getPlayerBBoard().getTotalMines() -
                 session.getPlayerBBoard().getRevealedMines();
-        minesLabel.setText(String.format("<html>MINES:<br>%d</html>",
-                totalMines - revealedMines));
+
+        minesLabelPlayerA.setText(String.format("<html>%s MINES:<br>%d</html>",
+                session.getPlayerAName(), minesLeftPlayerA));
+        minesLabelPlayerB.setText(String.format("<html>%s MINES:<br>%d</html>",
+                session.getPlayerBName(), minesLeftPlayerB));
     }
 
     // Inner class for board panel

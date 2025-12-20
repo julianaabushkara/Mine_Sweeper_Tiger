@@ -14,7 +14,7 @@ import java.awt.*;
  * This is the entry point for the application
  *
  * @author Tiger
- * @version 1.0
+ * @version 2.0
 ___..........__
 _,...._           _."'_,.++8n.n8898n.`"._        _....._
 .'       `".     _.'_.'" _.98n.68n. `"88n. `'.   ,"       `.
