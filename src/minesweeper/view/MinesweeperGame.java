@@ -42,14 +42,14 @@ public class MinesweeperGame extends JFrame {
         });
     }*/
 
-    public MinesweeperGame(GameController controller) {
+    public MinesweeperGame(GameController controller, QuestionBank questionBank) {
         this.controller = controller;
         controller.setView(this);
 
         try {
-            questionBank = new QuestionBank("resources/Questions/Questions.csv");
-            questionBank.loadFromCsv();
-            System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from CSV.");
+            this.questionBank = new QuestionBank("resources/Questions/Questions.csv");
+            this.questionBank.loadFromCsv();
+            System.out.println("Loaded " + this.questionBank.getQuestionCount() + " questions from CSV.");
         } catch (QuestionBank.CSVParseException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(
@@ -58,7 +58,7 @@ public class MinesweeperGame extends JFrame {
                     "Question Bank Error",
                     JOptionPane.ERROR_MESSAGE
             );
-            questionBank = new QuestionBank();
+            this.questionBank = new QuestionBank();
         }
 
         setTitle("Minesweeper Boards");
