@@ -222,7 +222,7 @@ public class LoginView extends JFrame {
         });
 
         // Footer
-        footerLabel = new JLabel("Group Tiger · Version 1.1 · 2025");
+        footerLabel = new JLabel("Group Tiger · Version 2.0 · 2025");
         footerLabel.setFont(new Font("Arial", Font.PLAIN, 11));
         footerLabel.setForeground(new Color(80, 80, 80));
         footerLabel.setBounds(0, 520, 500, 20);
