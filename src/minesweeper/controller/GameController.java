@@ -196,7 +196,7 @@ public class GameController {
                                 gameSession.getPlayerBBoard().getTotalMines());
     }
 
-    public void addLives(int lives) {
+    public int addLives(int lives) {
         int oldLives = gameSession.getSharedLives();
         gameSession.addLives(lives);
 
@@ -214,7 +214,9 @@ public class GameController {
                                 gameSession.getDifficulty().activationCost + " = +" + bonusPoints + " bonus points.",
                         "Bonus", JOptionPane.INFORMATION_MESSAGE);
             }
+            return bonusPoints; // Return bonus points for feedback calculation
         }
+        return 0; // No bonus points if under maximum
     }
 
     public void addScore(int points) {
@@ -224,6 +226,7 @@ public class GameController {
     // Cached random values for question outcomes
     private int cachedPoints = 0;
     private int cachedLives = 0;
+    private int cachedBonusPoints = 0; // Bonus points from life overflow
 
     // Get feedback for question tile before activation (and cache the outcome)
     public String getQuestionFeedback(QuestionDifficulty qDiff, boolean correct) {
@@ -232,6 +235,7 @@ public class GameController {
 
         cachedPoints = 0;
         cachedLives = 0;
+        cachedBonusPoints = 0; // Reset bonus points
 
         // Easy Game Mode
         if (gameDiff == GameSession.Difficulty.EASY) {
@@ -341,8 +345,21 @@ public class GameController {
         // Get activation cost
         int activationCost = gameSession.getDifficulty().activationCost;
 
-        // Calculate net points (after activation cost deduction)
-        int netPoints = cachedPoints - activationCost;
+        // Calculate potential bonus from life overflow
+        int potentialBonusFromLives = 0;
+        int actualLivesGained = cachedLives;
+        if (cachedLives > 0) {
+            int currentLives = gameSession.getSharedLives();
+            int newLives = currentLives + cachedLives;
+            if (newLives > 10) {
+                int overflow = newLives - 10;
+                potentialBonusFromLives = overflow * activationCost;
+                actualLivesGained = cachedLives - overflow;
+            }
+        }
+
+        // Calculate net points (including potential life overflow bonus)
+        int netPoints = cachedPoints - activationCost + potentialBonusFromLives;
 
         // Build feedback message
         StringBuilder feedback = new StringBuilder();
@@ -363,7 +380,14 @@ public class GameController {
             }
 
             if (cachedLives > 0) {
-                feedback.append("Lives: +").append(cachedLives).append(" 💖\n");
+                if (potentialBonusFromLives > 0) {
+                    // Show life overflow conversion
+                    feedback.append("Lives: +").append(actualLivesGained).append(" 💖");
+                    feedback.append(" (max reached, ").append(cachedLives - actualLivesGained);
+                    feedback.append(" converted to +").append(potentialBonusFromLives).append(" pts)\n");
+                } else {
+                    feedback.append("Lives: +").append(cachedLives).append(" 💖\n");
+                }
             } else if (cachedLives < 0) {
                 feedback.append("Lives: ").append(cachedLives).append(" 💔\n");
             }
@@ -373,7 +397,14 @@ public class GameController {
             if (netPoints > 0) {
                 feedback.append("+");
             }
-            feedback.append(netPoints).append(" (").append(cachedPoints).append(" - ").append(activationCost).append(")");
+            if (potentialBonusFromLives > 0) {
+                feedback.append(netPoints).append(" (").append(cachedPoints)
+                        .append(" - ").append(activationCost)
+                        .append(" + ").append(potentialBonusFromLives).append(" bonus)");
+            } else {
+                feedback.append(netPoints).append(" (").append(cachedPoints)
+                        .append(" - ").append(activationCost).append(")");
+            }
         }
 
         return feedback.toString();
@@ -390,7 +421,10 @@ public class GameController {
 
         // Use the cached values from getQuestionFeedback
         addScore(cachedPoints);
-        addLives(cachedLives);
+        int bonusFromLives = addLives(cachedLives);
+
+        // Update cached points to include bonus from overflow lives for accurate feedback
+        cachedBonusPoints = bonusFromLives;
     }
 
     public String activateSurpriseTile(Cell cell) {
@@ -422,13 +456,20 @@ public class GameController {
         }
 
         addScore(pointChange);
-        addLives(lifeChange);
+        int bonusFromLives = addLives(lifeChange);
 
         // Get activation cost
         int activationCost = gameSession.getDifficulty().activationCost;
 
-        // Calculate net points (after activation cost deduction)
-        int netPoints = pointChange - activationCost;
+        // Calculate net points (including life overflow bonus)
+        int netPoints = pointChange - activationCost + bonusFromLives;
+
+        // Calculate actual lives gained (accounting for overflow)
+        int actualLivesGained = lifeChange;
+        if (lifeChange > 0 && bonusFromLives > 0) {
+            int overflow = bonusFromLives / activationCost;
+            actualLivesGained = lifeChange - overflow;
+        }
 
         // Build feedback message
         StringBuilder feedback = new StringBuilder();
@@ -446,7 +487,14 @@ public class GameController {
 
         // Show lives change
         if (lifeChange > 0) {
-            feedback.append("Lives: +").append(lifeChange).append(" 💖\n");
+            if (bonusFromLives > 0) {
+                // Show life overflow conversion
+                feedback.append("Lives: +").append(actualLivesGained).append(" 💖");
+                feedback.append(" (max reached, ").append(lifeChange - actualLivesGained);
+                feedback.append(" converted to +").append(bonusFromLives).append(" pts)\n");
+            } else {
+                feedback.append("Lives: +").append(lifeChange).append(" 💖\n");
+            }
         } else if (lifeChange < 0) {
             feedback.append("Lives: ").append(lifeChange).append(" 💔\n");
         }
@@ -456,7 +504,14 @@ public class GameController {
         if (netPoints >= 0) {
             feedback.append("+");
         }
-        feedback.append(netPoints).append(" (").append(pointChange).append(" - ").append(activationCost).append(")");
+        if (bonusFromLives > 0) {
+            feedback.append(netPoints).append(" (").append(pointChange)
+                    .append(" - ").append(activationCost)
+                    .append(" + ").append(bonusFromLives).append(" bonus)");
+        } else {
+            feedback.append(netPoints).append(" (").append(pointChange)
+                    .append(" - ").append(activationCost).append(")");
+        }
 
         return feedback.toString();
     }
@@ -558,6 +613,10 @@ public class GameController {
 
                         if (neighborCell.getType() == Cell.CellType.MINE) {
                             board.incrementRevealedMines();
+                        }
+                        // CRITICAL FIX: Trigger cascade for EMPTY cells in the revealed 3x3 area
+                        else if (neighborCell.getType() == Cell.CellType.EMPTY) {
+                            revealAdjacentCells(newRow, newCol, board);
                         }
                     }
                 }
