@@ -10,9 +10,10 @@ import org.json.simple.parser.ParseException;
 import minesweeper.model.GameSession;
 
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class GameHistoryLogic {
 
     private static GameHistoryLogic instance;
     private final List<GameHistory> historyList = new ArrayList<>();
-    private static final String HISTORY_FILE = "src/minesweeper/Data/history.json";
+    private static final Path HISTORY_FILE = getHistoryPath();
 
     private GameHistoryLogic() {}
 
@@ -31,6 +32,38 @@ public class GameHistoryLogic {
         if (instance == null)
             instance = new GameHistoryLogic();
         return instance;
+    }
+
+    // Helper method to get history file path
+    private static Path getHistoryPath() {
+        try {
+            Path userHome = Paths.get(System.getProperty("user.home"));
+            Path appDir = userHome.resolve(".minesweeper");
+            Files.createDirectories(appDir);
+            Path historyFile = appDir.resolve("history.json");
+
+            // If file doesn't exist, try to copy from classpath
+            if (!Files.exists(historyFile)) {
+                try (InputStream is = GameHistoryLogic.class.getResourceAsStream("/minesweeper/Data/history.json")) {
+                    if (is != null) {
+                        Files.copy(is, historyFile);
+                    } else {
+                        // Create empty history file with proper structure
+                        JSONObject root = new JSONObject();
+                        root.put("users", new JSONObject());
+                        Files.write(historyFile, root.toJSONString().getBytes());
+                    }
+                } catch (IOException e) {
+                    // Create empty file if copy fails
+                    JSONObject root = new JSONObject();
+                    root.put("users", new JSONObject());
+                    Files.write(historyFile, root.toJSONString().getBytes());
+                }
+            }
+            return historyFile;
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot create history data directory", e);
+        }
     }
 
     /*
@@ -99,7 +132,7 @@ public class GameHistoryLogic {
         JSONObject usersObject;
 
         try {
-            File file = new File(HISTORY_FILE);
+            File file = HISTORY_FILE.toFile();
 
             // 1. Load or create root
             if (file.exists() && file.length() > 0) {
@@ -217,7 +250,7 @@ public class GameHistoryLogic {
 
         try {
             JSONParser parser = new JSONParser();
-            JSONObject root = (JSONObject) parser.parse(new FileReader(HISTORY_FILE));
+            JSONObject root = (JSONObject) parser.parse(new FileReader(HISTORY_FILE.toFile()));
 
             JSONObject usersObject = (JSONObject) root.get("users");
             if (usersObject == null) {

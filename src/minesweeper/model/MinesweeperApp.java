@@ -84,7 +84,7 @@ public class MinesweeperApp {
      */
     public MinesweeperApp() {
         try {
-            questionBank = new QuestionBank("resources/Questions/Questions.csv");
+            questionBank = new QuestionBank("/Questions/Questions.csv");
             questionBank.loadFromCsv();
             System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from CSV.");
         } catch (Exception e) {

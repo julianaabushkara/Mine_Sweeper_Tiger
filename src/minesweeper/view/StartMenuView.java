@@ -72,7 +72,7 @@ public class StartMenuView extends JPanel {
         // =========================================
         // LOGO - TIGER ICON
         // =========================================
-        ImageIcon tigerIcon = new ImageIcon("resources/assets/tiger.png");
+        ImageIcon tigerIcon = loadImageIcon("/assets/tiger.png");
         JLabel logoLabel = new JLabel(tigerIcon);
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -139,6 +139,16 @@ public class StartMenuView extends JPanel {
         gbc.gridy = 7;
         gbc.insets = new Insets(40, 20, 10, 20);
         add(versionLabel, gbc);
+    }
+
+    // Helper method to load images from classpath
+    private ImageIcon loadImageIcon(String path) {
+        java.net.URL imageUrl = getClass().getResource(path);
+        if (imageUrl != null) {
+            return new ImageIcon(imageUrl);
+        }
+        System.err.println("Warning: Could not load image: " + path);
+        return new ImageIcon();
     }
 
     // =========================================

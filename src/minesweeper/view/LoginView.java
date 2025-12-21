@@ -42,7 +42,7 @@ public class LoginView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
-        ImageIcon tigerIcon = new ImageIcon("resources/assets/tiger.png");
+        ImageIcon tigerIcon = loadImageIcon("/assets/tiger.png");
         setIconImage(tigerIcon.getImage());
         // Main panel with dark background
         JPanel mainPanel = new JPanel() {
@@ -112,7 +112,7 @@ public class LoginView extends JFrame {
         repeatPasswordField.setVisible(false);
 
         // Eye toggle button
-        togglePasswordBtn = new JButton(new ImageIcon("resources/assets/eye.png"));
+        togglePasswordBtn = new JButton(loadImageIcon("/assets/eye.png"));
         togglePasswordBtn.setBounds(260, 0, 40, 45);
         togglePasswordBtn.setFocusPainted(false);
         togglePasswordBtn.setBorderPainted(false);
@@ -140,7 +140,7 @@ public class LoginView extends JFrame {
         backBtn = NeonButtonFactory.createNeonButton("BACK", Color.RED.brighter());
         backBtn.setVisible(false);
         backBtn.addActionListener(e -> {
-           loginFormat();
+            loginFormat();
         });
 
         // Login button
@@ -236,6 +236,16 @@ public class LoginView extends JFrame {
         mainPanel.add(footerLabel);
 
         add(mainPanel);
+    }
+
+    // Helper method to load images from classpath
+    private ImageIcon loadImageIcon(String path) {
+        java.net.URL imageUrl = getClass().getResource(path);
+        if (imageUrl != null) {
+            return new ImageIcon(imageUrl);
+        }
+        System.err.println("Warning: Could not load image: " + path);
+        return new ImageIcon();
     }
 
     private JPasswordField createStyledPasswordField(String placeholder, Color borderColor) {
