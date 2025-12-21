@@ -51,7 +51,7 @@ public class StartMenuView extends JPanel {
         // TITLE - "MINE SWEEPER"
         // =========================================
         titleLabel = new JLabel("MINE SWEEPER", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 48));
+        titleLabel.setFont(new Font("Arial Unicode MS ", Font.BOLD, 48));
         titleLabel.setForeground(new Color(255, 255, 255));
 
         gbc.gridy = 0;
@@ -62,7 +62,7 @@ public class StartMenuView extends JPanel {
         // SUBTITLE - "TIGER EDITION"
         // =========================================
         subtitleLabel = new JLabel("TIGER EDITION", SwingConstants.CENTER);
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        subtitleLabel.setFont(new Font("Arial Unicode MS ", Font.PLAIN, 18));
         subtitleLabel.setForeground(Color.YELLOW.brighter());
 
         gbc.gridy = 1;
@@ -87,7 +87,7 @@ public class StartMenuView extends JPanel {
                 "▶ NEW GAME",
                 new Color(0, 255, 120)
         );
-        newGameButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        newGameButton.setFont(new Font("Arial Unicode MS ", Font.BOLD, 20));
 
         gbc.gridy = 3;
         gbc.insets = new Insets(10, 20, 10, 20);
@@ -100,7 +100,7 @@ public class StartMenuView extends JPanel {
                 "? QUESTION WIZARD",
                 new Color(0, 180, 255)
         );
-        questionWizardButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        questionWizardButton.setFont(new Font("Arial Unicode MS I", Font.BOLD, 20));
 
         gbc.gridy = 4;
         add(questionWizardButton, gbc);
@@ -112,7 +112,7 @@ public class StartMenuView extends JPanel {
                 "⏱ HISTORY",
                 new Color(180, 80, 255)
         );
-        historyButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        historyButton.setFont(new Font("Arial Unicode MS ", Font.BOLD, 20));
 
         gbc.gridy = 5;
         add(historyButton, gbc);
@@ -124,7 +124,7 @@ public class StartMenuView extends JPanel {
                 "➜ EXIT",
                 new Color(255, 60, 80)
         );
-        exitButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        exitButton.setFont(new Font("Arial Unicode MS ", Font.BOLD, 20));
 
         gbc.gridy = 6;
         add(exitButton, gbc);
@@ -133,7 +133,7 @@ public class StartMenuView extends JPanel {
         // VERSION LABEL
         // =========================================
         versionLabel = new JLabel("Group Tiger · Version 2.0", SwingConstants.CENTER);
-        versionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        versionLabel.setFont(new Font("Arial Unicode MS", Font.PLAIN, 12));
         versionLabel.setForeground(new Color(100, 100, 110));
 
         gbc.gridy = 7;
