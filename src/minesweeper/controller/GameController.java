@@ -77,7 +77,7 @@ public class GameController {
 
         //GameHistoryManager historyManager = new GameHistoryManager();
 
-       // String username = SessionContext.currentUser.getUsername();
+        // String username = SessionContext.currentUser.getUsername();
         String username = (SessionContext.currentUser != null)
                 ? SessionContext.currentUser.getUsername()
                 : "ANONYMOUS";
@@ -93,7 +93,7 @@ public class GameController {
                 java.time.LocalDateTime.now()
         );
 
-       //historyManager.addGameForUser(username, history);
+        //historyManager.addGameForUser(username, history);
         GameHistoryLogic.getInstance()
                 .saveHistoryForUser(username, history);
 
@@ -338,7 +338,7 @@ public class GameController {
             }
         }
 
-// Get activation cost
+        // Get activation cost
         int activationCost = gameSession.getDifficulty().activationCost;
 
         // Calculate net points (after activation cost deduction)
@@ -424,21 +424,39 @@ public class GameController {
         addScore(pointChange);
         addLives(lifeChange);
 
+        // Get activation cost
+        int activationCost = gameSession.getDifficulty().activationCost;
+
+        // Calculate net points (after activation cost deduction)
+        int netPoints = pointChange - activationCost;
+
         // Build feedback message
         StringBuilder feedback = new StringBuilder();
         feedback.append(isGood ? "🎉 GOOD SURPRISE!\n\n" : "😱 BAD SURPRISE!\n\n");
 
+        // Show activation cost deduction
+        feedback.append("Activation Cost: -").append(activationCost).append(" points\n");
+
+        // Show points gained/lost
         if (pointChange > 0) {
-            feedback.append("Points: +").append(pointChange).append("\n");
+            feedback.append("Points Gained: +").append(pointChange).append("\n");
         } else if (pointChange < 0) {
-            feedback.append("Points: ").append(pointChange).append("\n");
+            feedback.append("Points Lost: ").append(pointChange).append("\n");
         }
 
+        // Show lives change
         if (lifeChange > 0) {
-            feedback.append("Lives: +").append(lifeChange).append(" 💖");
+            feedback.append("Lives: +").append(lifeChange).append(" 💖\n");
         } else if (lifeChange < 0) {
-            feedback.append("Lives: ").append(lifeChange).append(" 💔");
+            feedback.append("Lives: ").append(lifeChange).append(" 💔\n");
         }
+
+        // Show net points calculation
+        feedback.append("\nNet Points: ");
+        if (netPoints >= 0) {
+            feedback.append("+");
+        }
+        feedback.append(netPoints).append(" (").append(pointChange).append(" - ").append(activationCost).append(")");
 
         return feedback.toString();
     }
