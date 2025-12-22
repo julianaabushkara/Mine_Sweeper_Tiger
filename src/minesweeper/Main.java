@@ -9,7 +9,7 @@ import minesweeper.view.LoginView;
  * Launches the Minesweeper Tiger Edition application
  *
  * @author Group Tiger
- * @version 1.1
+ * @version 2.0
  */
 public class Main {
 
@@ -19,7 +19,7 @@ public class Main {
      */
     public static void main(String[] args) {
         System.out.println("╔═══════════════════════════════════════╗");
-        System.out.println("║   MINESWEEPER - TIGER EDITION v1.1    ║");
+        System.out.println("║   MINESWEEPER - TIGER EDITION v2.0    ║");
         System.out.println("║            \uD83C\uDD63\uD83C\uDD58" +
                                         "\uD83C\uDD56\uD83C\uDD54" +
                                        "\uD83C\uDD61 \uD83C\uDD56" +

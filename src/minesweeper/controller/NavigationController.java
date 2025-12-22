@@ -139,10 +139,10 @@ public class NavigationController {
             try {
                 // Create game controller
                 GameController gameController = new GameController();
-                gameController.startNewGame(difficulty);
+                gameController.startNewGame(player1Name, player2Name,difficulty);
 
                 // Create game view (JFrame)
-                MinesweeperGame gameView = new MinesweeperGame(gameController);
+                MinesweeperGame gameView = new MinesweeperGame(gameController, appModel.getQuestionBank());
 
                 // AGGRESSIVE FIX for EXIT_ON_CLOSE issue:
                 // 1. Use DISPOSE_ON_CLOSE instead of DO_NOTHING (more reliable)
@@ -215,6 +215,14 @@ public class NavigationController {
             }
         });
     }
+
+    private boolean isValidPlayerName(String name) {
+        if (name == null) return false;
+
+        String trimmed = name.trim();
+        return !trimmed.isEmpty() && trimmed.length() <= 20;
+    }
+
 
     /**
      * Return to main menu from game

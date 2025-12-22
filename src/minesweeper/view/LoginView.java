@@ -42,7 +42,7 @@ public class LoginView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
-        ImageIcon tigerIcon = new ImageIcon("resources/assets/tiger.png");
+        ImageIcon tigerIcon = loadImageIcon("/assets/tiger.png");
         setIconImage(tigerIcon.getImage());
         // Main panel with dark background
         JPanel mainPanel = new JPanel() {
@@ -92,7 +92,7 @@ public class LoginView extends JFrame {
         formPanel.setOpaque(false);
 
         // Username field
-        usernameField  = new PlaceholderTextField("Username");
+        usernameField  = new PlaceholderTextField("Username",20);
         styleNeonTextField(usernameField, Color.CYAN.brighter());
         usernameField.setBounds(25, 30, 300, 45);
 
@@ -112,7 +112,7 @@ public class LoginView extends JFrame {
         repeatPasswordField.setVisible(false);
 
         // Eye toggle button
-        togglePasswordBtn = new JButton(new ImageIcon("resources/assets/eye.png"));
+        togglePasswordBtn = new JButton(loadImageIcon("/assets/eye.png"));
         togglePasswordBtn.setBounds(260, 0, 40, 45);
         togglePasswordBtn.setFocusPainted(false);
         togglePasswordBtn.setBorderPainted(false);
@@ -131,7 +131,7 @@ public class LoginView extends JFrame {
 
 
         // Security answer field
-        securityAnswer = new PlaceholderTextField("Answer");
+        securityAnswer = new PlaceholderTextField("Answer",20);
         styleNeonTextField(securityAnswer, Color.CYAN.brighter());
         securityAnswer.setVisible(false);
         securityAnswer.setBounds(25,250,300,45);
@@ -140,7 +140,7 @@ public class LoginView extends JFrame {
         backBtn = NeonButtonFactory.createNeonButton("BACK", Color.RED.brighter());
         backBtn.setVisible(false);
         backBtn.addActionListener(e -> {
-           loginFormat();
+            loginFormat();
         });
 
         // Login button
@@ -184,7 +184,7 @@ public class LoginView extends JFrame {
         question.setEnabled(false);
         question.setVisible(false);
 
-        answer = new PlaceholderTextField("Answer");
+        answer = new PlaceholderTextField("Answer",20);
         answer.setBounds(25,140,300,45);
         styleNeonTextField(answer, Color.CYAN.brighter());
         answer.setVisible(false);
@@ -222,7 +222,7 @@ public class LoginView extends JFrame {
         });
 
         // Footer
-        footerLabel = new JLabel("Group Tiger · Version 1.1 · 2025");
+        footerLabel = new JLabel("Group Tiger · Version 2.0 · 2025");
         footerLabel.setFont(new Font("Arial", Font.PLAIN, 11));
         footerLabel.setForeground(new Color(80, 80, 80));
         footerLabel.setBounds(0, 520, 500, 20);
@@ -236,6 +236,16 @@ public class LoginView extends JFrame {
         mainPanel.add(footerLabel);
 
         add(mainPanel);
+    }
+
+    // Helper method to load images from classpath
+    private ImageIcon loadImageIcon(String path) {
+        java.net.URL imageUrl = getClass().getResource(path);
+        if (imageUrl != null) {
+            return new ImageIcon(imageUrl);
+        }
+        System.err.println("Warning: Could not load image: " + path);
+        return new ImageIcon();
     }
 
     private JPasswordField createStyledPasswordField(String placeholder, Color borderColor) {

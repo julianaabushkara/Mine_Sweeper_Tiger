@@ -1,6 +1,7 @@
 package minesweeper.controller;
 
 import minesweeper.model.MinesweeperApp;
+import minesweeper.model.SessionContext;
 import minesweeper.model.User;
 import minesweeper.view.LoginView;
 import minesweeper.view.components.NeonDialog;
@@ -8,6 +9,9 @@ import minesweeper.view.components.NeonDialog;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,19 +56,57 @@ import java.util.List;
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣶⣶⣶⣶⡶⠾⢿⣿⡿⠷⢶⣶⣶⣶⣶⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠿⣿⣿⣦⣀⡀⠀⠀⠀⠀⠀⢀⣀⣤⣾⣿⡿⠿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠿⢿⣷⣶⣶⡿⠿⠟⠛⠉⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-**/
+ **/
 
 public class LoginController {
     static LoginView view;
-    private static final ImageIcon eyeIcon = new ImageIcon("resources/assets/eye.png");
+    private static final Path USER_DATA_FILE = getUserDataPath();
+
     public LoginController(LoginView view){
         LoginController.view = view;
         view.setVisible(true);
     }
-    static File UserData = new File("src/minesweeper/data/userData.json");
+
+    // Helper method to get user data file path
+    private static Path getUserDataPath() {
+        try {
+            Path userHome = Paths.get(System.getProperty("user.home"));
+            Path appDir = userHome.resolve(".minesweeper");
+            Files.createDirectories(appDir);
+            Path dataFile = appDir.resolve("UserData.json");
+
+            // If file doesn't exist, try to copy from classpath
+            if (!Files.exists(dataFile)) {
+                try (InputStream is = LoginController.class.getResourceAsStream("/minesweeper/Data/UserData.json")) {
+                    if (is != null) {
+                        Files.copy(is, dataFile);
+                    } else {
+                        // Create empty user data file
+                        Files.write(dataFile, "[]".getBytes());
+                    }
+                } catch (IOException e) {
+                    // Create empty file if copy fails
+                    Files.write(dataFile, "[]".getBytes());
+                }
+            }
+            return dataFile;
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot create user data directory", e);
+        }
+    }
+
+    // Helper method to load images from classpath
+    private static ImageIcon loadImageIcon(String path) {
+        java.net.URL imageUrl = LoginController.class.getResource(path);
+        if (imageUrl != null) {
+            return new ImageIcon(imageUrl);
+        }
+        System.err.println("Warning: Could not load image: " + path);
+        return new ImageIcon();
+    }
 
     public static boolean doesUserExist(String username) {
-        ImageIcon eyeIcon = new ImageIcon("src/minesweeper/view/assets/eye.png");
+        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
         if (retrieveUser(username) == null){
             NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "User: " + username + " Not Found", eyeIcon, true, false);
             return false;
@@ -75,6 +117,7 @@ public class LoginController {
     public static boolean addUser(User user, String passwordRepeat) {
         // Check if username already exists
         List<User> users = loadUsers();
+        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
         for (User u : users) {
             if (u.getUsername().equals(user.getUsername())) {
                 System.out.println("User with username '" + user.getUsername() + "' already exists!");
@@ -103,6 +146,7 @@ public class LoginController {
     }
 
     public static boolean retrievePassword(String userName, String securityAnswer) {
+        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
         if (retrieveUser(userName) == null) {
             NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "User: " + userName + " Not Found",
                     eyeIcon, true, false);
@@ -143,7 +187,7 @@ public class LoginController {
     private static List<User> loadUsers() {
         List<User> users = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(UserData))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(USER_DATA_FILE.toFile()))) {
             StringBuilder jsonContent = new StringBuilder();
             String line;
 
@@ -232,7 +276,7 @@ public class LoginController {
     }
 
     private static void saveUsers(List<User> users) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(UserData))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_DATA_FILE.toFile()))) {
             writer.write("[\n");
 
             for (int i = 0; i < users.size(); i++) {
@@ -252,11 +296,16 @@ public class LoginController {
 
     public static void login(User user){
         System.out.println(retrieveUser(user.getUsername()));
-        ImageIcon eyeIcon = new ImageIcon("src/minesweeper/view/assets/eye.png");
+        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
         if (retrieveUser(user.getUsername()) == null){
             NeonDialog.showNeonDialog(view, "Login Failed", "User: " + user.getUsername() + " Not Found", eyeIcon, true, false);
         } else if (user.getPassword().compareTo(retrieveUser(user.getUsername()).getPassword()) == 0){
             System.out.println("Successfully logged in with user: " + user.getUsername());
+            //  STORE LOGGED-IN USER
+            SessionContext.currentUser = retrieveUser(user.getUsername());
+            assert SessionContext.currentUser != null;
+            System.out.println(SessionContext.currentUser.getUsername());
+
             view.dispose();
             MinesweeperApp app = new MinesweeperApp();
             app.start();

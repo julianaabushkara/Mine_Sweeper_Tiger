@@ -1,5 +1,6 @@
 package minesweeper.view;
 import minesweeper.view.components.NeonButtonFactory;
+import minesweeper.view.components.NeonTooltip;
 import minesweeper.view.components.PlaceholderTextField;
 import javax.swing.*;
 import java.awt.*;
@@ -26,10 +27,13 @@ public class NewGameView extends JPanel {
     private JLabel headerLabel;
 
     private JLabel player1Label;
-    private JTextField player1Field;
+    //private JTextField player1Field;
 
     private JLabel player2Label;
-    private JTextField player2Field;
+    //private JTextField player2Field;
+    private PlaceholderTextField player1Field;
+    private PlaceholderTextField player2Field;
+
 
     private JLabel difficultyLabel;
     private JToggleButton easyToggle;
@@ -39,7 +43,9 @@ public class NewGameView extends JPanel {
 
     private JButton startButton;
     private JButton backButton;
+    private NeonTooltip tooltip;
 
+    /*
     private JPanel infoCardPanel;
     private JLabel infoTitleLabel;
     private JLabel easyInfo;
@@ -47,6 +53,9 @@ public class NewGameView extends JPanel {
     private JLabel hardInfo;
 
     private JPanel scanLineOverlay;
+    */
+    private static final Color NEON_GREEN = new Color(0, 255, 180);
+    private static final Color NEON_RED   = new Color(255, 80, 80);
 
     public NewGameView() {
         initComponents();
@@ -80,7 +89,7 @@ public class NewGameView extends JPanel {
             // =========================================
             // PLAYER 1 FIELD (NEON)
             // =========================================
-            player1Field = new PlaceholderTextField("Player 1 Name");
+            player1Field = new PlaceholderTextField("Player 1 Name", 20);
             styleNeonTextField(player1Field);
 
             gbc.gridx = 0;
@@ -94,11 +103,25 @@ public class NewGameView extends JPanel {
             // =========================================
             // PLAYER 2 FIELD (NEON)
             // =========================================
-            player2Field = new PlaceholderTextField("Player 2 Name");
+            player2Field = new PlaceholderTextField("Player 2 Name", 20);
             styleNeonTextField(player2Field);
 
             gbc.gridy = 2;
             add(player2Field, gbc);
+
+            //limitTextLength(player1Field, 20);
+            //limitTextLength(player2Field, 20);
+
+            //player1Field.setToolTipText("Name must be 1–20 characters");
+            //player2Field.setToolTipText("Name must be 1–20 characters");
+
+            addLiveValidation(player1Field);
+            addLiveValidation(player2Field);
+
+            /*tooltip = new NeonTooltip(
+                    SwingUtilities.getWindowAncestor(this)
+            );*/
+
 
 
             // =========================================
@@ -151,6 +174,7 @@ public class NewGameView extends JPanel {
 
             startButton = NeonButtonFactory.createNeonButton("START GAME", new Color(0, 180, 255));
             backButton  = NeonButtonFactory.createNeonButton("BACK", new Color(180, 80, 255));
+            startButton.setEnabled(false);// needs to activate when chosen game
 
             bgbc.gridx = 0; buttonPanel.add(startButton, bgbc);
             bgbc.gridx = 1; buttonPanel.add(backButton, bgbc);
@@ -164,17 +188,20 @@ public class NewGameView extends JPanel {
 
 
     private void createEvents() {
-        easyToggle.addActionListener(e ->
-                showDifficultyInfo(GameSession.Difficulty.EASY)
-        );
+        easyToggle.addActionListener(e -> {
+            showDifficultyInfo(GameSession.Difficulty.EASY);
+            updateStartButtonState();
+        });
 
-        mediumToggle.addActionListener(e ->
-                showDifficultyInfo(GameSession.Difficulty.MEDIUM)
-        );
+        mediumToggle.addActionListener(e -> {
+            showDifficultyInfo(GameSession.Difficulty.MEDIUM);
+            updateStartButtonState();
+        });
 
-        hardToggle.addActionListener(e ->
-                showDifficultyInfo(GameSession.Difficulty.HARD)
-        );
+        hardToggle.addActionListener(e -> {
+            showDifficultyInfo(GameSession.Difficulty.HARD);
+            updateStartButtonState();
+        });
 
     }
 
@@ -219,16 +246,16 @@ public class NewGameView extends JPanel {
 
                         "<span style='color:#00FFB4; font-size:16px;'><b>Cells Breakdown:</b></span><br><br>" +
 
-                        "<img src='" + getClass().getResource("//assets/mine.PNG") +
+                        "<img src='" + getClass().getResource("/assets/mine.PNG") +
                         "' width='22' height='22'> Mines: " + mines + "<br>" +
 
-                                "<img src='" + getClass().getResource("//assets/question.PNG") +
+                                "<img src='" + getClass().getResource("/assets/question.PNG") +
                                 "' width='22' height='22'> Question Cells: " + questions + "<br>" +
 
-                                        "<img src='" + getClass().getResource("//assets/surprise.PNG") +
+                                        "<img src='" + getClass().getResource("/assets/surprise.PNG") +
                                         "' width='22' height='22'> Surprise Cells: " + surprises + "<br>" +
 
-                                                "<img src='" + getClass().getResource("//assets/tile.PNG") +
+                                                "<img src='" + getClass().getResource("/assets/tile.PNG") +
                                                 "' width='22' height='22'> Safe/Number Cells: " + safeCells + "<br><br>" +
 
                                                         "<span style='color:#00FFB4; font-size:16px;'><b>Additional Info:</b></span><br><br>" +
@@ -264,6 +291,90 @@ public class NewGameView extends JPanel {
             }
         });
     }
+
+    private void limitTextLength(JTextField field, int maxLength) {
+        field.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, javax.swing.text.AttributeSet a)
+                    throws javax.swing.text.BadLocationException {
+                if (str == null) return;
+
+                if ((getLength() + str.length()) <= maxLength) {
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
+    }
+
+
+    private void setFieldError(JTextField field, boolean error) {
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(
+                        error ? NEON_RED : NEON_GREEN,
+                        2,
+                        true
+                ),
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)
+        ));
+    }
+
+    private boolean isNameValid(PlaceholderTextField field) {
+        if (field.isPlaceholderVisible()) return false;
+        String trimmed = field.getText().trim();
+        return !trimmed.isEmpty() && trimmed.length() <= 20;
+    }
+
+
+    private void updateStartButtonState() {
+        boolean valid =
+                isNameValid(player1Field) &&
+                        isNameValid(player2Field) &&
+                        (easyToggle.isSelected() ||
+                                mediumToggle.isSelected() ||
+                                hardToggle.isSelected());
+
+        startButton.setEnabled(valid);
+    }
+
+    private void addLiveValidation(JTextField field) {
+        field.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+
+            private void validate() {
+                PlaceholderTextField ptf = (PlaceholderTextField) field;
+                boolean invalid = !isNameValid(ptf);
+                setFieldError(field, invalid);
+
+                updateStartButtonState();
+
+                if (tooltip != null && invalid && field.hasFocus()) {
+                    tooltip.showTooltip(field, "Name must be 1–20 characters");
+                } else if (tooltip != null) {
+                    tooltip.hideTooltip();
+                }
+            }
+
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { validate(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { validate(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { validate(); }
+        });
+
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (tooltip != null) tooltip.hideTooltip();
+            }
+        });
+    }
+
+
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        tooltip = new NeonTooltip(
+                SwingUtilities.getWindowAncestor(this)
+        );
+    }
+
 
 
 

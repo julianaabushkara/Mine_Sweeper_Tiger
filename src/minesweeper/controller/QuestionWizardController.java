@@ -7,6 +7,8 @@ import minesweeper.view.QuestionWizardView;
 
 import javax.swing.SwingUtilities;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -102,8 +104,16 @@ public class QuestionWizardController {
             // Clear previous state
             view.hideError();
 
-            // Load from CSV
-            questionBank.loadFromCsv(filePath);
+            // Load from CSV - use InputStream for user files, classpath for bundled resources
+            if (filePath.startsWith("/")) {
+                // Classpath resource (bundled with app)
+                questionBank.loadFromCsv(filePath);
+            } else {
+                // File system file (user uploaded)
+                try (FileInputStream fis = new FileInputStream(filePath)) {
+                    questionBank.loadFromInputStream(fis);
+                }
+            }
 
             // Update the view with loaded questions
             List<Question> questions = questionBank.getAllQuestions();
@@ -117,7 +127,7 @@ public class QuestionWizardController {
                 view.showParseWarnings(questionBank.getParseErrors());
             }
 
-        } catch (CSVParseException e) {
+        } catch (CSVParseException | IOException e) {
             // Show error in the view
             view.showLoadError(e.getMessage());
 

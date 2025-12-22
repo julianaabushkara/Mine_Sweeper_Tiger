@@ -29,7 +29,7 @@ public class QuestionBank {
     /**
      * Creates a QuestionBank and loads questions from the specified CSV file.
      *
-     * @param csvPath Path to the CSV file
+     * @param csvPath Path to the CSV file (classpath resource path, e.g., "/Questions/Questions.csv")
      */
     public QuestionBank(String csvPath) {
         this.csvPath = csvPath;
@@ -65,9 +65,9 @@ public class QuestionBank {
     }
 
     /**
-     * Loads questions from a specified CSV file path.
+     * Loads questions from a specified CSV file path (classpath resource).
      *
-     * @param filePath Path to the CSV file
+     * @param filePath Path to the CSV file in classpath (e.g., "/Questions/Questions.csv")
      * @throws CSVParseException if the file cannot be parsed
      */
     public void loadFromCsv(String filePath) throws CSVParseException {
@@ -75,20 +75,15 @@ public class QuestionBank {
         this.questions.clear();
         this.parseErrors.clear();
 
-        File file = new File(filePath);
+        // Load from classpath
+        InputStream inputStream = getClass().getResourceAsStream(filePath);
 
-        // Check if file exists
-        if (!file.exists()) {
-            throw new CSVParseException("File not found: " + filePath);
-        }
-
-        // Check if file is readable
-        if (!file.canRead()) {
-            throw new CSVParseException("Cannot read file: " + filePath);
+        if (inputStream == null) {
+            throw new CSVParseException("File not found in classpath: " + filePath);
         }
 
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
 
             String headerLine = reader.readLine();
 

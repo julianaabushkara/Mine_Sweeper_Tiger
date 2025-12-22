@@ -14,7 +14,7 @@ import java.awt.*;
  * This is the entry point for the application
  *
  * @author Tiger
- * @version 1.0
+ * @version 2.0
 ___..........__
 _,...._           _."'_,.++8n.n8898n.`"._        _....._
 .'       `".     _.'_.'" _.98n.68n. `"88n. `'.   ,"       `.
@@ -77,12 +77,27 @@ public class MinesweeperApp {
 
     // Shared resources
     private QuestionBank questionBank;
-    private GameHistoryManager gameHistoryManager;  // FIXED: Changed from GameHistory to GameHistoryManager
+    //private GameHistoryManager gameHistoryManager;  // FIXED: Changed from GameHistory to GameHistoryManager
 
     /**
      * Constructor - initializes the application
      */
     public MinesweeperApp() {
+        try {
+            questionBank = new QuestionBank("/Questions/Questions.csv");
+            questionBank.loadFromCsv();
+            System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from CSV.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Failed to load Questions.csv\n" + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            questionBank = new QuestionBank(); // prevent null issues
+        }
+
         initializeResources();
         initializeMainFrame();
         initializeNavigation();
@@ -97,7 +112,7 @@ public class MinesweeperApp {
             questionBank = new QuestionBank();
 
             // Initialize Game History Manager
-            gameHistoryManager = new GameHistoryManager();  // FIXED: Now uses manager class
+            //gameHistoryManager = new GameHistoryManager();  // FIXED: Now uses manager class
 
             System.out.println("Resources initialized successfully");
         } catch (Exception e) {
@@ -136,7 +151,7 @@ public class MinesweeperApp {
         navigationController.navigateToStartMenu();
     }
 
-    /**
+    /**a
      * Start the application - make the main window visible
      */
     public void start() {
@@ -162,9 +177,9 @@ public class MinesweeperApp {
      * Get the game history manager
      * @return GameHistoryManager instance
      */
-    public GameHistoryManager getGameHistoryManager() {  // FIXED: Changed return type
-        return gameHistoryManager;
-    }
+    //public GameHistoryManager getGameHistoryManager() {  // FIXED: Changed return type
+    //    return gameHistoryManager;
+    //}
 
     /**
      * Get the main frame
