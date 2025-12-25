@@ -1,0 +1,26 @@
+ID,Question,Difficulty,A,B,C,D,Correct Answer
+1,What is the main drawback of the Waterfall model according to the 1968 NATO Conference?,1,Expensive to implement,Difficulty accommodating change after process starts,Requires too many developers,Takes too little time,B
+2,In Agile development which practice involves two programmers working together at one workstation?,2,Continuous integration,Pair programming,Test-first development,Refactoring,B
+3,What is a Sprint in Scrum methodology?,1,A meeting to review code quality,A fixed time period to develop a system increment,A type of software testing,A documentation review session,B
+4,Which software process model assembles systems from existing components?,2,Waterfall model,Incremental development,Reuse-oriented software engineering,Prototype development,C
+5,According to the course what happens when projects run out of time in Waterfall?,3,Design phase is extended,Testing is the only phase left so quality suffers,Development team is expanded,Requirements are simplified,B
+6,What type of requirement defines system properties like reliability and response time?,1,Functional requirements,Domain requirements,Non-functional requirements,User requirements,C
+7,Which IEEE standard provides recommended practices for Software Requirements Specifications?,2,IEEE 830-1998,IEEE 1471-2000,IEEE 754,IEEE 802.11,A
+8,What document serves as a contract between client and contractor defining what should be implemented?,1,User requirements,System requirements,Project charter,Design document,B
+9,A requirement stating the system should be easy to use by medical staff is an example of what?,2,Functional requirement,Verifiable requirement,Goal,Domain requirement,C
+10,In Agile methods requirements are often expressed as what?,1,Use cases,User stories,Flowcharts,State diagrams,B
+11,What does the M in MVC architecture pattern stand for?,1,Manager,Module,Model,Method,C
+12,Which component in MVC manages user interaction like key presses and mouse clicks?,2,Model,View,Controller,Observer,C
+13,In a Layered Architecture what is a key advantage?,2,Faster performance,Allows replacement of entire layers if interface is maintained,Requires fewer developers,Eliminates all security risks,B
+14,What does a software component encapsulate according to IEEE 1471-2000?,4,Only the user interface,A subset of system functionality and data with explicit interfaces,The entire database,All external dependencies,B
+15,Which design pattern is NOT mentioned as part of MVC implementation?,3,Observer,Strategy,Composite,Adapter,D
+16,What type of testing is performed without knowledge of the implemented software?,1,White box testing,Integration testing,Black box testing,Regression testing,C
+17,What do you need when performing top-down integration testing?,2,Drivers,Stubs,Both drivers and stubs,Neither drivers nor stubs,B
+18,Unit testing is typically done using which testing approach?,1,Black box only,White box only,Usually white box by developer,Only system testing,C
+19,Which type of testing uncovers errors at the whole system level?,2,Unit testing,System testing,Integration testing,Module testing,B
+20,What is the purpose of equivalence class partitioning in black box testing?,4,To test every possible input,To reduce number of test cases by grouping similar inputs,To examine code structure,To test only boundary values,B
+21,What is Configuration Management concerned with?,1,Hardware setup,Policies processes and tools for managing changing software,Database configuration only,Network settings,B
+22,In version control what happens when developers make changes in Agile development?,2,Changes are emailed to team,Developers copy from shared repository make changes test then return to repository,All changes must be approved first,Changes are made directly in production,B
+23,What is a controlled document in documentation control?,3,Any email between team members,A document vital for development and maintenance requiring quality assurance,Only the final user manual,Source code files,B
+24,What is the main purpose of software reviews according to the course?,1,To assign blame for errors,A quality assurance mechanism and training ground,To delay project timeline,To reduce documentation,B
+25,When is the cost of fixing a software error highest?,2,During development,During testing,In the field after deployment,During requirements phase,C
