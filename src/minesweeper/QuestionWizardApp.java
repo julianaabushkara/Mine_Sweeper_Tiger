@@ -30,7 +30,7 @@ public class QuestionWizardApp {
         }
 
         // Get optional CSV file path from command line
-        String csvPath = "/Questions/Questions.csv";
+        String csvPath = null;
         if (args.length > 0) {
             csvPath = args[0];
             System.out.println("Loading CSV file: " + csvPath);

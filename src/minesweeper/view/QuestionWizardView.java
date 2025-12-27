@@ -55,8 +55,10 @@ public class QuestionWizardView extends JFrame {
 
     private JButton uploadButton;
     private JButton backButton;
-    private JButton reloadButton;
-
+    private JButton reloadButton;// US-14 Search & Filter
+    private JTextField searchField;
+    private JComboBox<QuestionDifficulty> difficultyCombo;
+    private JButton searchButton;
     private JScrollPane tableScrollPane;
 
     private String loadedFileName = "";
@@ -65,6 +67,7 @@ public class QuestionWizardView extends JFrame {
     private ActionListener uploadListener;
     private ActionListener backListener;
     private ActionListener reloadListener;
+    private ActionListener searchListener;
 
     // Constants
     private static final int WINDOW_WIDTH = 1000;
@@ -98,8 +101,34 @@ public class QuestionWizardView extends JFrame {
         backButton = createStyledButton("← Back to Start", TEXT_SECONDARY);
         reloadButton = createStyledButton("Reload", TEXT_SECONDARY);
         reloadButton.setEnabled(false);
+        // US-14 Search & Filter components
+        searchField = new JTextField(16);
+        searchField.setBackground(BACKGROUND_TABLE);
+        searchField.setForeground(TEXT_PRIMARY);
+        searchField.setCaretColor(TEXT_PRIMARY);
+        searchField.addActionListener(e -> searchButton.doClick());
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(6, 8, 6, 8)
+        ));
 
+        difficultyCombo = new JComboBox<>();
+        difficultyCombo.setBackground(BACKGROUND_TABLE);
+        difficultyCombo.setForeground(TEXT_PRIMARY);
+        difficultyCombo.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+        difficultyCombo.addItem(null); // All
+        for (QuestionDifficulty d : QuestionDifficulty.values()) {
+            difficultyCombo.addItem(d);
+        }
+
+        searchButton = createStyledButton("Search", ACCENT_CYAN);
+        searchButton.addActionListener(e -> {
+            System.out.println("SEARCH BUTTON CLICKED ✅");
+            if (searchListener != null) searchListener.actionPerformed(e);
+        });
         // Wire up button actions
+        searchButton.addActionListener(e -> System.out.println("SEARCH CLICK ✅"));
+
         uploadButton.addActionListener(e -> {
             if (uploadListener != null) uploadListener.actionPerformed(e);
         });
@@ -379,7 +408,22 @@ public class QuestionWizardView extends JFrame {
         JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         leftButtons.setBackground(BACKGROUND_DARK);
         leftButtons.add(backButton);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        searchPanel.setBackground(BACKGROUND_DARK);
 
+        JLabel searchLbl = new JLabel("Search:");
+        searchLbl.setForeground(TEXT_SECONDARY);
+
+        JLabel diffLbl = new JLabel("Difficulty:");
+        diffLbl.setForeground(TEXT_SECONDARY);
+
+        searchPanel.add(searchLbl);
+        searchPanel.add(searchField);
+        searchPanel.add(diffLbl);
+        searchPanel.add(difficultyCombo);
+        searchPanel.add(searchButton);
+
+        toolbarPanel.add(searchPanel, BorderLayout.CENTER);
         JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightButtons.setBackground(BACKGROUND_DARK);
         rightButtons.add(statusLabel);
@@ -509,6 +553,21 @@ public class QuestionWizardView extends JFrame {
 
     public void setReloadListener(ActionListener listener) {
         this.reloadListener = listener;
+    }
+    // US-14 API
+    public void setSearchListener(ActionListener listener) {
+        System.out.println("VIEW setSearchListener ✅ searchButton=" + searchButton);
+
+        searchButton.addActionListener(e -> System.out.println("SEARCH CLICK ✅"));
+        searchButton.addActionListener(listener);
+    }
+
+    public String getSearchText() {
+        return searchField.getText();
+    }
+
+    public QuestionDifficulty getSelectedDifficulty() {
+        return (QuestionDifficulty) difficultyCombo.getSelectedItem();
     }
 
     // ==================== Custom Cell Renderers ====================
@@ -693,16 +752,17 @@ public class QuestionWizardView extends JFrame {
             Question q = questions.get(rowIndex);
             switch (columnIndex) {
                 case 0: return q.getId();
-                case 1: return q.getDifficulty().toString();
-                case 2: return q.getText();
+                case 1: return q.getDifficulty().toString();     // EASY/MEDIUM/HARD
+                case 2: return q.getText();                      // ✅ נכון
                 case 3: return q.getOptionA();
                 case 4: return q.getOptionB();
                 case 5: return q.getOptionC();
                 case 6: return q.getOptionD();
-                case 7: return String.valueOf(q.getCorrectOption());
+                case 7: return String.valueOf(q.getCorrectOption()); // ✅ נכון
                 default: return null;
             }
         }
+
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {

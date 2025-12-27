@@ -10,6 +10,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.QuestionDifficulty;
 
 /**
  * Controller for the Question Wizard screen.
@@ -44,6 +52,15 @@ public class QuestionWizardController {
         setupEventHandlers();
     }
 
+    private void applySearchAndFilter(String text, QuestionDifficulty difficulty) {
+        String query = (text == null) ? "" : text.trim().toLowerCase();
+
+        List<Question> filtered = questionBank.getAllQuestions().stream()
+                .filter(q -> query.isEmpty() || q.getText().toLowerCase().contains(query))
+                .filter(q -> difficulty == null || q.getDifficulty() == difficulty)
+                .toList();
+
+        view.bindQuestions(filtered);    }
     /**
      * Sets up the event handlers for view actions.
      */
@@ -56,6 +73,9 @@ public class QuestionWizardController {
 
         // Handle back to start
         view.setBackListener(e -> handleBackToStart());
+        view.setSearchListener(e -> {
+            applySearchAndFilter(view.getSearchText(), view.getSelectedDifficulty());
+        });
     }
 
     /**
@@ -101,42 +121,37 @@ public class QuestionWizardController {
      */
     private void loadFromFile(String filePath) {
         try {
-            // Clear previous state
             view.hideError();
 
-            // Load from CSV - use InputStream for user files, classpath for bundled resources
-            if (filePath.startsWith("/")) {
-                // Classpath resource (bundled with app)
-                questionBank.loadFromCsv(filePath);
-            } else {
+            File f = new File(filePath);
+
+            if (f.exists() && f.isFile()) {
                 // File system file (user uploaded)
-                try (FileInputStream fis = new FileInputStream(filePath)) {
+                try (FileInputStream fis = new FileInputStream(f)) {
                     questionBank.loadFromInputStream(fis);
                 }
+            } else {
+                // Classpath resource (bundled with app)
+                questionBank.loadFromCsv(filePath);
             }
 
-            // Update the view with loaded questions
             List<Question> questions = questionBank.getAllQuestions();
             view.bindQuestions(questions);
 
-            // Remember the file path for reload
             lastLoadedFilePath = filePath;
 
-            // Show warnings if there were parse errors but some questions loaded
             if (questionBank.hasParseErrors()) {
                 view.showParseWarnings(questionBank.getParseErrors());
             }
 
         } catch (CSVParseException | IOException e) {
-            // Show error in the view
             view.showLoadError(e.getMessage());
-
-            // Keep showing the current state (empty or previous data)
             if (!questionBank.isLoaded()) {
                 view.showEmptyState();
             }
         }
     }
+
 
     /**
      * Handles the back button action.
@@ -169,6 +184,7 @@ public class QuestionWizardController {
     public QuestionBank getQuestionBank() {
         return questionBank;
     }
+    // --- US-14: Search & Filter ---
 
     /**
      * Gets the view managed by this controller.
@@ -186,4 +202,5 @@ public class QuestionWizardController {
         view.hideWindow();
         view.dispose();
     }
+
 }
