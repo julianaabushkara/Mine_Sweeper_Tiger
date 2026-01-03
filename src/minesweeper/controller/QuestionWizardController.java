@@ -1,11 +1,14 @@
 package minesweeper.controller;
 
 import minesweeper.model.Question;
+import minesweeper.model.MutableQuestion;
 import minesweeper.model.QuestionBank;
 import minesweeper.model.QuestionBank.CSVParseException;
 import minesweeper.view.QuestionWizardView;
+import minesweeper.view.QuestionEditorDialog;
 
 import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -76,6 +79,11 @@ public class QuestionWizardController {
         view.setSearchListener(e -> {
             applySearchAndFilter(view.getSearchText(), view.getSelectedDifficulty());
         });
+
+        // Handle CRUD operations
+        view.setCreateListener(e -> handleCreate());
+        view.setEditListener(e -> handleEdit());
+        view.setDeleteListener(e -> handleDelete());
     }
 
     /**
@@ -201,6 +209,188 @@ public class QuestionWizardController {
     public void close() {
         view.hideWindow();
         view.dispose();
+    }
+
+    // ==================== CRUD Handlers ====================
+
+    /**
+     * Handles the create question action.
+     * Opens a dialog for creating a new question.
+     */
+    private void handleCreate() {
+        // Create a new mutable question with next available ID
+        MutableQuestion newQuestion = new MutableQuestion();
+        newQuestion.setId(questionBank.getNextAvailableId());
+
+        // Show editor dialog
+        QuestionEditorDialog dialog = new QuestionEditorDialog(
+                (java.awt.Frame) view, newQuestion);
+        dialog.setVisible(true);
+
+        // If user confirmed, add the question
+        if (dialog.isConfirmed()) {
+            try {
+                Question question = newQuestion.toQuestion();
+                questionBank.addQuestion(question);
+
+                // Save to file if we have a file path
+                if (lastLoadedFilePath != null) {
+                    saveQuestionBank();
+                }
+
+                // Refresh the view
+                refreshView();
+
+                JOptionPane.showMessageDialog(view,
+                        "Question created successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(view,
+                        "Error creating question: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * Handles the edit question action.
+     * Opens a dialog for editing the selected question.
+     */
+    private void handleEdit() {
+        Question selected = view.getSelectedQuestion();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(view,
+                    "Please select a question to edit.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Create mutable copy for editing
+        MutableQuestion mutableQuestion = new MutableQuestion(selected);
+
+        // Show editor dialog
+        QuestionEditorDialog dialog = new QuestionEditorDialog(
+                (java.awt.Frame) view, mutableQuestion);
+        dialog.setVisible(true);
+
+        // If user confirmed, update the question
+        if (dialog.isConfirmed()) {
+            try {
+                Question updated = mutableQuestion.toQuestion();
+                questionBank.updateQuestion(updated);
+
+                // Save to file if we have a file path
+                if (lastLoadedFilePath != null) {
+                    saveQuestionBank();
+                }
+
+                // Refresh the view
+                refreshView();
+
+                JOptionPane.showMessageDialog(view,
+                        "Question updated successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(view,
+                        "Error updating question: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * Handles the delete question action.
+     * Deletes the selected question after confirmation.
+     */
+    private void handleDelete() {
+        Question selected = view.getSelectedQuestion();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(view,
+                    "Please select a question to delete.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(view,
+                String.format("Are you sure you want to delete question #%d?\n\n%s",
+                        selected.getId(),
+                        selected.getText()),
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                questionBank.deleteQuestion(selected.getId());
+
+                // Save to file if we have a file path
+                if (lastLoadedFilePath != null) {
+                    saveQuestionBank();
+                }
+
+                // Refresh the view
+                refreshView();
+
+                JOptionPane.showMessageDialog(view,
+                        "Question deleted successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(view,
+                        "Error deleting question: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * Saves the question bank to the last loaded file.
+     */
+    private void saveQuestionBank() {
+        if (lastLoadedFilePath == null) {
+            JOptionPane.showMessageDialog(view,
+                    "No file path available for saving.",
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            questionBank.saveToFile(lastLoadedFilePath);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(view,
+                    "Error saving to file: " + e.getMessage(),
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Refreshes the view with current question bank data.
+     * Reapplies any active search/filter.
+     */
+    private void refreshView() {
+        String searchText = view.getSearchText();
+        QuestionDifficulty difficulty = view.getSelectedDifficulty();
+
+        if (searchText != null && !searchText.trim().isEmpty() || difficulty != null) {
+            // Reapply search/filter
+            applySearchAndFilter(searchText, difficulty);
+        } else {
+            // Show all questions
+            view.bindQuestions(questionBank.getAllQuestions());
+        }
     }
 
 }

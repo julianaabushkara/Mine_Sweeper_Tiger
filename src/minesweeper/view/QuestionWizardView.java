@@ -61,6 +61,11 @@ public class QuestionWizardView extends JFrame {
     private JButton searchButton;
     private JScrollPane tableScrollPane;
 
+    // CRUD operation buttons
+    private JButton createButton;
+    private JButton editButton;
+    private JButton deleteButton;
+
     private String loadedFileName = "";
 
     // Action listeners
@@ -68,6 +73,11 @@ public class QuestionWizardView extends JFrame {
     private ActionListener backListener;
     private ActionListener reloadListener;
     private ActionListener searchListener;
+
+    // CRUD action listeners
+    private ActionListener createListener;
+    private ActionListener editListener;
+    private ActionListener deleteListener;
 
     // Constants
     private static final int WINDOW_WIDTH = 1000;
@@ -101,6 +111,15 @@ public class QuestionWizardView extends JFrame {
         backButton = createStyledButton("← Back to Start", TEXT_SECONDARY);
         reloadButton = createStyledButton("Reload", TEXT_SECONDARY);
         reloadButton.setEnabled(false);
+
+        // CRUD buttons
+        createButton = createStyledButton("+ Create", new Color(63, 185, 80)); // Green
+        editButton = createStyledButton("Edit", ACCENT_CYAN);
+        deleteButton = createStyledButton("Delete", new Color(248, 81, 73)); // Red
+        createButton.setEnabled(true); // Always enabled
+        editButton.setEnabled(false); // Enabled when row selected
+        deleteButton.setEnabled(false); // Enabled when row selected
+
         // US-14 Search & Filter components
         searchField = new JTextField(16);
         searchField.setBackground(BACKGROUND_TABLE);
@@ -137,6 +156,17 @@ public class QuestionWizardView extends JFrame {
         });
         reloadButton.addActionListener(e -> {
             if (reloadListener != null) reloadListener.actionPerformed(e);
+        });
+
+        // CRUD button actions
+        createButton.addActionListener(e -> {
+            if (createListener != null) createListener.actionPerformed(e);
+        });
+        editButton.addActionListener(e -> {
+            if (editListener != null) editListener.actionPerformed(e);
+        });
+        deleteButton.addActionListener(e -> {
+            if (deleteListener != null) deleteListener.actionPerformed(e);
         });
 
         // Status label
@@ -287,6 +317,15 @@ public class QuestionWizardView extends JFrame {
         columnModel.getColumn(6).setCellRenderer(new OptionCellRenderer());
         columnModel.getColumn(7).setCellRenderer(new CorrectAnswerRenderer());
 
+        // Enable/disable Edit and Delete based on table selection
+        questionTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                boolean rowSelected = questionTable.getSelectedRow() >= 0;
+                editButton.setEnabled(rowSelected);
+                deleteButton.setEnabled(rowSelected);
+            }
+        });
+
         // Scroll pane
         tableScrollPane = new JScrollPane(questionTable);
         tableScrollPane.setBackground(BACKGROUND_DARK);
@@ -408,6 +447,10 @@ public class QuestionWizardView extends JFrame {
         JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         leftButtons.setBackground(BACKGROUND_DARK);
         leftButtons.add(backButton);
+        leftButtons.add(Box.createHorizontalStrut(15)); // Spacer
+        leftButtons.add(createButton);
+        leftButtons.add(editButton);
+        leftButtons.add(deleteButton);
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         searchPanel.setBackground(BACKGROUND_DARK);
 
@@ -568,6 +611,34 @@ public class QuestionWizardView extends JFrame {
 
     public QuestionDifficulty getSelectedDifficulty() {
         return (QuestionDifficulty) difficultyCombo.getSelectedItem();
+    }
+
+    public void setCreateListener(ActionListener listener) {
+        this.createListener = listener;
+    }
+
+    public void setEditListener(ActionListener listener) {
+        this.editListener = listener;
+    }
+
+    public void setDeleteListener(ActionListener listener) {
+        this.deleteListener = listener;
+    }
+
+    /**
+     * Gets the currently selected question from the table.
+     *
+     * @return The selected Question, or null if no row is selected
+     */
+    public Question getSelectedQuestion() {
+        int selectedRow = questionTable.getSelectedRow();
+        if (selectedRow < 0) {
+            return null;
+        }
+
+        // Convert view row to model row (in case table is sorted)
+        int modelRow = questionTable.convertRowIndexToModel(selectedRow);
+        return tableModel.getQuestionAt(modelRow);
     }
 
     // ==================== Custom Cell Renderers ====================
@@ -763,6 +834,18 @@ public class QuestionWizardView extends JFrame {
             }
         }
 
+        /**
+         * Gets the question at the specified row index.
+         *
+         * @param rowIndex The row index
+         * @return The Question at that row, or null if invalid index
+         */
+        public Question getQuestionAt(int rowIndex) {
+            if (rowIndex < 0 || rowIndex >= questions.size()) {
+                return null;
+            }
+            return questions.get(rowIndex);
+        }
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {

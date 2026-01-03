@@ -3,6 +3,8 @@ package minesweeper.model;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 /**
  * Manages the collection of questions loaded from a CSV file.
@@ -400,6 +402,147 @@ public class QuestionBank {
      */
     public boolean isLoaded() {
         return !questions.isEmpty();
+    }
+
+    // ==================== CRUD Operations ====================
+
+    /**
+     * Adds a new question to the bank.
+     *
+     * @param question The question to add
+     * @throws IllegalArgumentException if a question with the same ID already exists
+     */
+    public void addQuestion(Question question) {
+        if (question == null) {
+            throw new IllegalArgumentException("Question cannot be null");
+        }
+
+        // Check for duplicate ID
+        if (questions.stream().anyMatch(q -> q.getId() == question.getId())) {
+            throw new IllegalArgumentException(
+                    "A question with ID " + question.getId() + " already exists");
+        }
+
+        questions.add(question);
+    }
+
+    /**
+     * Updates an existing question in the bank.
+     *
+     * @param question The updated question (matched by ID)
+     * @throws IllegalArgumentException if no question with the given ID exists
+     */
+    public void updateQuestion(Question question) {
+        if (question == null) {
+            throw new IllegalArgumentException("Question cannot be null");
+        }
+
+        int index = findQuestionIndexById(question.getId());
+        if (index == -1) {
+            throw new IllegalArgumentException(
+                    "No question found with ID " + question.getId());
+        }
+
+        questions.set(index, question);
+    }
+
+    /**
+     * Deletes a question from the bank.
+     *
+     * @param questionId The ID of the question to delete
+     * @throws IllegalArgumentException if no question with the given ID exists
+     */
+    public void deleteQuestion(int questionId) {
+        int index = findQuestionIndexById(questionId);
+        if (index == -1) {
+            throw new IllegalArgumentException(
+                    "No question found with ID " + questionId);
+        }
+
+        questions.remove(index);
+    }
+
+    /**
+     * Finds the index of a question by its ID.
+     *
+     * @param id The question ID to search for
+     * @return The index of the question, or -1 if not found
+     */
+    private int findQuestionIndexById(int id) {
+        for (int i = 0; i < questions.size(); i++) {
+            if (questions.get(i).getId() == id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Saves the current question bank to a CSV file.
+     *
+     * @param filePath The file path to save to
+     * @throws IOException if the file cannot be written
+     */
+    public void saveToFile(String filePath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(filePath, StandardCharsets.UTF_8))) {
+
+            // Write header
+            writer.write(String.join(",", EXPECTED_HEADERS));
+            writer.newLine();
+
+            // Write each question
+            for (Question q : questions) {
+                String line = formatQuestionAsCSV(q);
+                writer.write(line);
+                writer.newLine();
+            }
+        }
+    }
+
+    /**
+     * Formats a question as a CSV line, properly escaping fields with commas.
+     *
+     * @param q The question to format
+     * @return CSV-formatted string
+     */
+    private String formatQuestionAsCSV(Question q) {
+        return String.format("%d,%s,%d,%s,%s,%s,%s,%c",
+                q.getId(),
+                escapeCSVField(q.getText()),
+                q.getDifficulty().getValue(),
+                escapeCSVField(q.getOptionA()),
+                escapeCSVField(q.getOptionB()),
+                escapeCSVField(q.getOptionC()),
+                escapeCSVField(q.getOptionD()),
+                q.getCorrectOption()
+        );
+    }
+
+    /**
+     * Escapes a CSV field by wrapping it in quotes if it contains commas.
+     *
+     * @param field The field to escape
+     * @return Escaped field
+     */
+    private String escapeCSVField(String field) {
+        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+            // Escape quotes by doubling them and wrap in quotes
+            return "\"" + field.replace("\"", "\"\"") + "\"";
+        }
+        return field;
+    }
+
+    /**
+     * Gets the next available ID for a new question.
+     *
+     * @return The next ID (max ID + 1, or 1 if bank is empty)
+     */
+    public int getNextAvailableId() {
+        return questions.stream()
+                .mapToInt(Question::getId)
+                .max()
+                .orElse(0) + 1;
     }
 
     /**
