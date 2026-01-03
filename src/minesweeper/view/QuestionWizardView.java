@@ -296,6 +296,27 @@ public class QuestionWizardView extends JFrame {
         sorter = new TableRowSorter<>(tableModel);
         questionTable.setRowSorter(sorter);
 
+        // Custom comparator for DIFFICULTY column (index 1) to sort by difficulty value
+        sorter.setComparator(1, new java.util.Comparator<String>() {
+            @Override
+            public int compare(String d1, String d2) {
+                int v1 = getDifficultyValue(d1);
+                int v2 = getDifficultyValue(d2);
+                return Integer.compare(v1, v2);
+            }
+
+            private int getDifficultyValue(String difficulty) {
+                if (difficulty == null) return 0;
+                switch (difficulty.toUpperCase()) {
+                    case "EASY": return 1;
+                    case "MEDIUM": return 2;
+                    case "HARD": return 3;
+                    case "EXPERT": return 4;
+                    default: return 0;
+                }
+            }
+        });
+
         // Set column widths
         TableColumnModel columnModel = questionTable.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(70);   // ID
@@ -451,22 +472,20 @@ public class QuestionWizardView extends JFrame {
         leftButtons.add(createButton);
         leftButtons.add(editButton);
         leftButtons.add(deleteButton);
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        searchPanel.setBackground(BACKGROUND_DARK);
+        leftButtons.add(Box.createHorizontalStrut(25)); // Spacer before search
 
+        // Search components in left panel for better positioning
         JLabel searchLbl = new JLabel("Search:");
         searchLbl.setForeground(TEXT_SECONDARY);
+        leftButtons.add(searchLbl);
+        leftButtons.add(searchField);
 
         JLabel diffLbl = new JLabel("Difficulty:");
         diffLbl.setForeground(TEXT_SECONDARY);
+        leftButtons.add(diffLbl);
+        leftButtons.add(difficultyCombo);
+        leftButtons.add(searchButton);
 
-        searchPanel.add(searchLbl);
-        searchPanel.add(searchField);
-        searchPanel.add(diffLbl);
-        searchPanel.add(difficultyCombo);
-        searchPanel.add(searchButton);
-
-        toolbarPanel.add(searchPanel, BorderLayout.CENTER);
         JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightButtons.setBackground(BACKGROUND_DARK);
         rightButtons.add(statusLabel);
@@ -792,6 +811,8 @@ public class QuestionWizardView extends JFrame {
 
         public void setQuestions(List<Question> questions) {
             this.questions = new ArrayList<>(questions);
+            // Auto-sort by difficulty: EASY → MEDIUM → HARD → EXPERT
+            this.questions.sort(java.util.Comparator.comparingInt(q -> q.getDifficulty().getValue()));
             fireTableDataChanged();
         }
 

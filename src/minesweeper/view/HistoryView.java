@@ -59,7 +59,7 @@ public class HistoryView extends JPanel {
         // TABLE MODEL
         // =======================
         String[] columns = {
-                "User","Date/Time", "Difficulty", "Player 1", "Player 2", "Score", "Winner"
+                "User","Date/Time", "Difficulty", "Player 1", "Player 2", "Score", "Duration", "Winner"
         };
 
         tableModel = new DefaultTableModel(columns, 0) {
@@ -101,7 +101,8 @@ public class HistoryView extends JPanel {
         historyTable.getColumnModel().getColumn(3).setPreferredWidth(130); // Player 1
         historyTable.getColumnModel().getColumn(4).setPreferredWidth(130); // Player 2
         historyTable.getColumnModel().getColumn(5).setPreferredWidth(100);  // Score
-        historyTable.getColumnModel().getColumn(6).setPreferredWidth(130); // Winner
+        historyTable.getColumnModel().getColumn(6).setPreferredWidth(100); // Duration
+        historyTable.getColumnModel().getColumn(7).setPreferredWidth(130); // Winner
 
 
 
@@ -183,6 +184,7 @@ public class HistoryView extends JPanel {
                     h.getPlayer1(),
                     h.getPlayer2(),
                     h.getFinalScore(),
+                    h.getDuration(),
                     h.isCoopWin() ? "Co-op Win" : "Loss"
             });
         }
