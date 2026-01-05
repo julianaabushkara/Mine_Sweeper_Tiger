@@ -55,9 +55,16 @@ public class QuestionWizardView extends JFrame {
 
     private JButton uploadButton;
     private JButton backButton;
-    private JButton reloadButton;
-
+    private JButton reloadButton;// US-14 Search & Filter
+    private JTextField searchField;
+    private JComboBox<QuestionDifficulty> difficultyCombo;
+    private JButton searchButton;
     private JScrollPane tableScrollPane;
+
+    // CRUD operation buttons
+    private JButton createButton;
+    private JButton editButton;
+    private JButton deleteButton;
 
     private String loadedFileName = "";
 
@@ -65,6 +72,12 @@ public class QuestionWizardView extends JFrame {
     private ActionListener uploadListener;
     private ActionListener backListener;
     private ActionListener reloadListener;
+    private ActionListener searchListener;
+
+    // CRUD action listeners
+    private ActionListener createListener;
+    private ActionListener editListener;
+    private ActionListener deleteListener;
 
     // Constants
     private static final int WINDOW_WIDTH = 1000;
@@ -99,7 +112,42 @@ public class QuestionWizardView extends JFrame {
         reloadButton = createStyledButton("Reload", TEXT_SECONDARY);
         reloadButton.setEnabled(false);
 
+        // CRUD buttons
+        createButton = createStyledButton("+ Create", new Color(63, 185, 80)); // Green
+        editButton = createStyledButton("Edit", ACCENT_CYAN);
+        deleteButton = createStyledButton("Delete", new Color(248, 81, 73)); // Red
+        createButton.setEnabled(true); // Always enabled
+        editButton.setEnabled(false); // Enabled when row selected
+        deleteButton.setEnabled(false); // Enabled when row selected
+
+        // US-14 Search & Filter components
+        searchField = new JTextField(16);
+        searchField.setBackground(BACKGROUND_TABLE);
+        searchField.setForeground(TEXT_PRIMARY);
+        searchField.setCaretColor(TEXT_PRIMARY);
+        searchField.addActionListener(e -> searchButton.doClick());
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(6, 8, 6, 8)
+        ));
+
+        difficultyCombo = new JComboBox<>();
+        difficultyCombo.setBackground(BACKGROUND_TABLE);
+        difficultyCombo.setForeground(TEXT_PRIMARY);
+        difficultyCombo.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+        difficultyCombo.addItem(null); // All
+        for (QuestionDifficulty d : QuestionDifficulty.values()) {
+            difficultyCombo.addItem(d);
+        }
+
+        searchButton = createStyledButton("Search", ACCENT_CYAN);
+        searchButton.addActionListener(e -> {
+            System.out.println("SEARCH BUTTON CLICKED ✅");
+            if (searchListener != null) searchListener.actionPerformed(e);
+        });
         // Wire up button actions
+        searchButton.addActionListener(e -> System.out.println("SEARCH CLICK ✅"));
+
         uploadButton.addActionListener(e -> {
             if (uploadListener != null) uploadListener.actionPerformed(e);
         });
@@ -108,6 +156,17 @@ public class QuestionWizardView extends JFrame {
         });
         reloadButton.addActionListener(e -> {
             if (reloadListener != null) reloadListener.actionPerformed(e);
+        });
+
+        // CRUD button actions
+        createButton.addActionListener(e -> {
+            if (createListener != null) createListener.actionPerformed(e);
+        });
+        editButton.addActionListener(e -> {
+            if (editListener != null) editListener.actionPerformed(e);
+        });
+        deleteButton.addActionListener(e -> {
+            if (deleteListener != null) deleteListener.actionPerformed(e);
         });
 
         // Status label
@@ -237,6 +296,27 @@ public class QuestionWizardView extends JFrame {
         sorter = new TableRowSorter<>(tableModel);
         questionTable.setRowSorter(sorter);
 
+        // Custom comparator for DIFFICULTY column (index 1) to sort by difficulty value
+        sorter.setComparator(1, new java.util.Comparator<String>() {
+            @Override
+            public int compare(String d1, String d2) {
+                int v1 = getDifficultyValue(d1);
+                int v2 = getDifficultyValue(d2);
+                return Integer.compare(v1, v2);
+            }
+
+            private int getDifficultyValue(String difficulty) {
+                if (difficulty == null) return 0;
+                switch (difficulty.toUpperCase()) {
+                    case "EASY": return 1;
+                    case "MEDIUM": return 2;
+                    case "HARD": return 3;
+                    case "EXPERT": return 4;
+                    default: return 0;
+                }
+            }
+        });
+
         // Set column widths
         TableColumnModel columnModel = questionTable.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(70);   // ID
@@ -257,6 +337,15 @@ public class QuestionWizardView extends JFrame {
         columnModel.getColumn(5).setCellRenderer(new OptionCellRenderer());
         columnModel.getColumn(6).setCellRenderer(new OptionCellRenderer());
         columnModel.getColumn(7).setCellRenderer(new CorrectAnswerRenderer());
+
+        // Enable/disable Edit and Delete based on table selection
+        questionTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                boolean rowSelected = questionTable.getSelectedRow() >= 0;
+                editButton.setEnabled(rowSelected);
+                deleteButton.setEnabled(rowSelected);
+            }
+        });
 
         // Scroll pane
         tableScrollPane = new JScrollPane(questionTable);
@@ -379,6 +468,23 @@ public class QuestionWizardView extends JFrame {
         JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         leftButtons.setBackground(BACKGROUND_DARK);
         leftButtons.add(backButton);
+        leftButtons.add(Box.createHorizontalStrut(15)); // Spacer
+        leftButtons.add(createButton);
+        leftButtons.add(editButton);
+        leftButtons.add(deleteButton);
+        leftButtons.add(Box.createHorizontalStrut(25)); // Spacer before search
+
+        // Search components in left panel for better positioning
+        JLabel searchLbl = new JLabel("Search:");
+        searchLbl.setForeground(TEXT_SECONDARY);
+        leftButtons.add(searchLbl);
+        leftButtons.add(searchField);
+
+        JLabel diffLbl = new JLabel("Difficulty:");
+        diffLbl.setForeground(TEXT_SECONDARY);
+        leftButtons.add(diffLbl);
+        leftButtons.add(difficultyCombo);
+        leftButtons.add(searchButton);
 
         JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightButtons.setBackground(BACKGROUND_DARK);
@@ -509,6 +615,49 @@ public class QuestionWizardView extends JFrame {
 
     public void setReloadListener(ActionListener listener) {
         this.reloadListener = listener;
+    }
+    // US-14 API
+    public void setSearchListener(ActionListener listener) {
+        System.out.println("VIEW setSearchListener ✅ searchButton=" + searchButton);
+
+        searchButton.addActionListener(e -> System.out.println("SEARCH CLICK ✅"));
+        searchButton.addActionListener(listener);
+    }
+
+    public String getSearchText() {
+        return searchField.getText();
+    }
+
+    public QuestionDifficulty getSelectedDifficulty() {
+        return (QuestionDifficulty) difficultyCombo.getSelectedItem();
+    }
+
+    public void setCreateListener(ActionListener listener) {
+        this.createListener = listener;
+    }
+
+    public void setEditListener(ActionListener listener) {
+        this.editListener = listener;
+    }
+
+    public void setDeleteListener(ActionListener listener) {
+        this.deleteListener = listener;
+    }
+
+    /**
+     * Gets the currently selected question from the table.
+     *
+     * @return The selected Question, or null if no row is selected
+     */
+    public Question getSelectedQuestion() {
+        int selectedRow = questionTable.getSelectedRow();
+        if (selectedRow < 0) {
+            return null;
+        }
+
+        // Convert view row to model row (in case table is sorted)
+        int modelRow = questionTable.convertRowIndexToModel(selectedRow);
+        return tableModel.getQuestionAt(modelRow);
     }
 
     // ==================== Custom Cell Renderers ====================
@@ -662,6 +811,8 @@ public class QuestionWizardView extends JFrame {
 
         public void setQuestions(List<Question> questions) {
             this.questions = new ArrayList<>(questions);
+            // Auto-sort by difficulty: EASY → MEDIUM → HARD → EXPERT
+            this.questions.sort(java.util.Comparator.comparingInt(q -> q.getDifficulty().getValue()));
             fireTableDataChanged();
         }
 
@@ -693,15 +844,28 @@ public class QuestionWizardView extends JFrame {
             Question q = questions.get(rowIndex);
             switch (columnIndex) {
                 case 0: return q.getId();
-                case 1: return q.getDifficulty().toString();
-                case 2: return q.getText();
+                case 1: return q.getDifficulty().toString();     // EASY/MEDIUM/HARD
+                case 2: return q.getText();                      // ✅ נכון
                 case 3: return q.getOptionA();
                 case 4: return q.getOptionB();
                 case 5: return q.getOptionC();
                 case 6: return q.getOptionD();
-                case 7: return String.valueOf(q.getCorrectOption());
+                case 7: return String.valueOf(q.getCorrectOption()); // ✅ נכון
                 default: return null;
             }
+        }
+
+        /**
+         * Gets the question at the specified row index.
+         *
+         * @param rowIndex The row index
+         * @return The Question at that row, or null if invalid index
+         */
+        public Question getQuestionAt(int rowIndex) {
+            if (rowIndex < 0 || rowIndex >= questions.size()) {
+                return null;
+            }
+            return questions.get(rowIndex);
         }
 
         @Override

@@ -19,7 +19,7 @@ public class Main {
      */
     public static void main(String[] args) {
         System.out.println("╔═══════════════════════════════════════╗");
-        System.out.println("║   MINESWEEPER - TIGER EDITION v2.0    ║");
+        System.out.println("║   MINESWEEPER - TIGER EDITION v3.0    ║");
         System.out.println("║            \uD83C\uDD63\uD83C\uDD58" +
                                         "\uD83C\uDD56\uD83C\uDD54" +
                                        "\uD83C\uDD61 \uD83C\uDD56" +
