@@ -4,6 +4,8 @@ package minesweeper.model;
 import java.util.Random;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import minesweeper.model.factory.BoardFactory;
+import minesweeper.model.scoring.ScoringStrategy;
 
 
 public class GameSession {
@@ -36,6 +38,7 @@ public class GameSession {
     private Board playerABoard;
     private Board playerBBoard;
     private Difficulty difficulty;
+    private ScoringStrategy scoringStrategy;  // Strategy Pattern: scoring rules vary by difficulty
     private int sharedLives;
     private int sharedScore;
     private boolean isPlayerATurn;
@@ -55,12 +58,18 @@ public class GameSession {
         this.isPlayerATurn = new Random().nextBoolean();
         this.startTime = LocalDateTime.now();
 
+        // Factory Pattern: Use BoardFactory to create boards and scoring strategy
+        playerABoard = BoardFactory.createBoard(difficulty);
+        playerBBoard = BoardFactory.createBoard(difficulty);
+        scoringStrategy = BoardFactory.createScoringStrategy(difficulty);
+    }
 
-        // Create boards for both players
-        playerABoard = new Board(difficulty.gridSize, difficulty.mines, 
-                                 difficulty.questions, difficulty.surprises);
-        playerBBoard = new Board(difficulty.gridSize, difficulty.mines, 
-                                 difficulty.questions, difficulty.surprises);
+    /**
+     * Get the scoring strategy for the current difficulty.
+     * Strategy Pattern: Returns the appropriate scoring rules.
+     */
+    public ScoringStrategy getScoringStrategy() {
+        return scoringStrategy;
     }
 
     // Getters and Setters

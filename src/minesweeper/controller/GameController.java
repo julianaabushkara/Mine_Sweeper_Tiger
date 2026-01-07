@@ -2,6 +2,8 @@ package minesweeper.controller;
 import minesweeper.model.SessionContext;
 
 import minesweeper.model.*;
+import minesweeper.model.scoring.ScoreResult;
+import minesweeper.model.scoring.ScoringStrategy;
 import minesweeper.view.MinesweeperGame;
 import javax.swing.JOptionPane;
 import java.util.*;
@@ -428,38 +430,27 @@ public class GameController {
     }
 
     public String activateSurpriseTile(Cell cell) {
-        if (gameSession.getSharedScore() < gameSession.getDifficulty().activationCost) {
+        // Strategy Pattern: Get scoring rules from the strategy
+        ScoringStrategy strategy = gameSession.getScoringStrategy();
+        int activationCost = strategy.getActivationCost();
+
+        if (gameSession.getSharedScore() < activationCost) {
             return "";
         }
 
-        gameSession.addScore(-gameSession.getDifficulty().activationCost);
+        gameSession.addScore(-activationCost);
         cell.setUsed(true);
 
         Random rand = new Random();
         boolean isGood = rand.nextBoolean();
-        int pointChange = 0;
-        int lifeChange = 0;
 
-        switch (gameSession.getDifficulty()) {
-            case EASY:
-                pointChange = isGood ? 8 : -8;
-                lifeChange = isGood ? 1 : -1;
-                break;
-            case MEDIUM:
-                pointChange = isGood ? 12 : -12;
-                lifeChange = isGood ? 1 : -1;
-                break;
-            case HARD:
-                pointChange = isGood ? 16 : -16;
-                lifeChange = isGood ? 1 : -1;
-                break;
-        }
+        // Strategy Pattern: Delegate scoring calculation to the strategy
+        ScoreResult result = strategy.calculateSurpriseReward(isGood);
+        int pointChange = result.getPoints();
+        int lifeChange = result.getLives();
 
         addScore(pointChange);
         int bonusFromLives = addLives(lifeChange);
-
-        // Get activation cost
-        int activationCost = gameSession.getDifficulty().activationCost;
 
         // Calculate net points (including life overflow bonus)
         int netPoints = pointChange - activationCost + bonusFromLives;

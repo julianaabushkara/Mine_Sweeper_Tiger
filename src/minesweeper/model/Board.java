@@ -156,6 +156,22 @@ public class Board {
         return row >= 0 && row < size && col >= 0 && col < size;
     }
 
+    /**
+     * Observer Pattern: Reveals a cell and notifies all registered observers.
+     * This method should be called instead of cell.setRevealed(true) directly
+     * when UI updates are needed.
+     *
+     * @param row The row of the cell to reveal
+     * @param col The column of the cell to reveal
+     */
+    public void revealCell(int row, int col) {
+        Cell cell = cells[row][col];
+        if (!cell.isRevealed()) {
+            cell.setRevealed(true);
+            notifyCellRevealed(row, col);  // Notify observers of the change
+        }
+    }
+
     // Getters
     public int getSize() { return size; }
     public Cell[][] getCells() { return cells; }
