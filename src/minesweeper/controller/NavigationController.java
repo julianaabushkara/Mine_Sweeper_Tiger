@@ -316,8 +316,9 @@ public class NavigationController {
             }
         }
 
-        // Show Question Wizard as a separate window
-        showFrameView(questionWizardView);
+        // Hide main frame and open Question Wizard (which handles loading saved CSV)
+        mainFrame.setVisible(false);
+        questionWizardController.open();
     }
 
     /**

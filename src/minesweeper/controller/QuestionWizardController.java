@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.prefs.Preferences;
+import java.util.prefs.BackingStoreException;
 import minesweeper.model.QuestionDifficulty;
 import minesweeper.model.QuestionDifficulty;
 import minesweeper.model.QuestionDifficulty;
@@ -33,6 +35,9 @@ import minesweeper.model.QuestionDifficulty;
  * - Coordinating error display
  */
 public class QuestionWizardController {
+
+    private static final String PREF_LAST_CSV_PATH = "lastLoadedCsvPath";
+    private static final Preferences prefs = Preferences.userNodeForPackage(QuestionWizardController.class);
 
     private QuestionBank questionBank;
     private QuestionWizardView view;
@@ -89,15 +94,28 @@ public class QuestionWizardController {
     /**
      * Opens the Question Wizard view.
      * If a CSV path was provided to the QuestionBank, attempts to load it automatically.
+     * Otherwise, tries to load from the last saved CSV path in preferences.
      */
     public void open() {
-        // Try to auto-load if a path was provided
-        if (questionBank.getCsvPath() != null && !questionBank.isLoaded()) {
+        // Priority 1: Check for saved preferences path (user's last uploaded CSV)
+        String savedPath = loadLastCsvPath();
+
+        if (savedPath != null) {
+            File savedFile = new File(savedPath);
+            if (savedFile.exists()) {
+                loadFromFile(savedPath);
+            } else if (questionBank.getCsvPath() != null && !questionBank.isLoaded()) {
+                // Saved file no longer exists, fall back to default
+                loadFromFile(questionBank.getCsvPath());
+            }
+        } else if (questionBank.getCsvPath() != null && !questionBank.isLoaded()) {
+            // No saved preferences, use default path if available
             loadFromFile(questionBank.getCsvPath());
         }
 
         // Show the view
-        SwingUtilities.invokeLater(() -> view.showWindow());    }
+        SwingUtilities.invokeLater(() -> view.showWindow());
+    }
 
     /**
      * Reloads questions from the last loaded file.
@@ -147,6 +165,9 @@ public class QuestionWizardController {
             view.bindQuestions(questions);
 
             lastLoadedFilePath = filePath;
+
+            // Persist the file path so it's remembered on next launch
+            saveLastCsvPath(filePath);
 
             if (questionBank.hasParseErrors()) {
                 view.showParseWarnings(questionBank.getParseErrors());
@@ -391,6 +412,34 @@ public class QuestionWizardController {
             // Show all questions
             view.bindQuestions(questionBank.getAllQuestions());
         }
+    }
+
+    // ==================== Preferences Persistence ====================
+
+    /**
+     * Saves the last loaded CSV file path to preferences.
+     * This allows the app to remember which file was loaded on next launch.
+     *
+     * @param filePath The file path to save
+     */
+    private void saveLastCsvPath(String filePath) {
+        if (filePath != null && !filePath.isEmpty()) {
+            prefs.put(PREF_LAST_CSV_PATH, filePath);
+            try {
+                prefs.flush();
+            } catch (BackingStoreException e) {
+                // Silently fail - preferences will be lost on restart
+            }
+        }
+    }
+
+    /**
+     * Loads the last saved CSV file path from preferences.
+     *
+     * @return The saved file path, or null if none was saved
+     */
+    private String loadLastCsvPath() {
+        return prefs.get(PREF_LAST_CSV_PATH, null);
     }
 
 }

@@ -39,3 +39,4 @@ ID,Question,Difficulty,A,B,C,D,Correct Answer
 38,In software testing what is the difference between black box and white box testing?,4,No difference,Black box tests functionality without knowing internal code white box tests with knowledge of code structure,Black box is automated white box is manual,They test different applications,B
 39,What is continuous integration in DevOps?,4,Deploying once a month,Frequently merging code changes into a shared repository with automated builds and tests,Manual deployment process,Testing in production only,B
 40,What is the CAP theorem in distributed systems?,4,Computers Always Process data,A system can have at most two of: Consistency Availability Partition tolerance,Cache Access Protocol,Centralized Application Processing,B
+41,fdg,1,fgff,fgdfg,fgdfg,fdgdfgf,A
