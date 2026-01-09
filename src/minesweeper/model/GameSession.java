@@ -45,6 +45,7 @@ public class GameSession {
     private String playerAName;
     private String playerBName;
     private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
 
 
@@ -92,8 +93,15 @@ public class GameSession {
         return playerAName;
     }
 
+    public void endGame() {
+        if (endTime == null) {
+            endTime = LocalDateTime.now();
+        }
+    }
+
     public String getFormattedDuration() {
-        Duration duration = Duration.between(startTime, LocalDateTime.now());
+        LocalDateTime end = (endTime != null) ? endTime : LocalDateTime.now();
+        Duration duration = Duration.between(startTime, end);
         long minutes = duration.toMinutes();
         long seconds = duration.minusMinutes(minutes).getSeconds();
         return String.format("%02d:%02d", minutes, seconds);

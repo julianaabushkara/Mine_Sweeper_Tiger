@@ -229,6 +229,9 @@ public class MinesweeperGame extends JFrame {
                 gameTimer.stop();
             }
 
+            // Capture the end time for accurate duration recording
+            controller.getGameSession().endGame();
+
             endGame(controller.isVictory());
         }
     }
