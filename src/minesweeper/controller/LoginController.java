@@ -64,6 +64,8 @@ public class LoginController {
 
     public LoginController(LoginView view){
         LoginController.view = view;
+        AudioBinder.addClickToAllButtons(view); // ✅ add this
+
         view.setVisible(true);
     }
 
