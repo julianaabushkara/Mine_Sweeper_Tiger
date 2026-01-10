@@ -174,7 +174,7 @@ public class NewGameView extends JPanel {
 
             startButton = NeonButtonFactory.createNeonButton("START GAME", new Color(0, 180, 255));
             backButton  = NeonButtonFactory.createNeonButton("BACK", new Color(180, 80, 255));
-            startButton.setEnabled(false);// needs to activate when chosen game
+            // Button always enabled - validation happens on click with warning message
 
             bgbc.gridx = 0; buttonPanel.add(startButton, bgbc);
             bgbc.gridx = 1; buttonPanel.add(backButton, bgbc);
@@ -326,14 +326,8 @@ public class NewGameView extends JPanel {
 
 
     private void updateStartButtonState() {
-        boolean valid =
-                isNameValid(player1Field) &&
-                        isNameValid(player2Field) &&
-                        (easyToggle.isSelected() ||
-                                mediumToggle.isSelected() ||
-                                hardToggle.isSelected());
-
-        startButton.setEnabled(valid);
+        // Button always enabled - validation with warning message happens on click
+        // Visual feedback is provided through field borders (red/green)
     }
 
     private void addLiveValidation(JTextField field) {

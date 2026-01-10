@@ -523,6 +523,7 @@ public class QuestionWizardView extends JFrame {
     // ==================== Public API ====================
 
     public void showWindow() {
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setVisible(true);
         toFront();
     }

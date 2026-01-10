@@ -79,6 +79,8 @@ public class NavigationController {
                 handleStartGame();
             });
         }
+        // Maximize the window for full screen
+        mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         switchToView(newGameView);
     }
 
@@ -91,22 +93,35 @@ public class NavigationController {
         String player1Name = newGameView.getPlayer1Field().getText().trim();
         String player2Name = newGameView.getPlayer2Field().getText().trim();
 
-        // Validate player names
-        if (player1Name.isEmpty() || player1Name.equals("Player 1 Name")) {
+        // Validate player names - both must be entered
+        boolean player1Missing = player1Name.isEmpty() || player1Name.equals("Player 1 Name");
+        boolean player2Missing = player2Name.isEmpty() || player2Name.equals("Player 2 Name");
+
+        if (player1Missing && player2Missing) {
             JOptionPane.showMessageDialog(
                     mainFrame,
-                    "Please enter Player 1's name",
-                    "Invalid Input",
+                    "Both player names must be entered to start the game.",
+                    "Missing Player Names",
                     JOptionPane.WARNING_MESSAGE
             );
             return;
         }
 
-        if (player2Name.isEmpty() || player2Name.equals("Player 2 Name")) {
+        if (player1Missing) {
             JOptionPane.showMessageDialog(
                     mainFrame,
-                    "Please enter Player 2's name",
-                    "Invalid Input",
+                    "Please enter Player 1's name to start the game.",
+                    "Missing Player Name",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        if (player2Missing) {
+            JOptionPane.showMessageDialog(
+                    mainFrame,
+                    "Please enter Player 2's name to start the game.",
+                    "Missing Player Name",
                     JOptionPane.WARNING_MESSAGE
             );
             return;
