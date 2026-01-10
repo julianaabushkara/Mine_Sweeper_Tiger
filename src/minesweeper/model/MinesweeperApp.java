@@ -1,7 +1,11 @@
 package minesweeper.model;
 import minesweeper.controller.NavigationController;
+import minesweeper.controller.QuestionWizardController;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.prefs.Preferences;
 
 /**
  * MinesweeperApp - Main Application Class
@@ -83,19 +87,37 @@ public class MinesweeperApp {
      * Constructor - initializes the application
      */
     public MinesweeperApp() {
-        try {
-            questionBank = new QuestionBank("/Questions/Questions.csv");
-            questionBank.loadFromCsv();
-            System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from CSV.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Failed to load Questions.csv\n" + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            questionBank = new QuestionBank(); // prevent null issues
+        // Try to load questions from persisted path first (user's last uploaded CSV)
+        boolean loaded = false;
+        Preferences prefs = Preferences.userNodeForPackage(QuestionWizardController.class);
+        String savedPath = prefs.get("lastLoadedCsvPath", null);
+
+        if (savedPath != null) {
+            File savedFile = new File(savedPath);
+            if (savedFile.exists() && savedFile.isFile()) {
+                try {
+                    questionBank = new QuestionBank();
+                    try (FileInputStream fis = new FileInputStream(savedFile)) {
+                        questionBank.loadFromInputStream(fis);
+                    }
+                    System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from persisted path: " + savedPath);
+                    loaded = true;
+                } catch (Exception e) {
+                    System.err.println("Failed to load from persisted path: " + e.getMessage());
+                }
+            }
+        }
+
+        // Fall back to bundled CSV if no persisted questions
+        if (!loaded) {
+            try {
+                questionBank = new QuestionBank("/Questions/Questions.csv");
+                questionBank.loadFromCsv();
+                System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from bundled CSV.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                questionBank = new QuestionBank(); // prevent null issues
+            }
         }
 
         initializeResources();
@@ -108,8 +130,6 @@ public class MinesweeperApp {
      */
     private void initializeResources() {
         try {
-            // Initialize Question Bank
-            questionBank = new QuestionBank();
 
             // Initialize Game History Manager
             //gameHistoryManager = new GameHistoryManager();  // FIXED: Now uses manager class
