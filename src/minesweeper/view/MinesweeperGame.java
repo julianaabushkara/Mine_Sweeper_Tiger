@@ -780,8 +780,11 @@ public class MinesweeperGame extends JFrame {
                     java.util.List<int[]> revealedCells = controller.reveal3x3Area(row, col, board);
                     if (!revealedCells.isEmpty()) {
                         BoardPanel boardPanel = isPlayerA ? playerABoard : playerBBoard;
-                        for (int[] pos : revealedCells) {
-                            boardPanel.getButton(pos[0], pos[1]).updateDisplay();
+                        // Refresh all cells to show cascaded reveals from EMPTY cells
+                        for (int r = 0; r < board.getSize(); r++) {
+                            for (int c = 0; c < board.getSize(); c++) {
+                                boardPanel.getButton(r, c).updateDisplay();
+                            }
                         }
                         feedback += "\n\n🎁 Bonus: 3×3 area revealed!";
                     }
