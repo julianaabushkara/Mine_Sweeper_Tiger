@@ -4,6 +4,8 @@ import minesweeper.model.*;
 import minesweeper.controller.GameController;
 import minesweeper.model.QuestionDifficulty;
 import minesweeper.model.Question;
+import minesweeper.model.audio.AudioManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -538,6 +540,8 @@ public class MinesweeperGame extends JFrame {
                 switch (cell.getType()) {
                     case MINE:
                         controller.addLives(-1);
+                        AudioManager.get().playSfx("/assets/audio/sfx/boom.wav");
+
                         board.incrementRevealedMines();
                         JOptionPane.showMessageDialog(MinesweeperGame.this,
                                 "💣 Mine discovered! -1 life\nMines discovered: " +
@@ -591,7 +595,7 @@ public class MinesweeperGame extends JFrame {
 
                 updateDisplay();
                 updateGameDisplay();
-                switchTurn();
+                //switchTurn();
             }
         }
 

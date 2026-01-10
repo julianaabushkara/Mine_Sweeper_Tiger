@@ -1,5 +1,6 @@
 package minesweeper.controller;
 
+import minesweeper.model.audio.AudioManager;
 import minesweeper.view.StartMenuView;
 import javax.swing.*;
 
@@ -86,6 +87,7 @@ public class StartMenuController {
         );
 
         if (result == JOptionPane.YES_OPTION) {
+            AudioManager.get().shutdown(); // ✅ stop & close everything
             System.out.println("Exiting application...");
             System.exit(0);
         }

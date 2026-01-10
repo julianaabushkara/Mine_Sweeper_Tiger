@@ -2,6 +2,7 @@ package minesweeper.controller;
 import minesweeper.model.SessionContext;
 
 import minesweeper.model.*;
+import minesweeper.model.audio.AudioManager;
 import minesweeper.model.scoring.ScoreResult;
 import minesweeper.model.scoring.ScoringStrategy;
 import minesweeper.view.MinesweeperGame;
@@ -35,6 +36,12 @@ public class GameController {
     }
 
     public void handleCellClick(Cell cell, int row, int col, Board board, boolean isLeftClick) {
+        System.out.println("[CLICK] r=" + row + " c=" + col +
+                " left=" + isLeftClick +
+                " type=" + cell.getType() +
+                " revealed=" + cell.isRevealed() +
+                " flagged=" + cell.isFlagged());
+
         if (isLeftClick) {
             handleLeftClick(cell, row, col, board);
         } else {
@@ -50,6 +57,10 @@ public class GameController {
 
             switch (cell.getType()) {
                 case MINE:
+                    AudioManager.get().playSfx("/assets/audio/sfx/boom.wav");
+                    System.out.println("boom url = " + getClass().getResource("/assets/audio/sfx/boom.wav"));
+                    System.out.println("click url = " + getClass().getResource("/assets/audio/sfx/click.wav"));
+
                     gameSession.addLives(-1);
                     board.incrementRevealedMines();
                     break;
@@ -76,6 +87,14 @@ public class GameController {
 
         boolean victory = isVictory();
         int finalScore = calculateFinalScore();
+        if (victory) {
+            AudioManager.get().playMusic("/assets/audio/music/win.wav");
+        } else {
+            javax.swing.Timer t = new javax.swing.Timer(250, e ->
+                    AudioManager.get().playMusic("/assets/audio/music/lose.wav"));
+            t.setRepeats(false);
+            t.start();        }
+
 
         //GameHistoryManager historyManager = new GameHistoryManager();
 

@@ -6,8 +6,9 @@ import minesweeper.model.GameHistory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import minesweeper.model.GameSession;
+import minesweeper.model.HistoryFilterStrategy.HistoryFilterStrategy;
+import minesweeper.model.HistoryFilterStrategy.HistorySortStrategy;
 
 
 import java.io.*;
@@ -15,9 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class GameHistoryLogic {
@@ -32,6 +31,22 @@ public class GameHistoryLogic {
         if (instance == null)
             instance = new GameHistoryLogic();
         return instance;
+    }
+
+    public List<GameHistory> getHistoryFilteredSorted(
+            HistoryFilterStrategy filter,
+            HistorySortStrategy sort
+    ) {
+        List<GameHistory> all = getAllHistory();
+
+        var stream = all.stream();
+        if (filter != null) {
+            stream = stream.filter(filter::matches);
+        }
+        if (sort != null) {
+            return stream.sorted(sort.comparator()).toList();
+        }
+        return stream.toList();
     }
 
     // Helper method to get history file path
@@ -272,6 +287,9 @@ public class GameHistoryLogic {
                     JSONObject h = (JSONObject) obj;
                     allHistories.add(parseHistoryObject(h, username));
                 }
+                System.out.println("Loading history from: " + HISTORY_FILE.toAbsolutePath());
+                System.out.println("Loaded rows: " + allHistories.size());
+
             }
 
         } catch (Exception e) {
@@ -280,6 +298,7 @@ public class GameHistoryLogic {
 
         return allHistories;
     }
+
 
     private GameHistory parseHistoryObject(JSONObject h, String username) {
 
