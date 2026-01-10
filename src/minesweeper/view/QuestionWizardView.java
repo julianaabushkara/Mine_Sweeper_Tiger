@@ -139,6 +139,18 @@ public class QuestionWizardView extends JFrame {
         for (QuestionDifficulty d : QuestionDifficulty.values()) {
             difficultyCombo.addItem(d);
         }
+        // Custom renderer to show "All" instead of empty for null value
+        difficultyCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("All");
+                }
+                return this;
+            }
+        });
 
         searchButton = createStyledButton("Search", ACCENT_CYAN);
         searchButton.addActionListener(e -> {
