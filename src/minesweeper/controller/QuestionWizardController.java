@@ -255,10 +255,8 @@ public class QuestionWizardController {
                 Question question = newQuestion.toQuestion();
                 questionBank.addQuestion(question);
 
-                // Save to file if we have a file path
-                if (lastLoadedFilePath != null) {
-                    saveQuestionBank();
-                }
+                // Save to file (creates user-specific file if needed)
+                saveQuestionBank();
 
                 // Refresh the view
                 refreshView();
@@ -305,10 +303,8 @@ public class QuestionWizardController {
                 Question updated = mutableQuestion.toQuestion();
                 questionBank.updateQuestion(updated);
 
-                // Save to file if we have a file path
-                if (lastLoadedFilePath != null) {
-                    saveQuestionBank();
-                }
+                // Save to file (creates user-specific file if needed)
+                saveQuestionBank();
 
                 // Refresh the view
                 refreshView();
@@ -354,10 +350,8 @@ public class QuestionWizardController {
             try {
                 questionBank.deleteQuestion(selected.getId());
 
-                // Save to file if we have a file path
-                if (lastLoadedFilePath != null) {
-                    saveQuestionBank();
-                }
+                // Save to file (creates user-specific file if needed)
+                saveQuestionBank();
 
                 // Refresh the view
                 refreshView();
@@ -377,10 +371,41 @@ public class QuestionWizardController {
     }
 
     /**
+     * Ensures we have a valid file path for saving questions.
+     * If no file was loaded, creates a user-specific default file.
+     *
+     * @return true if we have a valid file path, false otherwise
+     */
+    private boolean ensureUserQuestionsFile() {
+        if (lastLoadedFilePath != null) {
+            return true;
+        }
+
+        // Create a user-specific questions file in the user's home directory
+        String username = getCurrentUsername();
+        String userHome = System.getProperty("user.home");
+        File minesweeperDir = new File(userHome, ".minesweeper");
+
+        // Create directory if it doesn't exist
+        if (!minesweeperDir.exists()) {
+            minesweeperDir.mkdirs();
+        }
+
+        File userQuestionsFile = new File(minesweeperDir, "questions_" + username + ".csv");
+        lastLoadedFilePath = userQuestionsFile.getAbsolutePath();
+
+        // Save the path to preferences so it's remembered
+        saveLastCsvPath(lastLoadedFilePath);
+
+        return true;
+    }
+
+    /**
      * Saves the question bank to the last loaded file.
+     * If no file exists, creates a user-specific default file.
      */
     private void saveQuestionBank() {
-        if (lastLoadedFilePath == null) {
+        if (!ensureUserQuestionsFile()) {
             JOptionPane.showMessageDialog(view,
                     "No file path available for saving.",
                     "Save Error",
