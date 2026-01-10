@@ -11,7 +11,7 @@ import javax.swing.*;
  * Follows MVC pattern - separates business logic from UI
  *
  * @author Group Tiger
- * @version 1.0
+ * @version 3.0
  */
 public class StartMenuController {
 

@@ -132,7 +132,7 @@ public class StartMenuView extends JPanel {
         // =========================================
         // VERSION LABEL
         // =========================================
-        versionLabel = new JLabel("Group Tiger · Version 2.0", SwingConstants.CENTER);
+        versionLabel = new JLabel("Group Tiger · Version 3.0", SwingConstants.CENTER);
         versionLabel.setFont(new Font("Arial Unicode MS", Font.PLAIN, 12));
         versionLabel.setForeground(new Color(100, 100, 110));
 
