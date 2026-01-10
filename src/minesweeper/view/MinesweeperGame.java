@@ -73,6 +73,7 @@ public class MinesweeperGame extends JFrame {
         createBoardsPanel();
         createBottomPanel();
         startTimer();
+        updateGameDisplay();
         // Fit window to screen size
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
