@@ -828,9 +828,17 @@ public class MinesweeperGame extends JFrame {
 
         public void updateDisplay() {
             if (cell.isFlagged()) {
-                setBackground(new Color(50, 30, 30));
-                setText("🚩");
-                setForeground(new Color(255, 80, 80));
+                if (cell.getType() == Cell.CellType.MINE) {
+                    // Correct flag - green tint
+                    setBackground(new Color(30, 50, 30));
+                    setText("🚩");
+                    setForeground(new Color(80, 255, 80));
+                } else {
+                    // Incorrect flag - red/orange tint with X
+                    setBackground(new Color(60, 30, 20));
+                    setText("❌");
+                    setForeground(new Color(255, 120, 60));
+                }
             } else if (cell.isRevealed()) {
                 setBackground(new Color(30, 40, 50));
 
