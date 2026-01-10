@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import minesweeper.model.QuestionDifficulty;
+import minesweeper.model.SessionContext;
 import minesweeper.model.QuestionDifficulty;
 import minesweeper.model.QuestionDifficulty;
 import minesweeper.model.QuestionDifficulty;
@@ -417,14 +418,35 @@ public class QuestionWizardController {
     // ==================== Preferences Persistence ====================
 
     /**
-     * Saves the last loaded CSV file path to preferences.
-     * This allows the app to remember which file was loaded on next launch.
+     * Gets the current username for user-specific preferences.
+     *
+     * @return The current username, or "default" if not logged in
+     */
+    private static String getCurrentUsername() {
+        if (SessionContext.currentUser != null) {
+            return SessionContext.currentUser.getUsername();
+        }
+        return "default";
+    }
+
+    /**
+     * Gets the user-specific preference key for CSV path.
+     *
+     * @return The preference key including the username
+     */
+    public static String getUserCsvPathKey() {
+        return PREF_LAST_CSV_PATH + "_" + getCurrentUsername();
+    }
+
+    /**
+     * Saves the last loaded CSV file path to preferences (user-specific).
+     * This allows each user to have their own question bank.
      *
      * @param filePath The file path to save
      */
     private void saveLastCsvPath(String filePath) {
         if (filePath != null && !filePath.isEmpty()) {
-            prefs.put(PREF_LAST_CSV_PATH, filePath);
+            prefs.put(getUserCsvPathKey(), filePath);
             try {
                 prefs.flush();
             } catch (BackingStoreException e) {
@@ -434,12 +456,12 @@ public class QuestionWizardController {
     }
 
     /**
-     * Loads the last saved CSV file path from preferences.
+     * Loads the last saved CSV file path from preferences (user-specific).
      *
      * @return The saved file path, or null if none was saved
      */
     private String loadLastCsvPath() {
-        return prefs.get(PREF_LAST_CSV_PATH, null);
+        return prefs.get(getUserCsvPathKey(), null);
     }
 
 }

@@ -87,10 +87,11 @@ public class MinesweeperApp {
      * Constructor - initializes the application
      */
     public MinesweeperApp() {
-        // Try to load questions from persisted path first (user's last uploaded CSV)
+        // Try to load questions from user-specific persisted path first
         boolean loaded = false;
         Preferences prefs = Preferences.userNodeForPackage(QuestionWizardController.class);
-        String savedPath = prefs.get("lastLoadedCsvPath", null);
+        String userCsvKey = QuestionWizardController.getUserCsvPathKey();
+        String savedPath = prefs.get(userCsvKey, null);
 
         if (savedPath != null) {
             File savedFile = new File(savedPath);
@@ -100,7 +101,7 @@ public class MinesweeperApp {
                     try (FileInputStream fis = new FileInputStream(savedFile)) {
                         questionBank.loadFromInputStream(fis);
                     }
-                    System.out.println("Loaded " + questionBank.getQuestionCount() + " questions from persisted path: " + savedPath);
+                    System.out.println("Loaded " + questionBank.getQuestionCount() + " questions for user from: " + savedPath);
                     loaded = true;
                 } catch (Exception e) {
                     System.err.println("Failed to load from persisted path: " + e.getMessage());
@@ -108,7 +109,7 @@ public class MinesweeperApp {
             }
         }
 
-        // Fall back to bundled CSV if no persisted questions
+        // Fall back to bundled CSV if no persisted questions for this user
         if (!loaded) {
             try {
                 questionBank = new QuestionBank("/Questions/Questions.csv");
