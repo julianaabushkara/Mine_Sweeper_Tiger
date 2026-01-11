@@ -599,7 +599,6 @@ public class MinesweeperGame extends JFrame {
 
                 updateDisplay();
                 updateGameDisplay();
-                switchTurn();
             }
         }
 
