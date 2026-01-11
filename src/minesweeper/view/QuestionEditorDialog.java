@@ -71,7 +71,8 @@ public class QuestionEditorDialog extends JDialog {
     }
 
     private void initializeDialog() {
-        setSize(700, 650);
+        setSize(750, 700);
+        setMinimumSize(new Dimension(600, 550));
         setLocationRelativeTo(getParent());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         getContentPane().setBackground(BACKGROUND_DARK);
@@ -82,8 +83,8 @@ public class QuestionEditorDialog extends JDialog {
         idField = createStyledTextField();
         idField.setToolTipText("Question ID (must be unique and positive)");
 
-        // Question Text Area
-        questionTextArea = new JTextArea(4, 40);
+        // Question Text Area (larger for longer questions)
+        questionTextArea = new JTextArea(8, 50);
         questionTextArea.setLineWrap(true);
         questionTextArea.setWrapStyleWord(true);
         styleTextComponent(questionTextArea);
@@ -147,13 +148,16 @@ public class QuestionEditorDialog extends JDialog {
 
         gbc.gridx = 1;
         gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         JScrollPane questionScroll = new JScrollPane(questionTextArea);
-        questionScroll.setPreferredSize(new Dimension(400, 100));
+        questionScroll.setMinimumSize(new Dimension(400, 150));
+        questionScroll.setPreferredSize(new Dimension(500, 180));
         styleScrollPane(questionScroll);
         formPanel.add(questionScroll, gbc);
         row++;
 
+        gbc.weighty = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Options

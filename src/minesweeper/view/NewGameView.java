@@ -174,7 +174,7 @@ public class NewGameView extends JPanel {
 
             startButton = NeonButtonFactory.createNeonButton("START GAME", new Color(0, 180, 255));
             backButton  = NeonButtonFactory.createNeonButton("BACK", new Color(180, 80, 255));
-            startButton.setEnabled(false);// needs to activate when chosen game
+            // Button always enabled - validation happens on click with warning message
 
             bgbc.gridx = 0; buttonPanel.add(startButton, bgbc);
             bgbc.gridx = 1; buttonPanel.add(backButton, bgbc);
@@ -246,16 +246,16 @@ public class NewGameView extends JPanel {
 
                         "<span style='color:#00FFB4; font-size:16px;'><b>Cells Breakdown:</b></span><br><br>" +
 
-                        "<img src='" + getClass().getResource("/assets/mine.PNG") +
+                        "<img src='" + getClass().getResource("/assets/mine.png") +
                         "' width='22' height='22'> Mines: " + mines + "<br>" +
 
-                                "<img src='" + getClass().getResource("/assets/question.PNG") +
+                                "<img src='" + getClass().getResource("/assets/question.png") +
                                 "' width='22' height='22'> Question Cells: " + questions + "<br>" +
 
-                                        "<img src='" + getClass().getResource("/assets/surprise.PNG") +
+                                        "<img src='" + getClass().getResource("/assets/surprise.png") +
                                         "' width='22' height='22'> Surprise Cells: " + surprises + "<br>" +
 
-                                                "<img src='" + getClass().getResource("/assets/tile.PNG") +
+                                                "<img src='" + getClass().getResource("/assets/tile.png") +
                                                 "' width='22' height='22'> Safe/Number Cells: " + safeCells + "<br><br>" +
 
                                                         "<span style='color:#00FFB4; font-size:16px;'><b>Additional Info:</b></span><br><br>" +
@@ -326,14 +326,8 @@ public class NewGameView extends JPanel {
 
 
     private void updateStartButtonState() {
-        boolean valid =
-                isNameValid(player1Field) &&
-                        isNameValid(player2Field) &&
-                        (easyToggle.isSelected() ||
-                                mediumToggle.isSelected() ||
-                                hardToggle.isSelected());
-
-        startButton.setEnabled(valid);
+        // Button always enabled - validation with warning message happens on click
+        // Visual feedback is provided through field borders (red/green)
     }
 
     private void addLiveValidation(JTextField field) {

@@ -1,5 +1,6 @@
 package minesweeper.controller;
 
+import minesweeper.model.audio.AudioManager;
 import minesweeper.view.*;
 import minesweeper.model.MinesweeperApp;
 import minesweeper.model.GameSession;
@@ -54,6 +55,7 @@ public class NavigationController {
         // Create view and controller only once
         if (startMenuView == null) {
             startMenuView = new StartMenuView();
+            AudioBinder.addClickToAllButtons(startMenuView);
             startMenuController = new StartMenuController(startMenuView, this);
         }
 
@@ -67,6 +69,7 @@ public class NavigationController {
     public void navigateToNewGame() {
         if (newGameView == null) {
             newGameView = new NewGameView();
+            AudioBinder.addClickToAllButtons(newGameView);
 
             // Add back button functionality
             newGameView.getBackButton().addActionListener(e -> navigateToStartMenu());
@@ -76,6 +79,8 @@ public class NavigationController {
                 handleStartGame();
             });
         }
+        // Maximize the window for full screen
+        mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         switchToView(newGameView);
     }
 
@@ -88,22 +93,35 @@ public class NavigationController {
         String player1Name = newGameView.getPlayer1Field().getText().trim();
         String player2Name = newGameView.getPlayer2Field().getText().trim();
 
-        // Validate player names
-        if (player1Name.isEmpty() || player1Name.equals("Player 1 Name")) {
+        // Validate player names - both must be entered
+        boolean player1Missing = player1Name.isEmpty() || player1Name.equals("Player 1 Name");
+        boolean player2Missing = player2Name.isEmpty() || player2Name.equals("Player 2 Name");
+
+        if (player1Missing && player2Missing) {
             JOptionPane.showMessageDialog(
                     mainFrame,
-                    "Please enter Player 1's name",
-                    "Invalid Input",
+                    "Both player names must be entered to start the game.",
+                    "Missing Player Names",
                     JOptionPane.WARNING_MESSAGE
             );
             return;
         }
 
-        if (player2Name.isEmpty() || player2Name.equals("Player 2 Name")) {
+        if (player1Missing) {
             JOptionPane.showMessageDialog(
                     mainFrame,
-                    "Please enter Player 2's name",
-                    "Invalid Input",
+                    "Please enter Player 1's name to start the game.",
+                    "Missing Player Name",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        if (player2Missing) {
+            JOptionPane.showMessageDialog(
+                    mainFrame,
+                    "Please enter Player 2's name to start the game.",
+                    "Missing Player Name",
                     JOptionPane.WARNING_MESSAGE
             );
             return;
@@ -143,6 +161,7 @@ public class NavigationController {
 
                 // Create game view (JFrame)
                 MinesweeperGame gameView = new MinesweeperGame(gameController, appModel.getQuestionBank());
+                AudioBinder.addClickToAllButtons(gameView); // ✅ bind clicks in the whole game window
 
                 // AGGRESSIVE FIX for EXIT_ON_CLOSE issue:
                 // 1. Use DISPOSE_ON_CLOSE instead of DO_NOTHING (more reliable)
@@ -167,12 +186,14 @@ public class NavigationController {
                                 gameView,
                                 "Are you sure you want to exit the game and return to menu?",
                                 "Exit Game",
+
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.QUESTION_MESSAGE
                         );
 
                         if (result == JOptionPane.YES_OPTION) {
                             // User confirmed - dispose window
+                            AudioManager.get().stopMusic(); // ✅ stop immediately
                             gameView.dispose();
                             // Return to menu
                             returnToMainMenuFromGame();
@@ -232,6 +253,7 @@ public class NavigationController {
         SwingUtilities.invokeLater(() -> {
             try {
                 System.out.println("Returning to main menu...");
+                AudioManager.get().stopMusic(); // if you have this method
 
                 // Show and restore main frame
                 mainFrame.setVisible(true);
@@ -259,12 +281,16 @@ public class NavigationController {
         if (questionWizardView == null) {
             questionWizardView = new QuestionWizardView();
 
+            AudioBinder.addClickToAllButtons(questionWizardView); // ✅ here (JFrame is Container)
+
+
             // Initialize controller with correct parameter order
             try {
                 questionWizardController = new QuestionWizardController(
                         appModel.getQuestionBank(),    // First parameter: QuestionBank
                         questionWizardView             // Second parameter: QuestionWizardView
                 );
+
 
                 // Set the callback for when back button is clicked
                 questionWizardController.setOnBackToStart(() -> {
@@ -316,8 +342,9 @@ public class NavigationController {
             }
         }
 
-        // Show Question Wizard as a separate window
-        showFrameView(questionWizardView);
+        // Hide main frame and open Question Wizard (which handles loading saved CSV)
+        mainFrame.setVisible(false);
+        questionWizardController.open();
     }
 
     /**
@@ -328,6 +355,8 @@ public class NavigationController {
             historyView = new HistoryView();
             // TODO: Create and attach HistoryController
             // new HistoryController(historyView, this, appModel);
+
+            AudioBinder.addClickToAllButtons(historyView);
 
             // Add back button functionality
             historyView.getBackButton().addActionListener(e -> navigateToStartMenu());

@@ -3,11 +3,16 @@ package minesweeper.model;
 
 import java.util.*;
 
+import minesweeper.observer.BoardObserver;
+
 public class Board {
     private int size;
     private Cell[][] cells;
     private int totalMines;
     private int revealedMines;
+    private List<BoardObserver> observers;
+    private int currentScore;
+    
 
     public Board(int size, int mineCount, int questionCount, int surpriseCount) {
         this.size = size;
@@ -15,18 +20,65 @@ public class Board {
         this.revealedMines = 0;
         this.cells = new Cell[size][size];
 
+        
+        this.observers = new ArrayList<>();
+        this.currentScore = 0;
+        
         // Initialize cells
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 cells[i][j] = new Cell();
             }
         }
+        
+        
 
         // Generate board
         placeMines(mineCount);
         calculateNumbers();
         placeSpecialTiles(questionCount, surpriseCount);
     }
+    
+    
+    
+    public void addObserver(BoardObserver observer) {
+        observers.add(observer);
+    }
+    
+    public void removeObserver(BoardObserver observer) {
+        observers.remove(observer);
+    }
+    
+   
+    
+    public void notifyCellRevealed(int row, int col) {
+        Cell cell = cells[row][col];
+        for (BoardObserver observer : observers) {
+            observer.onCellRevealed(row, col, cell);
+        }
+    }
+    
+    public void notifyGameOver(boolean won) {
+        for (BoardObserver observer : observers) {
+            observer.onGameOver(won);
+        }
+    }
+    
+    public void notifyScoreChanged(int points) {
+        currentScore += points;
+        for (BoardObserver observer : observers) {
+            observer.onScoreChanged(currentScore);
+        }
+    }
+    
+    public int getCurrentScore() {
+        return currentScore;
+    }
+    
+    
+    
+    
+    
 
     private void placeMines(int count) {
         Random rand = new Random();
@@ -102,6 +154,22 @@ public class Board {
 
     public boolean isValid(int row, int col) {
         return row >= 0 && row < size && col >= 0 && col < size;
+    }
+
+    /**
+     * Observer Pattern: Reveals a cell and notifies all registered observers.
+     * This method should be called instead of cell.setRevealed(true) directly
+     * when UI updates are needed.
+     *
+     * @param row The row of the cell to reveal
+     * @param col The column of the cell to reveal
+     */
+    public void revealCell(int row, int col) {
+        Cell cell = cells[row][col];
+        if (!cell.isRevealed()) {
+            cell.setRevealed(true);
+            notifyCellRevealed(row, col);  // Notify observers of the change
+        }
     }
 
     // Getters

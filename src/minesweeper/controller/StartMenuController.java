@@ -1,5 +1,6 @@
 package minesweeper.controller;
 
+import minesweeper.model.audio.AudioManager;
 import minesweeper.view.StartMenuView;
 import javax.swing.*;
 
@@ -10,7 +11,7 @@ import javax.swing.*;
  * Follows MVC pattern - separates business logic from UI
  *
  * @author Group Tiger
- * @version 1.0
+ * @version 3.0
  */
 public class StartMenuController {
 
@@ -86,6 +87,7 @@ public class StartMenuController {
         );
 
         if (result == JOptionPane.YES_OPTION) {
+            AudioManager.get().shutdown(); // ✅ stop & close everything
             System.out.println("Exiting application...");
             System.exit(0);
         }

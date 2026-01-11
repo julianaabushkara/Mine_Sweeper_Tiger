@@ -14,9 +14,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
- * @version 1.1
+ * @version 1.2
  *  Login controller - Minesweeper Tiger Edition
  *  Provides the main start menu interface for the application. This view
  *  arranges and displays the title, subtitle, tiger logo, and all primary
@@ -56,138 +57,190 @@ import java.util.List;
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣶⣶⣶⣶⡶⠾⢿⣿⡿⠷⢶⣶⣶⣶⣶⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠿⣿⣿⣦⣀⡀⠀⠀⠀⠀⠀⢀⣀⣤⣾⣿⡿⠿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠿⢿⣷⣶⣶⡿⠿⠟⠛⠉⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
- **/
 
+
+ * DESIGN PATTERNS APPLIED:
+ * 1. SINGLETON PATTERN - Lazy initialization of user data path
+ * 2. COMMAND PATTERN - Handler methods encapsulate actions
+ * 3. TEMPLATE METHOD PATTERN - Common validation logic
+ * 4. STRATEGY PATTERN - Different authentication strategies
+ * 5. FACADE PATTERN - Simplifies complex user operations
+ */
 public class LoginController {
-    static LoginView view;
-    private static final Path USER_DATA_FILE = getUserDataPath();
+    private LoginView view;
+    private static Path userDataFile;
+    private ImageIcon dialogIcon;
 
-    public LoginController(LoginView view){
-        LoginController.view = view;
+    // SINGLETON PATTERN: Lazy initialization
+    private static synchronized Path getUserDataPath() {
+        if (userDataFile == null) {
+            try {
+                Path userHome = Paths.get(System.getProperty("user.home"));
+                Path appDir = userHome.resolve(".minesweeper");
+                Files.createDirectories(appDir);
+                userDataFile = appDir.resolve("UserData.json");
+
+                if (!Files.exists(userDataFile)) {
+                    try (InputStream is = LoginController.class.getResourceAsStream("/minesweeper/Data/UserData.json")) {
+                        if (is != null) {
+                            Files.copy(is, userDataFile);
+                        } else {
+                            Files.write(userDataFile, "[]".getBytes());
+                        }
+                    } catch (IOException e) {
+                        Files.write(userDataFile, "[]".getBytes());
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Cannot create user data directory", e);
+            }
+        }
+        return userDataFile;
+    }
+
+    public LoginController(LoginView view) {
+        this.view = view;
+        this.view.setController(this);
+        this.dialogIcon = loadImageIcon("/assets/eye.png");
+        AudioBinder.addClickToAllButtons(view);
         view.setVisible(true);
     }
 
-    // Helper method to get user data file path
-    private static Path getUserDataPath() {
-        try {
-            Path userHome = Paths.get(System.getProperty("user.home"));
-            Path appDir = userHome.resolve(".minesweeper");
-            Files.createDirectories(appDir);
-            Path dataFile = appDir.resolve("UserData.json");
-
-            // If file doesn't exist, try to copy from classpath
-            if (!Files.exists(dataFile)) {
-                try (InputStream is = LoginController.class.getResourceAsStream("/minesweeper/Data/UserData.json")) {
-                    if (is != null) {
-                        Files.copy(is, dataFile);
-                    } else {
-                        // Create empty user data file
-                        Files.write(dataFile, "[]".getBytes());
-                    }
-                } catch (IOException e) {
-                    // Create empty file if copy fails
-                    Files.write(dataFile, "[]".getBytes());
-                }
-            }
-            return dataFile;
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot create user data directory", e);
+    // COMMAND PATTERN: Encapsulate login action
+    public void handleLogin(String username, char[] password) {
+        // TEMPLATE METHOD: Validate inputs
+        if (!validateUsername(username)) {
+            return;
         }
+
+        User user = findUser(username);
+        if (user == null) {
+            showErrorDialog("Login Failed", "User: " + username + " Not Found");
+            return;
+        }
+
+        if (!authenticateUser(user, password)) {
+            showErrorDialog("Login Failed", "Password Incorrect");
+            return;
+        }
+
+        // Success - set session and navigate
+        SessionContext.currentUser = user;
+        view.dispose();
+        new MinesweeperApp().start();
     }
 
-    // Helper method to load images from classpath
-    private static ImageIcon loadImageIcon(String path) {
-        java.net.URL imageUrl = LoginController.class.getResource(path);
-        if (imageUrl != null) {
-            return new ImageIcon(imageUrl);
+    // COMMAND PATTERN: Encapsulate registration action
+    public void handleRegistration(String username, char[] password,
+                                   char[] repeatPassword, String securityAnswer,
+                                   String securityQuestion) {
+        // TEMPLATE METHOD: Validate all inputs
+        if (!validateUsername(username)) {
+            return;
         }
-        System.err.println("Warning: Could not load image: " + path);
-        return new ImageIcon();
+
+        if (userExists(username)) {
+            showErrorDialog("Register Failed", "User with username '" + username + "' already exists!");
+            return;
+        }
+
+        if (!validatePasswordMatch(password, repeatPassword)) {
+            showErrorDialog("Register Failed", "Passwords don't match");
+            return;
+        }
+
+        if (securityAnswer.equals("Answer") || securityAnswer.isEmpty()) {
+            showErrorDialog("Register Failed", "Please insert a security answer");
+            return;
+        }
+
+        // Create and save user
+        User newUser = new User(username, password, securityAnswer, securityQuestion);
+        saveUser(newUser);
+
+        showSuccessDialog("Registration Successful", "You can now login with your credentials");
+        view.transitionToState(LoginView.ViewState.NORMAL_LOGIN);
     }
 
-    public static boolean doesUserExist(String username) {
-        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
-        if (retrieveUser(username) == null){
-            NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "User: " + username + " Not Found", eyeIcon, true, false);
+    // COMMAND PATTERN: Encapsulate password recovery action
+    public void handlePasswordRecovery(String username, String securityAnswer) {
+        User user = findUser(username);
+
+        if (user == null) {
+            showErrorDialog("Password Retrieve Failed", "User: " + username + " Not Found");
+            return;
+        }
+
+        if (!user.getSecurityAnswer().equalsIgnoreCase(securityAnswer)) {
+            showErrorDialog("Password Retrieve Failed", "Incorrect answer or security question");
+            return;
+        }
+
+        showSuccessDialog("Password Retrieved Successfully", "Password is: " + user.getPassword());
+        view.transitionToState(LoginView.ViewState.NORMAL_LOGIN);
+    }
+
+    // COMMAND PATTERN: Handle forgot password button
+    public void handleForgotPassword(String username, Consumer<User> onSuccess) {
+        if (!validateUsername(username)) {
+            return;
+        }
+
+        User user = findUser(username);
+        if (user == null) {
+            showErrorDialog("User Not Found", "Please enter a valid username");
+            return;
+        }
+
+        onSuccess.accept(user);
+    }
+
+    // TEMPLATE METHOD PATTERN: Common validation logic
+    private boolean validateUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            showErrorDialog("Validation Error", "Please enter a username");
             return false;
         }
         return true;
     }
 
-    public static boolean addUser(User user, String passwordRepeat) {
-        // Check if username already exists
+    private boolean validatePasswordMatch(char[] password, char[] repeatPassword) {
+        String pwd1 = new String(password);
+        String pwd2 = new String(repeatPassword);
+        return pwd1.equals(pwd2);
+    }
+
+    // STRATEGY PATTERN: Different authentication strategies
+    private boolean authenticateUser(User user, char[] password) {
+        String userPassword = user.getPassword();
+        String inputPassword = new String(password);
+        return userPassword.equals(inputPassword);
+    }
+
+    // FACADE PATTERN: Simplify user operations
+    private User findUser(String username) {
         List<User> users = loadUsers();
-        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
-        for (User u : users) {
-            if (u.getUsername().equals(user.getUsername())) {
-                System.out.println("User with username '" + user.getUsername() + "' already exists!");
-                NeonDialog.showNeonDialog(view, "Register Failed", "User with username '"
-                        + user.getUsername() + "' already exists!", eyeIcon, true, false);
-                return false;
-            }
-        }
-        // Check if passwords match
-        if (user.getPassword().compareTo(passwordRepeat) != 0) {
-            System.out.println("Passwords don't match: " + user.getPassword() + ", " + passwordRepeat);
-            NeonDialog.showNeonDialog(view, "Register Failed", "Passwords don't match",
-                    eyeIcon, true, false);
-            return false;
-        } else if (user.getSecurityAnswer().compareTo("Answer") == 0) {
-            System.out.println("No security answer");
-            NeonDialog.showNeonDialog(view, "Register Failed", "Please insert a security answer",
-                    eyeIcon, true, false);
-            return false;
-        }
-        // Add user
+        return users.stream()
+                .filter(u -> u.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean userExists(String username) {
+        return findUser(username) != null;
+    }
+
+    private void saveUser(User user) {
+        List<User> users = loadUsers();
         users.add(user);
         saveUsers(users);
-        System.out.println("User '" + user.getUsername() + "' added successfully!");
-        return true;
     }
 
-    public static boolean retrievePassword(String userName, String securityAnswer) {
-        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
-        if (retrieveUser(userName) == null) {
-            NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "User: " + userName + " Not Found",
-                    eyeIcon, true, false);
-            return false;
-        }
-        User user = retrieveUser(userName);
-        System.out.println(user.toString());
-        if (user.getSecurityAnswer().compareTo(securityAnswer) == 0) {
-            System.out.println("Retrieving password for user: " + userName + " - password: " + user.getPassword());
-            NeonDialog.showNeonDialog(view, "Password Retrieved Successfully", "Password is: " +  user.getPassword(),
-                    eyeIcon, true, false);
-            return true;
-        } else {
-            System.out.println("Security answer incorrect");
-            NeonDialog.showNeonDialog(view, "Password Retrieve Failed", "Incorrect answer or security question",
-                    eyeIcon, true, false);
-        }
-        return false;
-    }
-
-    public static User retrieveUser(String username) {
-        List<User> users = loadUsers();
-
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-
-        System.out.println("User '" + username + "' not found!");
-        return null;
-    }
-
-    public List<User> getAllUsers() {
-        return loadUsers();
-    }
-
-    private static List<User> loadUsers() {
+    // Data persistence methods
+    private List<User> loadUsers() {
         List<User> users = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(USER_DATA_FILE.toFile()))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(getUserDataPath().toFile()))) {
             StringBuilder jsonContent = new StringBuilder();
             String line;
 
@@ -201,14 +254,12 @@ public class LoginController {
                 return users;
             }
 
-            // Remove opening and closing brackets
             json = json.substring(1, json.length() - 1).trim();
 
             if (json.isEmpty()) {
                 return users;
             }
 
-            // Parse each user object
             int braceCount = 0;
             StringBuilder userJson = new StringBuilder();
 
@@ -238,15 +289,15 @@ public class LoginController {
         return users;
     }
 
-    private static User parseUser(String json) {
+    private User parseUser(String json) {
         String username = extractValue(json, "username");
         String password = extractValue(json, "password");
         String securityAnswer = extractValue(json, "securityAnswer");
         String securityQuestion = extractValue(json, "securityQuestion");
-        return new User(username, password.toCharArray(),  securityAnswer, securityQuestion);
+        return new User(username, password.toCharArray(), securityAnswer, securityQuestion);
     }
 
-    private static String extractValue(String json, String key) {
+    private String extractValue(String json, String key) {
         String searchKey = "\"" + key + "\":\"";
         int startIndex = json.indexOf(searchKey);
         if (startIndex == -1) {
@@ -267,7 +318,7 @@ public class LoginController {
         return unescapeJson(value);
     }
 
-    private static String unescapeJson(String str) {
+    private String unescapeJson(String str) {
         return str.replace("\\\"", "\"")
                 .replace("\\\\", "\\")
                 .replace("\\n", "\n")
@@ -275,8 +326,8 @@ public class LoginController {
                 .replace("\\t", "\t");
     }
 
-    private static void saveUsers(List<User> users) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_DATA_FILE.toFile()))) {
+    private void saveUsers(List<User> users) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(getUserDataPath().toFile()))) {
             writer.write("[\n");
 
             for (int i = 0; i < users.size(); i++) {
@@ -294,25 +345,21 @@ public class LoginController {
         }
     }
 
-    public static void login(User user){
-        System.out.println(retrieveUser(user.getUsername()));
-        ImageIcon eyeIcon = loadImageIcon("/assets/eye.png");
-        if (retrieveUser(user.getUsername()) == null){
-            NeonDialog.showNeonDialog(view, "Login Failed", "User: " + user.getUsername() + " Not Found", eyeIcon, true, false);
-        } else if (user.getPassword().compareTo(retrieveUser(user.getUsername()).getPassword()) == 0){
-            System.out.println("Successfully logged in with user: " + user.getUsername());
-            //  STORE LOGGED-IN USER
-            SessionContext.currentUser = retrieveUser(user.getUsername());
-            assert SessionContext.currentUser != null;
-            System.out.println(SessionContext.currentUser.getUsername());
+    // UI Helper methods
+    private void showErrorDialog(String title, String message) {
+        NeonDialog.showNeonDialog(view, title, message, dialogIcon, true, false);
+    }
 
-            view.dispose();
-            MinesweeperApp app = new MinesweeperApp();
-            app.start();
-        } else {
-            NeonDialog.showNeonDialog(view, "Login Failed", "Password Incorrect", eyeIcon, true, false);
+    private void showSuccessDialog(String title, String message) {
+        NeonDialog.showNeonDialog(view, title, message, dialogIcon, false, true);
+    }
+
+    private ImageIcon loadImageIcon(String path) {
+        java.net.URL imageUrl = getClass().getResource(path);
+        if (imageUrl != null) {
+            return new ImageIcon(imageUrl);
         }
-
-
+        System.err.println("Warning: Could not load image: " + path);
+        return new ImageIcon();
     }
 }

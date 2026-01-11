@@ -9,7 +9,7 @@ import minesweeper.view.LoginView;
  * Launches the Minesweeper Tiger Edition application
  *
  * @author Group Tiger
- * @version 2.0
+ * @version 3.0
  */
 public class Main {
 

@@ -10,8 +10,18 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.function.Consumer;
 
+/**
+ * DESIGN PATTERNS APPLIED:
+ * 1. TEMPLATE METHOD PATTERN - setupComponent() methods
+ * 2. STRATEGY PATTERN - ViewState enum with behavior
+ * 3. OBSERVER PATTERN - Action listeners notify controller
+ * 4. FACTORY METHOD PATTERN - createStyledPasswordField()
+ * 5. BUILDER PATTERN - Component configuration methods
+ */
 public class LoginView extends JFrame {
+    // Components
     private JTextField usernameField;
     private JPanel passwordPanel;
     private JPanel formPanel;
@@ -25,18 +35,115 @@ public class LoginView extends JFrame {
     private JTextField securityAnswer;
     private JTextField answer;
     private JTextField question;
-    private boolean isFirstTime = true;
-    private boolean forgotPassword = false;
     private JButton backBtn;
-    //Privacy Questions
-    private JComboBox<String> securityQuestion = new  JComboBox<>(new  String[]{
-            "Birth Month",
-            "First Pet's Name",
-            "Birth City"
-    });
+    private JComboBox<String> securityQuestion;
     private boolean passwordVisible = false;
 
+    // STRATEGY PATTERN: Encapsulate different view states
+    private ViewState currentState = ViewState.NORMAL_LOGIN;
+    private LoginController controller;
+
+    // STRATEGY PATTERN: Define different view behaviors
+    public enum ViewState {
+        NORMAL_LOGIN {
+            @Override
+            void configureView(LoginView view) {
+                view.repeatPasswordField.setVisible(false);
+                view.setSize(500, 600);
+                view.footerLabel.setBounds(0, 520, 500, 20);
+                view.loginBtn.setVisible(true);
+                view.loginBtn.setText("LOGIN");
+                view.loginBtn.setBounds(25, 155, 300, 45);
+                view.formPanel.setBounds(75, 180, 350, 300);
+                view.passwordPanel.setBounds(25, 85, 300, 45);
+                view.passwordPanel.setVisible(true);
+                view.createAccountBtn.setBounds(25, 205, 300, 45);
+                view.createAccountBtn.setVisible(true);
+                view.forgotBtn.setVisible(true);
+                view.securityQuestion.setVisible(false);
+                view.securityAnswer.setVisible(false);
+                view.backBtn.setVisible(false);
+                view.answer.setVisible(false);
+                view.question.setVisible(false);
+            }
+
+            @Override
+            void handleAction(LoginView view) {
+                view.controller.handleLogin(
+                        view.usernameField.getText(),
+                        view.passwordField.getPassword()
+                );
+            }
+        },
+
+        REGISTRATION {
+            @Override
+            void configureView(LoginView view) {
+                view.repeatPasswordField.setVisible(true);
+                view.setSize(500, 700);
+                view.footerLabel.setBounds(0, 620, 500, 10);
+                view.loginBtn.setVisible(false);
+                view.formPanel.setBounds(75, 180, 350, 405);
+                view.passwordPanel.setBounds(25, 85, 300, 100);
+                view.createAccountBtn.setBounds(25, 305, 300, 45);
+                view.forgotBtn.setVisible(false);
+                view.securityQuestion.setVisible(true);
+                view.securityAnswer.setVisible(true);
+                view.backBtn.setBounds(25, 355, 300, 45);
+                view.backBtn.setVisible(true);
+            }
+
+            @Override
+            void handleAction(LoginView view) {
+                view.controller.handleRegistration(
+                        view.usernameField.getText(),
+                        view.passwordField.getPassword(),
+                        view.repeatPasswordField.getPassword(),
+                        view.securityAnswer.getText().toUpperCase(),
+                        (String) view.securityQuestion.getSelectedItem()
+                );
+            }
+        },
+
+        PASSWORD_RECOVERY {
+            @Override
+            void configureView(LoginView view) {
+                view.passwordPanel.setVisible(false);
+                view.createAccountBtn.setVisible(false);
+                view.forgotBtn.setVisible(false);
+                view.answer.setVisible(true);
+                view.question.setVisible(true);
+                view.backBtn.setVisible(true);
+                view.backBtn.setBounds(25, 245, 300, 45);
+                view.loginBtn.setBounds(25, 195, 300, 45);
+                view.loginBtn.setText("RETRIEVE PASSWORD");
+            }
+
+            @Override
+            void handleAction(LoginView view) {
+                view.controller.handlePasswordRecovery(
+                        view.usernameField.getText(),
+                        view.answer.getText().toUpperCase()
+                );
+            }
+        };
+
+        abstract void configureView(LoginView view);
+        abstract void handleAction(LoginView view);
+    }
+
     public LoginView() {
+        setupFrame();
+        initializeComponents();
+        layoutComponents();
+    }
+
+    public void setController(LoginController controller) {
+        this.controller = controller;
+    }
+
+    // TEMPLATE METHOD PATTERN: Define structure of frame setup
+    private void setupFrame() {
         setTitle("Mine Sweeper - Tiger Edition");
         setSize(500, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,7 +151,46 @@ public class LoginView extends JFrame {
         setResizable(false);
         ImageIcon tigerIcon = loadImageIcon("/assets/tiger.png");
         setIconImage(tigerIcon.getImage());
-        // Main panel with dark background
+    }
+
+    // TEMPLATE METHOD PATTERN: Define structure of component initialization
+    private void initializeComponents() {
+        // Main panel
+        JPanel mainPanel = createMainPanel();
+
+        // Header components
+        ImageIcon tigerIcon = loadImageIcon("/assets/tiger.png");
+        JLabel logoLabel = createLogoLabel(tigerIcon);
+        JLabel titleLabel = createTitleLabel();
+        JLabel subtitleLabel = createSubtitleLabel();
+
+        // Form components
+        formPanel = createFormPanel();
+        usernameField = createUsernameField();
+        passwordPanel = createPasswordPanel();
+        securityQuestion = createSecurityQuestionComboBox();
+        securityAnswer = createSecurityAnswerField();
+        question = createQuestionField();
+        answer = createAnswerField();
+
+        // Buttons
+        loginBtn = createLoginButton();
+        createAccountBtn = createAccountButton();
+        backBtn = createBackButton();
+        forgotBtn = createForgotPasswordButton();
+
+        // Footer
+        footerLabel = createFooterLabel();
+
+        // Add to panels
+        addFormComponents();
+        addMainComponents(mainPanel, logoLabel, titleLabel, subtitleLabel);
+
+        add(mainPanel);
+    }
+
+    // FACTORY METHOD PATTERN: Create styled components
+    private JPanel createMainPanel() {
         JPanel mainPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -57,28 +203,36 @@ public class LoginView extends JFrame {
         };
         mainPanel.setLayout(null);
         mainPanel.setBackground(new Color(15, 15, 20));
+        return mainPanel;
+    }
 
-        // Logo
-        JLabel logoLabel = new JLabel(tigerIcon);
-        logoLabel.setBounds(200, 120, 100, 100);
-        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    private JLabel createLogoLabel(ImageIcon icon) {
+        JLabel label = new JLabel(icon);
+        label.setBounds(200, 120, 100, 100);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        return label;
+    }
 
-        // Title
-        JLabel titleLabel = new JLabel("MINE SWEEPER");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setBounds(0, 70, 500, 50);
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    private JLabel createTitleLabel() {
+        JLabel label = new JLabel("MINE SWEEPER");
+        label.setFont(new Font("Arial", Font.BOLD, 42));
+        label.setForeground(Color.WHITE);
+        label.setBounds(0, 70, 500, 50);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        return label;
+    }
 
-        // Subtitle
-        JLabel subtitleLabel = new JLabel("TIGER EDITION");
-        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        subtitleLabel.setForeground(Color.YELLOW.brighter());
-        subtitleLabel.setBounds(0, 120, 500, 30);
-        subtitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    private JLabel createSubtitleLabel() {
+        JLabel label = new JLabel("TIGER EDITION");
+        label.setFont(new Font("Arial", Font.PLAIN, 16));
+        label.setForeground(Color.YELLOW.brighter());
+        label.setBounds(0, 120, 500, 30);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        return label;
+    }
 
-        // Login form panel
-        formPanel = new JPanel() {
+    private JPanel createFormPanel() {
+        JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g;
@@ -87,31 +241,32 @@ public class LoginView extends JFrame {
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
             }
         };
-        formPanel.setLayout(null);
-        formPanel.setBounds(75, 180, 350, 300);
-        formPanel.setOpaque(false);
+        panel.setLayout(null);
+        panel.setBounds(75, 180, 350, 300);
+        panel.setOpaque(false);
+        return panel;
+    }
 
-        // Username field
-        usernameField  = new PlaceholderTextField("Username",20);
-        styleNeonTextField(usernameField, Color.CYAN.brighter());
-        usernameField.setBounds(25, 30, 300, 45);
+    private JTextField createUsernameField() {
+        JTextField field = new PlaceholderTextField("Username", 20);
+        styleNeonTextField(field, Color.CYAN.brighter());
+        field.setBounds(25, 30, 300, 45);
+        return field;
+    }
 
-        // Password panel
-        passwordPanel = new JPanel();
-        passwordPanel.setLayout(null);
-        passwordPanel.setBounds(25, 85, 300, 45);
-        passwordPanel.setOpaque(false);
+    private JPanel createPasswordPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBounds(25, 85, 300, 45);
+        panel.setOpaque(false);
 
-        // Password field
         passwordField = createStyledPasswordField("Password", Color.CYAN.brighter());
         passwordField.setBounds(0, 0, 255, 45);
 
-        // Repeat password field
         repeatPasswordField = createStyledPasswordField("Repeat Password", Color.CYAN.brighter());
         repeatPasswordField.setBounds(0, 55, 300, 45);
         repeatPasswordField.setVisible(false);
 
-        // Eye toggle button
         togglePasswordBtn = new JButton(loadImageIcon("/assets/eye.png"));
         togglePasswordBtn.setBounds(260, 0, 40, 45);
         togglePasswordBtn.setFocusPainted(false);
@@ -120,75 +275,103 @@ public class LoginView extends JFrame {
         togglePasswordBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         togglePasswordBtn.addActionListener(e -> togglePasswordVisibility());
 
-        passwordPanel.add(passwordField);
-        passwordPanel.add(repeatPasswordField);
-        passwordPanel.add(togglePasswordBtn);
+        panel.add(passwordField);
+        panel.add(repeatPasswordField);
+        panel.add(togglePasswordBtn);
 
-        // Security question combobox
-        securityQuestion.setBounds(25,195,300,45);
-        styleNeonComboBox(securityQuestion, Color.CYAN.brighter());
-        securityQuestion.setVisible(false);
+        return panel;
+    }
 
-
-        // Security answer field
-        securityAnswer = new PlaceholderTextField("Answer",20);
-        styleNeonTextField(securityAnswer, Color.CYAN.brighter());
-        securityAnswer.setVisible(false);
-        securityAnswer.setBounds(25,250,300,45);
-
-        // Back button
-        backBtn = NeonButtonFactory.createNeonButton("BACK", Color.RED.brighter());
-        backBtn.setVisible(false);
-        backBtn.addActionListener(e -> {
-            loginFormat();
+    private JComboBox<String> createSecurityQuestionComboBox() {
+        JComboBox<String> comboBox = new JComboBox<>(new String[]{
+                "Birth Month",
+                "First Pet's Name",
+                "Birth City"
         });
+        comboBox.setBounds(25, 195, 300, 45);
+        styleNeonComboBox(comboBox, Color.CYAN.brighter());
+        comboBox.setVisible(false);
+        return comboBox;
+    }
 
-        // Login button
-        loginBtn = NeonButtonFactory.createNeonButton("LOGIN", new Color(0, 200, 100));
-        loginBtn.setBounds(25, 155, 300, 45);
-        loginBtn.addActionListener(e -> {
-            if (!forgotPassword) {
-                LoginController.login(new User(usernameField.getText(), passwordField.getPassword()));
-            } else if (LoginController.retrievePassword(usernameField.getText(), answer.getText().toUpperCase())) {
-                loginFormat();
+    private JTextField createSecurityAnswerField() {
+        JTextField field = new PlaceholderTextField("Answer", 20);
+        styleNeonTextField(field, Color.CYAN.brighter());
+        field.setVisible(false);
+        field.setBounds(25, 250, 300, 45);
+        return field;
+    }
+
+    private JTextField createQuestionField() {
+        JTextField field = new JTextField();
+        field.setBounds(25, 85, 300, 45);
+        styleNeonTextField(field, Color.CYAN.brighter());
+        field.setEnabled(false);
+        field.setVisible(false);
+        return field;
+    }
+
+    private JTextField createAnswerField() {
+        JTextField field = new PlaceholderTextField("Answer", 20);
+        field.setBounds(25, 140, 300, 45);
+        styleNeonTextField(field, Color.CYAN.brighter());
+        field.setVisible(false);
+        return field;
+    }
+
+    // OBSERVER PATTERN: Buttons notify controller of actions
+    private JButton createLoginButton() {
+        JButton button = NeonButtonFactory.createNeonButton("LOGIN", new Color(0, 200, 100));
+        button.setBounds(25, 155, 300, 45);
+        button.addActionListener(e -> currentState.handleAction(this));
+        return button;
+    }
+
+    private JButton createAccountButton() {
+        JButton button = NeonButtonFactory.createNeonButton("CREATE ACCOUNT", new Color(20, 155, 200));
+        button.setBounds(25, 205, 300, 45);
+        button.addActionListener(e -> {
+            if (currentState == ViewState.NORMAL_LOGIN) {
+                transitionToState(ViewState.REGISTRATION);
+            } else {
+                currentState.handleAction(this);
             }
         });
+        return button;
+    }
 
-        // Create Account button
-        createAccountBtn = NeonButtonFactory.createNeonButton("CREATE ACCOUNT", new Color(20, 155, 200));
-        createAccountBtn.setBounds(25, 205, 300, 45);
-        createAccountBtn.addActionListener(e -> {
-            if (isFirstTime) {
-                repeatPasswordField.setVisible(true);
-                setSize(500, 700);
-                footerLabel.setBounds(0,620,500,10);
-                loginBtn.setVisible(false);
-                formPanel.setBounds(75, 180, 350, 405);
-                passwordPanel.setBounds(25, 85, 300, 100);
-                createAccountBtn.setBounds(25, 305, 300, 45);
-                forgotBtn.setVisible(false);
-                securityQuestion.setVisible(true);
-                securityAnswer.setVisible(true);
-                isFirstTime = false;
-                backBtn.setBounds(25,355,300,45);
-                backBtn.setVisible(true);
-            } else if (LoginController.addUser(new User(usernameField.getText(), passwordField.getPassword(), securityAnswer.getText().toUpperCase(), (String) securityQuestion.getSelectedItem()),
-                    new String(repeatPasswordField.getPassword()))){
-                loginFormat();
-            }
+    private JButton createBackButton() {
+        JButton button = NeonButtonFactory.createNeonButton("BACK", Color.RED.brighter());
+        button.setVisible(false);
+        button.addActionListener(e -> transitionToState(ViewState.NORMAL_LOGIN));
+        return button;
+    }
+
+    private JButton createForgotPasswordButton() {
+        JButton button = new JButton("Forgot Password?");
+        styleLinkButton(button);
+        button.setBounds(0, 480, 500, 20);
+        button.addActionListener(e -> {
+            controller.handleForgotPassword(usernameField.getText(),
+                    user -> {
+                        question.setText(user.getSecurityQuestion());
+                        transitionToState(ViewState.PASSWORD_RECOVERY);
+                    }
+            );
         });
+        return button;
+    }
 
-        question = new JTextField();
-        question.setBounds(25,85,300,45);
-        styleNeonTextField(question, Color.CYAN.brighter());
-        question.setEnabled(false);
-        question.setVisible(false);
+    private JLabel createFooterLabel() {
+        JLabel label = new JLabel("Group Tiger · Version 3.0 · 2026");
+        label.setFont(new Font("Arial", Font.PLAIN, 11));
+        label.setForeground(new Color(80, 80, 80));
+        label.setBounds(0, 520, 500, 20);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        return label;
+    }
 
-        answer = new PlaceholderTextField("Answer",20);
-        answer.setBounds(25,140,300,45);
-        styleNeonTextField(answer, Color.CYAN.brighter());
-        answer.setVisible(false);
-
+    private void addFormComponents() {
         formPanel.add(question);
         formPanel.add(answer);
         formPanel.add(securityQuestion);
@@ -198,44 +381,25 @@ public class LoginView extends JFrame {
         formPanel.add(loginBtn);
         formPanel.add(createAccountBtn);
         formPanel.add(backBtn);
+    }
 
-        // Forgot Password link
-        forgotBtn = new JButton("Forgot Password?");
-        styleLinkButton(forgotBtn);
-        forgotBtn.setBounds(0, 480, 500, 20);
-        forgotBtn.addActionListener(e -> {
-            if (LoginController.doesUserExist(usernameField.getText())) {
-                User user = LoginController.retrieveUser(usernameField.getText());
-                forgotPassword = true;
-                passwordPanel.setVisible(false);
-                createAccountBtn.setVisible(false);
-                forgotBtn.setVisible(false);
-                question.setText(user.getSecurityQuestion());
-                answer.setVisible(true);
-                question.setVisible(true);
-                backBtn.setVisible(true);
-
-                backBtn.setBounds(25,245,300,45);
-                loginBtn.setBounds(25, 195, 300, 45);
-                loginBtn.setText("Retrieve Password");
-            }
-        });
-
-        // Footer
-        footerLabel = new JLabel("Group Tiger · Version 2.0 · 2025");
-        footerLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-        footerLabel.setForeground(new Color(80, 80, 80));
-        footerLabel.setBounds(0, 520, 500, 20);
-        footerLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        mainPanel.add(logoLabel);
-        mainPanel.add(titleLabel);
-        mainPanel.add(subtitleLabel);
+    private void addMainComponents(JPanel mainPanel, JLabel logo, JLabel title, JLabel subtitle) {
+        mainPanel.add(logo);
+        mainPanel.add(title);
+        mainPanel.add(subtitle);
         mainPanel.add(formPanel);
         mainPanel.add(forgotBtn);
         mainPanel.add(footerLabel);
+    }
 
-        add(mainPanel);
+    // STRATEGY PATTERN: Transition between states
+    public void transitionToState(ViewState newState) {
+        this.currentState = newState;
+        newState.configureView(this);
+    }
+
+    private void layoutComponents() {
+        // Components are already positioned in their factory methods
     }
 
     // Helper method to load images from classpath
@@ -248,10 +412,10 @@ public class LoginView extends JFrame {
         return new ImageIcon();
     }
 
+    // FACTORY METHOD PATTERN: Create styled password field
     private JPasswordField createStyledPasswordField(String placeholder, Color borderColor) {
         JPasswordField field = new JPasswordField();
 
-        // Neon styling
         field.setBackground(new Color(25, 25, 30));
         field.setForeground(Color.WHITE);
         field.setCaretColor(Color.WHITE);
@@ -265,12 +429,12 @@ public class LoginView extends JFrame {
 
         // Placeholder logic
         field.setText(placeholder);
-        field.setForeground(new Color(130, 130, 130));   // placeholder color
-        field.setEchoChar((char) 0);                     // show placeholder normally
+        field.setForeground(new Color(130, 130, 130));
+        field.setEchoChar((char) 0);
 
-        field.addFocusListener(new java.awt.event.FocusAdapter() {
+        field.addFocusListener(new FocusAdapter() {
             @Override
-            public void focusGained(java.awt.event.FocusEvent e) {
+            public void focusGained(FocusEvent e) {
                 if (String.valueOf(field.getPassword()).equals(placeholder)) {
                     field.setText("");
                     field.setForeground(Color.WHITE);
@@ -279,7 +443,7 @@ public class LoginView extends JFrame {
             }
 
             @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
+            public void focusLost(FocusEvent e) {
                 if (field.getPassword().length == 0) {
                     field.setText(placeholder);
                     field.setForeground(new Color(130, 130, 130));
@@ -290,13 +454,12 @@ public class LoginView extends JFrame {
         return field;
     }
 
+    // BUILDER PATTERN: Configure text field styling
     private void styleNeonTextField(JTextField field, Color borderColor) {
         field.setBackground(new Color(25, 25, 30));
         field.setForeground(new Color(130, 130, 130));
         field.setCaretColor(Color.WHITE);
-
         field.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(borderColor, 2, true),
                 BorderFactory.createEmptyBorder(10, 12, 10, 12)
@@ -333,52 +496,30 @@ public class LoginView extends JFrame {
             passwordField.setEchoChar((char) 0);
             repeatPasswordField.setEchoChar((char) 0);
         } else {
-            passwordField.setEchoChar('●');
-            repeatPasswordField.setEchoChar('●');
+            passwordField.setEchoChar('•');
+            repeatPasswordField.setEchoChar('•');
         }
     }
 
-    public static void styleLinkButton(JButton button) {
+    private static void styleLinkButton(JButton button) {
         button.setFont(new Font("Arial", Font.PLAIN, 12));
-        button.setForeground(new Color(150, 150, 150));  // default gray
-        button.setBackground(new Color(0, 0, 0, 0));     // transparent
+        button.setForeground(new Color(150, 150, 150));
+        button.setBackground(new Color(0, 0, 0, 0));
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
+        button.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                button.setForeground(new Color(80, 160, 255)); // light blue hover
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(80, 160, 255));
             }
+
             @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setForeground(new Color(150, 150, 150)); // back to gray
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(150, 150, 150));
             }
         });
-    }
-
-    public void loginFormat() {
-        loginBtn.setText("LOGIN");
-        loginBtn.setVisible(true);
-        createAccountBtn.setBounds(25, 205, 300, 45);
-        repeatPasswordField.setVisible(false);
-        setSize(500,600);
-        forgotBtn.setVisible(true);
-        securityAnswer.setVisible(false);
-        securityQuestion.setVisible(false);
-        footerLabel.setBounds(0, 520, 500, 20);
-        passwordPanel.setBounds(25, 85, 300, 45);
-        backBtn.setVisible(false);
-        isFirstTime = true;
-        formPanel.setBounds(75, 180, 350, 300);
-        forgotPassword = false;
-        answer.setVisible(false);
-        question.setVisible(false);
-        passwordPanel.setVisible(true);
-        loginBtn.setBounds(25,155,300,45);
-        createAccountBtn.setVisible(true);
     }
 }

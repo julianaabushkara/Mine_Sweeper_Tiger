@@ -4,6 +4,8 @@ import minesweeper.model.*;
 import minesweeper.controller.GameController;
 import minesweeper.model.QuestionDifficulty;
 import minesweeper.model.Question;
+import minesweeper.model.audio.AudioManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -71,6 +73,7 @@ public class MinesweeperGame extends JFrame {
         createBoardsPanel();
         createBottomPanel();
         startTimer();
+        updateGameDisplay();
         // Fit window to screen size
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -228,6 +231,9 @@ public class MinesweeperGame extends JFrame {
             if (gameTimer != null) {
                 gameTimer.stop();
             }
+
+            // Capture the end time for accurate duration recording
+            controller.getGameSession().endGame();
 
             endGame(controller.isVictory());
         }
@@ -538,6 +544,8 @@ public class MinesweeperGame extends JFrame {
                 switch (cell.getType()) {
                     case MINE:
                         controller.addLives(-1);
+                        AudioManager.get().playSfx("/assets/audio/sfx/boom.wav");
+
                         board.incrementRevealedMines();
                         JOptionPane.showMessageDialog(MinesweeperGame.this,
                                 "💣 Mine discovered! -1 life\nMines discovered: " +
@@ -591,7 +599,6 @@ public class MinesweeperGame extends JFrame {
 
                 updateDisplay();
                 updateGameDisplay();
-                switchTurn();
             }
         }
 
@@ -773,8 +780,11 @@ public class MinesweeperGame extends JFrame {
                     java.util.List<int[]> revealedCells = controller.reveal3x3Area(row, col, board);
                     if (!revealedCells.isEmpty()) {
                         BoardPanel boardPanel = isPlayerA ? playerABoard : playerBBoard;
-                        for (int[] pos : revealedCells) {
-                            boardPanel.getButton(pos[0], pos[1]).updateDisplay();
+                        // Refresh all cells to show cascaded reveals from EMPTY cells
+                        for (int r = 0; r < board.getSize(); r++) {
+                            for (int c = 0; c < board.getSize(); c++) {
+                                boardPanel.getButton(r, c).updateDisplay();
+                            }
                         }
                         feedback += "\n\n🎁 Bonus: 3×3 area revealed!";
                     }
@@ -818,9 +828,17 @@ public class MinesweeperGame extends JFrame {
 
         public void updateDisplay() {
             if (cell.isFlagged()) {
-                setBackground(new Color(50, 30, 30));
-                setText("🚩");
-                setForeground(new Color(255, 80, 80));
+                if (cell.getType() == Cell.CellType.MINE) {
+                    // Correct flag - green tint
+                    setBackground(new Color(30, 50, 30));
+                    setText("🚩");
+                    setForeground(new Color(80, 255, 80));
+                } else {
+                    // Incorrect flag - red/orange tint with X
+                    setBackground(new Color(60, 30, 20));
+                    setText("❌");
+                    setForeground(new Color(255, 120, 60));
+                }
             } else if (cell.isRevealed()) {
                 setBackground(new Color(30, 40, 50));
 
