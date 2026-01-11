@@ -246,16 +246,16 @@ public class NewGameView extends JPanel {
 
                         "<span style='color:#00FFB4; font-size:16px;'><b>Cells Breakdown:</b></span><br><br>" +
 
-                        "<img src='" + getClass().getResource("/assets/mine.PNG") +
+                        "<img src='" + getClass().getResource("/assets/mine.png") +
                         "' width='22' height='22'> Mines: " + mines + "<br>" +
 
-                                "<img src='" + getClass().getResource("/assets/question.PNG") +
+                                "<img src='" + getClass().getResource("/assets/question.png") +
                                 "' width='22' height='22'> Question Cells: " + questions + "<br>" +
 
-                                        "<img src='" + getClass().getResource("/assets/surprise.PNG") +
+                                        "<img src='" + getClass().getResource("/assets/surprise.png") +
                                         "' width='22' height='22'> Surprise Cells: " + surprises + "<br>" +
 
-                                                "<img src='" + getClass().getResource("/assets/tile.PNG") +
+                                                "<img src='" + getClass().getResource("/assets/tile.png") +
                                                 "' width='22' height='22'> Safe/Number Cells: " + safeCells + "<br><br>" +
 
                                                         "<span style='color:#00FFB4; font-size:16px;'><b>Additional Info:</b></span><br><br>" +
