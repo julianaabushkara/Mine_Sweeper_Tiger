@@ -478,6 +478,20 @@ public class QuestionBank {
     }
 
     /**
+     * Retrieves a question by its ID.
+     *
+     * @param id The question ID to search for
+     * @return The Question with the given ID, or null if not found
+     */
+    public Question getQuestionById(int id) {
+        int index = findQuestionIndexById(id);
+        if (index != -1) {
+            return questions.get(index);
+        }
+        return null;
+    }
+
+    /**
      * Saves the current question bank to a CSV file.
      *
      * @param filePath The file path to save to
