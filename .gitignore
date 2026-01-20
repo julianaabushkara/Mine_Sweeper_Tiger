@@ -1,0 +1,16 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Build output
+bin/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
