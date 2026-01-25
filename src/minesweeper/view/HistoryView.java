@@ -3,6 +3,7 @@ package minesweeper.view;
 import minesweeper.controller.GameHistoryLogic;
 import minesweeper.model.GameHistory;
 import minesweeper.view.components.*;
+import minesweeper.model.GameSession;
 
 import minesweeper.model.HistoryFilterStrategy.*;
 import java.util.List;
@@ -44,6 +45,10 @@ public class HistoryView extends JPanel {
     private JLabel ResultLabel;
     private JLabel DifficultyLabel;
     private String username;
+    private JButton statsButton;
+    private JComboBox<String> statsUserCombo;
+
+
     private boolean isUpdatingCombos = false;
 
 
@@ -126,6 +131,8 @@ public class HistoryView extends JPanel {
         DifficultyLabel.setForeground(Color.WHITE);
         filtersPanel.add(DifficultyLabel);
 
+
+
         filtersPanel.add(difficultyCombo);
         //filtersPanel.add(scoreAscBtn);
         //filtersPanel.add(scoreDescBtn);
@@ -133,7 +140,6 @@ public class HistoryView extends JPanel {
         filtersPanel.add(scoreSortBtn);
 
         topArea.add(filtersPanel, BorderLayout.SOUTH);
-
         // Put topArea in NORTH
         add(topArea, BorderLayout.NORTH);
 
@@ -248,10 +254,15 @@ public class HistoryView extends JPanel {
 
         //refreshButton = NeonButtonFactory.createNeonButton("REFRESH", new Color(0, 180, 255));
         refreshButton = NeonButtonFactory.createNeonButton("CLEAR & REFRESH", new Color(0, 180, 255));
+        statsButton = NeonButtonFactory.createNeonButton("STATISTICS", new Color(0, 180, 255));
+
+
 
         backButton    = NeonButtonFactory.createNeonButton("BACK TO MENU", new Color(180, 80, 255));
 
         buttonPanel.add(refreshButton);
+        buttonPanel.add(statsButton);
+
         buttonPanel.add(backButton);
 
 
@@ -268,6 +279,7 @@ public class HistoryView extends JPanel {
     public JTable getHistoryTable() { return historyTable; }
 
     private void createEvents() {
+        statsButton.addActionListener(e -> openStatsDialog());
 
         /*refreshButton.addActionListener(e -> {
             rebuildUserCombo();     // refresh possible users
@@ -359,6 +371,195 @@ public class HistoryView extends JPanel {
             });
         }
     }*/
+private void openStatsDialog() {
+    JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), "History Statistics", true);
+
+// BIGGER window
+    dialog.setPreferredSize(new Dimension(1100, 850));
+    dialog.setMinimumSize(new Dimension(1000, 780));
+    dialog.setResizable(true);
+    dialog.pack();
+    dialog.setLocationRelativeTo(this);
+
+
+
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setBackground(new Color(20, 20, 30));
+    panel.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
+
+    // --- USER FILTER inside popup ---
+    JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+    controls.setBackground(new Color(20, 20, 30));
+    JLabel userLbl = new JLabel("User:");
+    userLbl.setForeground(Color.WHITE);
+
+    statsUserCombo = NeonComboBoxFactory.createNeonComboBox(getAllUsersForStats(), new Color(0, 180, 255));
+    statsUserCombo.setPreferredSize(new Dimension(180, 30));
+
+    controls.add(userLbl);
+    controls.add(statsUserCombo);
+    panel.add(controls);
+    panel.add(Box.createVerticalStrut(8));
+
+    // --- STATS LABELS (we will update them dynamically) ---
+    JLabel totalL = new JLabel();
+    JLabel winsL = new JLabel();
+    JLabel lossesL = new JLabel();
+    JLabel winRateL = new JLabel();
+    JLabel bestScoreL = new JLabel();
+    JLabel avgScoreL = new JLabel();
+    JLabel mostDiffL = new JLabel();
+    JLabel lastPlayedL = new JLabel();
+    JLabel avgDurL = new JLabel();
+
+    panel.add(makeStatRow("Total games:", totalL));
+    panel.add(makeStatRow("Wins:", winsL));
+    panel.add(makeStatRow("Losses:", lossesL));
+    panel.add(makeStatRow("Win rate:", winRateL));
+    panel.add(makeStatRow("Best score:", bestScoreL));
+    panel.add(makeStatRow("Average score:", avgScoreL));
+    panel.add(makeStatRow("Most played difficulty:", mostDiffL));
+    panel.add(makeStatRow("Last played:", lastPlayedL));
+    panel.add(makeStatRow("Average duration:", avgDurL));
+
+    panel.add(Box.createVerticalStrut(12));
+
+    // --- CHARTS (diagrams) ---
+    BarChartPanel winLossChart = new BarChartPanel();
+    BarChartPanel diffChart = new BarChartPanel();
+
+    // IMPORTANT for BoxLayout:
+    winLossChart.setAlignmentX(Component.LEFT_ALIGNMENT);
+    diffChart.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    winLossChart.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
+    diffChart.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
+
+    winLossChart.setMinimumSize(new Dimension(360, 110));
+    diffChart.setMinimumSize(new Dimension(360, 110));
+
+    panel.add(new JLabel("Win/Loss Diagram") {{
+        setForeground(new Color(0, 200, 255));
+        setFont(new Font("Segoe UI", Font.BOLD, 14));
+    }});
+    panel.add(winLossChart);
+
+    panel.add(Box.createVerticalStrut(10));
+
+    panel.add(new JLabel("Difficulty Diagram") {{
+        setForeground(new Color(0, 200, 255));
+        setFont(new Font("Segoe UI", Font.BOLD, 14));
+    }});
+    panel.add(diffChart);
+
+    panel.add(Box.createVerticalStrut(12));
+
+    // --- TOP 3 PODIUM ---
+    panel.add(new JLabel("TOP 3 (Highest Score)") {{
+        setForeground(new Color(0, 200, 255));
+        setFont(new Font("Segoe UI", Font.BOLD, 14));
+    }});
+
+    PodiumPanel podium = new PodiumPanel();
+    podium.setAlignmentX(Component.LEFT_ALIGNMENT);
+    podium.setMaximumSize(new Dimension(Integer.MAX_VALUE, 140));
+    panel.add(podium);
+
+    panel.add(Box.createVerticalStrut(14));
+
+    JButton close = NeonButtonFactory.createNeonButton("CLOSE", new Color(180, 80, 255));
+    close.addActionListener(e -> dialog.dispose());
+    JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+    closePanel.setOpaque(false);
+    closePanel.add(close);
+    panel.add(closePanel);
+
+
+    // --- Refresh function (updates everything according to popup user filter) ---
+    Runnable refresh = () -> {
+        List<GameHistory> baseRows = getCurrentFilteredRows(); // respects main filters + sorting
+        String u = (String) statsUserCombo.getSelectedItem();
+
+        List<GameHistory> statsRows = baseRows;
+        if (u != null && !u.equals("ALL")) {
+            statsRows = baseRows.stream().filter(r -> u.equals(r.getUsername())).toList();
+        }
+
+        StatsSummary s = StatsSummary.from(statsRows);
+
+        totalL.setText(String.valueOf(s.total));
+        winsL.setText(String.valueOf(s.wins));
+        lossesL.setText(String.valueOf(s.losses));
+        winRateL.setText(String.format("%.1f%%", s.winRate));
+        bestScoreL.setText(s.bestScoreText);
+        avgScoreL.setText(s.avgScoreText);
+        mostDiffL.setText(s.mostPlayedDifficulty);
+        lastPlayedL.setText(s.lastPlayedText);
+        avgDurL.setText(s.avgDurationText);
+
+        winLossChart.setData(s.wins, s.losses, "Wins", "Losses");
+
+        // show easy vs hard on bar chart (or change to MEDIUM/HARD if you prefer)
+        diffChart.setData(s.easyCount, s.hardCount, "Easy", "Hard");
+
+        // TOP 3 by highest score
+// TOP 3 by highest score
+        List<GameHistory> top3 = statsRows.stream()
+                .sorted((a, b) -> Integer.compare(b.getFinalScore(), a.getFinalScore()))
+                .limit(3)
+                .toList();
+
+        podium.setTop3(top3);
+
+    };
+
+    statsUserCombo.addActionListener(e -> refresh.run());
+    refresh.run();
+
+    JScrollPane sc = new JScrollPane(panel);
+    sc.setBorder(null);
+    sc.getViewport().setBackground(new Color(20, 20, 30));
+    sc.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+    dialog.setContentPane(sc);
+    dialog.setVisible(true);
+    ;
+}
+    private List<GameHistory> getCurrentFilteredRows() {
+        String selectedUser = (String) userCombo.getSelectedItem();
+        String selectedResult = (String) resultCombo.getSelectedItem();
+        String selectedDiff = (String) difficultyCombo.getSelectedItem();
+
+        HistoryFilterStrategy filter = new CombinedFilterStrategy(List.of(
+                new UserFilterStrategy(selectedUser),
+                new WinLoseFilterStrategy(selectedResult),
+                new DifficultyFilterStrategy(selectedDiff)
+        ));
+
+        HistorySortStrategy sort = null;
+        if (sortMode == SortMode.SCORE_ASC) sort = new ScoreAscSortStrategy();
+        if (sortMode == SortMode.SCORE_DESC) sort = new ScoreDescSortStrategy();
+
+        return GameHistoryLogic.getInstance().getHistoryFilteredSorted(filter, sort);
+    }
+
+    private JPanel makeStatRow(String label, JLabel valueLabel) {
+        JPanel row = new JPanel(new BorderLayout());
+        row.setOpaque(false);
+        row.setBorder(BorderFactory.createEmptyBorder(6, 0, 6, 0));
+
+        JLabel l = new JLabel(label);
+        l.setForeground(Color.WHITE);
+        l.setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        valueLabel.setForeground(new Color(0, 200, 255));
+        valueLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        row.add(l, BorderLayout.WEST);
+        row.add(valueLabel, BorderLayout.EAST);
+        return row;
+    }
 
     public void loadHistoryFromLogic() {
         tableModel.setRowCount(0);
@@ -412,6 +613,17 @@ public class HistoryView extends JPanel {
         userCombo.addItem("ALL");
         for (String u : users) userCombo.addItem(u);
     }*/
+    private String[] getAllUsersForStats() {
+        java.util.Set<String> users = new java.util.TreeSet<>();
+        for (GameHistory h : GameHistoryLogic.getInstance().getAllHistory()) {
+            if (h.getUsername() != null && !h.getUsername().isBlank()) users.add(h.getUsername());
+        }
+
+        java.util.List<String> items = new java.util.ArrayList<>();
+        items.add("ALL");
+        items.addAll(users);
+        return items.toArray(new String[0]);
+    }
 
     private void rebuildUserCombo() {
         isUpdatingCombos = true;
@@ -431,10 +643,238 @@ public class HistoryView extends JPanel {
         isUpdatingCombos = false;
     }
 
+    static class BarChartPanel extends JPanel {
+        private int leftVal, rightVal;
+        private String leftLabel = "A", rightLabel = "B";
+
+        BarChartPanel() {
+            setPreferredSize(new Dimension(360, 110));
+            setBackground(new Color(20, 20, 30));
+            setOpaque(true);
+
+        }
+
+        void setData(int leftVal, int rightVal, String leftLabel, String rightLabel) {
+            this.leftVal = leftVal;
+            this.rightVal = rightVal;
+            this.leftLabel = leftLabel;
+            this.rightLabel = rightLabel;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+
+            int max = Math.max(1, Math.max(leftVal, rightVal));
+            int w = getWidth();
+            int barW = w - 150;
+
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            g2.setColor(Color.WHITE);
+
+            int y1 = 30, y2 = 70;
+
+            g2.drawString(leftLabel + ": " + leftVal, 10, y1 + 12);
+            g2.drawString(rightLabel + ": " + rightVal, 10, y2 + 12);
+
+            int lw = (int) (barW * (leftVal / (double) max));
+            int rw = (int) (barW * (rightVal / (double) max));
+
+            g2.setColor(new Color(0, 200, 255));
+            g2.fillRoundRect(130, y1, lw, 16, 10, 10);
+
+            g2.setColor(new Color(180, 80, 255));
+            g2.fillRoundRect(130, y2, rw, 16, 10, 10);
+        }
+    }
+
+    static class StatsSummary {
+        int total, wins, losses;
+        double winRate;
+        int easyCount, mediumCount, hardCount;
+
+        String bestScoreText, avgScoreText, lastPlayedText, mostPlayedDifficulty, avgDurationText;
+
+        static StatsSummary from(List<GameHistory> records) {
+            StatsSummary s = new StatsSummary();
+            s.total = records.size();
+
+            if (s.total == 0) {
+                s.wins = s.losses = 0;
+                s.winRate = 0;
+                s.bestScoreText = "-";
+                s.avgScoreText = "-";
+                s.lastPlayedText = "-";
+                s.mostPlayedDifficulty = "-";
+                s.avgDurationText = "-";
+                return s;
+            }
+
+            int best = Integer.MIN_VALUE;
+            long sumScore = 0;
+
+            // last played (we’ll keep as string for now)
+            String lastPlayed = records.get(0).getFormattedDate();
+
+            java.util.Map<String, Integer> diffCount = new java.util.HashMap<>();
+
+            // duration: we’ll average ONLY if it’s numeric seconds or "mm:ss" (simple parsing)
+            long sumDurationSec = 0;
+            int durationCount = 0;
+
+            for (GameHistory r : records) {
+                if (r.isCoopWin()) s.wins++;
+                switch (r.getDifficulty()) {
+                    case EASY -> s.easyCount++;
+                    case MEDIUM -> s.mediumCount++;
+                    case HARD -> s.hardCount++;
+                }
+
+                int score = r.getFinalScore();
+                sumScore += score;
+                best = Math.max(best, score);
+
+                // keep latest as "last row max" (string compare not reliable) -> we’ll just use the latest encountered
+                // If your formatted date is consistent, later we can parse properly.
+                lastPlayed = r.getFormattedDate();
+
+                //diffCount.merge(r.getDifficulty(), 1, Integer::sum);
+
+                diffCount.merge(r.getDifficulty().name(), 1, Integer::sum);
+
+                Integer durSec = tryParseDurationToSeconds(r.getDuration());
+                if (durSec != null) {
+                    sumDurationSec += durSec;
+                    durationCount++;
+                }
+            }
+
+            s.losses = s.total - s.wins;
+            s.winRate = (s.wins * 100.0) / s.total;
+
+            s.bestScoreText = String.valueOf(best);
+            s.avgScoreText = String.format("%.1f", (sumScore * 1.0) / s.total);
+
+            s.lastPlayedText = lastPlayed;
+
+            s.mostPlayedDifficulty = diffCount.entrySet().stream()
+                    .max(java.util.Map.Entry.comparingByValue())
+                    .map(java.util.Map.Entry::getKey)
+                    .orElse("-");
+
+            s.avgDurationText = (durationCount == 0)
+                    ? "-"
+                    : formatSeconds(sumDurationSec / durationCount);
+
+            return s;
+        }
+
+        private static Integer tryParseDurationToSeconds(String duration) {
+            if (duration == null) return null;
+
+            // if your duration is already seconds:
+            try {
+                return Integer.parseInt(duration.trim());
+            } catch (Exception ignored) {}
+
+            // if it’s "mm:ss"
+            try {
+                String[] parts = duration.trim().split(":");
+                if (parts.length == 2) {
+                    int m = Integer.parseInt(parts[0]);
+                    int s = Integer.parseInt(parts[1]);
+                    return m * 60 + s;
+                }
+            } catch (Exception ignored) {}
+
+            return null;
+        }
+
+        private static String formatSeconds(long sec) {
+            long m = sec / 60;
+            long s = sec % 60;
+            return String.format("%02d:%02d", m, s);
+        }
+    }
+
+    static class PodiumPanel extends JPanel {
+        private final JLabel first = makeBox("#1", "-");
+        private final JLabel second = makeBox("#2", "-");
+        private final JLabel third = makeBox("#3", "-");
+
+        PodiumPanel() {
+            setOpaque(false);
+            setLayout(new GridLayout(1, 3, 24, 0));
+            first.setPreferredSize(new Dimension(240, 120));
+            second.setPreferredSize(new Dimension(240, 120));
+            third.setPreferredSize(new Dimension(240, 120));
+
+            add(second); // #2 left
+            add(first);  // #1 center
+            add(third);  // #3 right
+        }
+
+        void setTop3(List<GameHistory> top3) {
+            setBox(second, "#2", getText(top3, 1));
+            setBox(first,  "#1", getText(top3, 0));
+            setBox(third,  "#3", getText(top3, 2));
+            revalidate();
+            repaint();
+        }
+
+        private static String getText(List<GameHistory> top3, int idx) {
+            if (idx >= top3.size()) return "-";
+            GameHistory r = top3.get(idx);
+            return r.getFinalScore() + " pts\n" + r.getDifficulty().name() + "\n" + r.getFormattedDate();
+        }
+
+        private static JLabel makeBox(String title, String body) {
+            JLabel lbl = new JLabel();
+            lbl.setOpaque(true);
+            lbl.setBackground(new Color(20, 20, 30));
+            lbl.setForeground(Color.WHITE);
+
+            lbl.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(0, 200, 255), 3, true),
+                    BorderFactory.createEmptyBorder(16, 16, 16, 16)
+            ));
+
+            // BIGGER text
+            lbl.setFont(new Font("Monospaced", Font.BOLD, 18));
+            lbl.setVerticalAlignment(SwingConstants.TOP);
+
+            // BIGGER box size
+            lbl.setPreferredSize(new Dimension(320, 200));
+
+            setBox(lbl, title, body);
+            return lbl;
+        }
+
+
+        private static void setBox(JLabel lbl, String title, String body) {
+            // Convert newlines to <br> so it always shows nicely in HTML
+            String htmlBody = (body == null ? "-" : body).replace("\n", "<br/>");
+
+            lbl.setText(
+                    "<html><div style='text-align:center;'>"
+                            + "<div style='color:#00C8FF;font-size:18px;font-weight:800;'>" + title + "</div>"
+                            + "<div style='margin-top:10px;color:#FFFFFF;font-size:14px;font-weight:600;line-height:1.4;'>"
+                            + htmlBody
+                            + "</div>"
+                            + "</div></html>"
+            );
+        }
+    }
 
 
 
-    public static void main(String[] args) {
+
+
+
+
+        public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("History Panel Test");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
