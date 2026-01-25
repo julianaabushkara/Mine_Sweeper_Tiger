@@ -226,19 +226,66 @@ public class QuestionEditorDialog extends JDialog {
                 return;
             }
 
-            int id = Integer.parseInt(idText);
-            question.setId(id);
+            int id;
+            try {
+                id = Integer.parseInt(idText);
+                if (id <= 0) {
+                    showError("ID must be a positive number");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                showError("ID must be a valid number");
+                return;
+            }
 
-            // Set all other fields
-            question.setText(questionTextArea.getText().trim());
-            question.setOptionA(optionAField.getText().trim());
-            question.setOptionB(optionBField.getText().trim());
-            question.setOptionC(optionCField.getText().trim());
-            question.setOptionD(optionDField.getText().trim());
+            // Get and validate question text
+            String questionText = questionTextArea.getText().trim();
+            if (questionText.isEmpty()) {
+                showError("Question text cannot be empty");
+                return;
+            }
+            if (questionText.length() < 10) {
+                showError("Question text must be at least 10 characters");
+                return;
+            }
+
+            // Get and validate options
+            String optionA = optionAField.getText().trim();
+            String optionB = optionBField.getText().trim();
+            String optionC = optionCField.getText().trim();
+            String optionD = optionDField.getText().trim();
+
+            // Check for empty options
+            if (optionA.isEmpty() || optionB.isEmpty() || optionC.isEmpty() || optionD.isEmpty()) {
+                showError("All answer options must be filled in");
+                return;
+            }
+
+            // Check for duplicate options (case-insensitive)
+            String[] options = {optionA.toLowerCase(), optionB.toLowerCase(),
+                               optionC.toLowerCase(), optionD.toLowerCase()};
+            for (int i = 0; i < options.length; i++) {
+                for (int j = i + 1; j < options.length; j++) {
+                    if (options[i].equals(options[j])) {
+                        char opt1 = (char) ('A' + i);
+                        char opt2 = (char) ('A' + j);
+                        showError("Options " + opt1 + " and " + opt2 + " cannot be the same");
+                        return;
+                    }
+                }
+            }
+
+            // Set all fields
+            question.setId(id);
+            question.setText(questionText);
+            question.setOptionA(optionA);
+            question.setOptionB(optionB);
+            question.setOptionC(optionC);
+            question.setOptionD(optionD);
             question.setCorrectOption((Character) correctAnswerCombo.getSelectedItem());
             question.setDifficulty((QuestionDifficulty) difficultyCombo.getSelectedItem());
 
-            // Validate
+            // Final validation
             if (!question.isValid()) {
                 List<String> errors = question.getValidationErrors();
                 showError(String.join("\n", errors));
@@ -248,8 +295,8 @@ public class QuestionEditorDialog extends JDialog {
             confirmed = true;
             dispose();
 
-        } catch (NumberFormatException ex) {
-            showError("ID must be a valid number");
+        } catch (Exception ex) {
+            showError("Error: " + ex.getMessage());
         }
     }
 

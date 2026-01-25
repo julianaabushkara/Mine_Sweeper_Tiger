@@ -253,6 +253,26 @@ public class QuestionWizardController {
         if (dialog.isConfirmed()) {
             try {
                 Question question = newQuestion.toQuestion();
+
+                // Check for duplicate question text
+                String duplicateError = checkForDuplicateQuestion(question, -1);
+                if (duplicateError != null) {
+                    JOptionPane.showMessageDialog(view,
+                            duplicateError,
+                            "Duplicate Question",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // Check for duplicate ID
+                if (questionBank.getQuestionById(question.getId()) != null) {
+                    JOptionPane.showMessageDialog(view,
+                            "A question with ID " + question.getId() + " already exists.",
+                            "Duplicate ID",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 questionBank.addQuestion(question);
 
                 // Save to file (creates user-specific file if needed)
@@ -301,6 +321,17 @@ public class QuestionWizardController {
         if (dialog.isConfirmed()) {
             try {
                 Question updated = mutableQuestion.toQuestion();
+
+                // Check for duplicate question text (exclude the current question being edited)
+                String duplicateError = checkForDuplicateQuestion(updated, selected.getId());
+                if (duplicateError != null) {
+                    JOptionPane.showMessageDialog(view,
+                            duplicateError,
+                            "Duplicate Question",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 questionBank.updateQuestion(updated);
 
                 // Save to file (creates user-specific file if needed)
@@ -398,6 +429,83 @@ public class QuestionWizardController {
         saveLastCsvPath(lastLoadedFilePath);
 
         return true;
+    }
+
+    /**
+     * Checks if a question with the same text already exists in the question bank.
+     *
+     * @param question The question to check
+     * @param excludeId ID of question to exclude from check (for editing), or -1 for new questions
+     * @return Error message if duplicate found, null otherwise
+     */
+    private String checkForDuplicateQuestion(Question question, int excludeId) {
+        String newText = question.getText().trim().toLowerCase();
+
+        for (Question existing : questionBank.getAllQuestions()) {
+            // Skip the question being edited
+            if (existing.getId() == excludeId) {
+                continue;
+            }
+
+            // Check for exact duplicate text
+            if (existing.getText().trim().toLowerCase().equals(newText)) {
+                return "A question with the same text already exists (ID: " + existing.getId() + ")";
+            }
+
+            // Check for very similar questions (over 90% similar)
+            if (calculateSimilarity(existing.getText(), question.getText()) > 0.9) {
+                return "A very similar question already exists (ID: " + existing.getId() + "):\n\"" +
+                       truncateText(existing.getText(), 50) + "\"";
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculates similarity between two strings (0.0 to 1.0).
+     */
+    private double calculateSimilarity(String s1, String s2) {
+        String str1 = s1.toLowerCase().trim();
+        String str2 = s2.toLowerCase().trim();
+
+        if (str1.equals(str2)) return 1.0;
+        if (str1.isEmpty() || str2.isEmpty()) return 0.0;
+
+        int maxLen = Math.max(str1.length(), str2.length());
+        int distance = levenshteinDistance(str1, str2);
+
+        return 1.0 - ((double) distance / maxLen);
+    }
+
+    /**
+     * Calculates Levenshtein distance between two strings.
+     */
+    private int levenshteinDistance(String s1, String s2) {
+        int[][] dp = new int[s1.length() + 1][s2.length() + 1];
+
+        for (int i = 0; i <= s1.length(); i++) dp[i][0] = i;
+        for (int j = 0; j <= s2.length(); j++) dp[0][j] = j;
+
+        for (int i = 1; i <= s1.length(); i++) {
+            for (int j = 1; j <= s2.length(); j++) {
+                int cost = s1.charAt(i - 1) == s2.charAt(j - 1) ? 0 : 1;
+                dp[i][j] = Math.min(Math.min(
+                        dp[i - 1][j] + 1,
+                        dp[i][j - 1] + 1),
+                        dp[i - 1][j - 1] + cost);
+            }
+        }
+
+        return dp[s1.length()][s2.length()];
+    }
+
+    /**
+     * Truncates text to specified length with ellipsis.
+     */
+    private String truncateText(String text, int maxLength) {
+        if (text.length() <= maxLength) return text;
+        return text.substring(0, maxLength - 3) + "...";
     }
 
     /**
