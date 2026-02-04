@@ -2,9 +2,11 @@ package model;
 
 public enum SpecialBoxType {
     NONE,
-    SURPRISE,    
-    QUESTION;    
-    
+    SURPRISE,
+    QUESTION,
+    EXTRA_TURN;
+
+
     @Override
     public String toString() {
         switch(this) {

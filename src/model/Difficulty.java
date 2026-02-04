@@ -10,8 +10,8 @@ public enum Difficulty {
     //  - 10 lives
     //  - questionPoints = 5  (used in scoring logic)
     //  - surprisePoints = 8  (used in scoring logic)
-    EASY(9, 9, 10, 10, 2, 6, 5, 8),
-
+    //  - extra turn =6
+    EASY(9, 9, 10, 10, 2, 6, 5, 8,6),
     // Medium game:
     //  - 26 mines
     //  - 7 question boxes
@@ -19,7 +19,9 @@ public enum Difficulty {
     //  - 8 lives
     //  - questionPoints = 8
     //  - surprisePoints = 12
-    MEDIUM(13, 13, 26, 8, 3, 7, 8, 12),
+    //  - extra turn = 4
+
+    MEDIUM(13, 13, 26, 8, 3, 7, 8, 12,4),
 
     // Hard game:
     //  - 44 mines
@@ -27,8 +29,8 @@ public enum Difficulty {
     //  - 4 surprise boxes
     //  - 6 lives
     //  - questionPoints = 12
-    //  - surprisePoints = 16
-    HARD(16, 16, 44, 6, 4, 11, 12, 16);
+    //  - extra turn = 2
+    HARD(16, 16, 44, 6, 4, 11, 12, 16,2);
 
     private final int rows;
     private final int cols;
@@ -38,6 +40,8 @@ public enum Difficulty {
     private final int questionBoxes;   // Q cells
     private final int questionPoints;  // Points used for question-related scoring
     private final int surprisePoints;  // Points for good surprise
+    private final int extraTurnBoxes;
+
 
     Difficulty(int rows,
                int cols,
@@ -46,7 +50,8 @@ public enum Difficulty {
                int surpriseBoxes,
                int questionBoxes,
                int questionPoints,
-               int surprisePoints) {
+               int surprisePoints,
+               int extraTurnBoxes) {
 
         this.rows = rows;
         this.cols = cols;
@@ -56,6 +61,7 @@ public enum Difficulty {
         this.questionBoxes = questionBoxes;
         this.questionPoints = questionPoints;
         this.surprisePoints = surprisePoints;
+        this.extraTurnBoxes = extraTurnBoxes;
     }
 
     public int getRows() {
@@ -89,6 +95,8 @@ public enum Difficulty {
     public int getSurprisePoints() {
         return surprisePoints;
     }
+    public int getExtraTurnBoxes() { return extraTurnBoxes; }
+
 
     @Override
     public String toString() {

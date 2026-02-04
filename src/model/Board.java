@@ -13,6 +13,9 @@ public class Board {
     private int surpriseBoxes;
     private int questionBoxes;
     private Difficulty difficulty;
+    private int extraTurnBoxes;
+
+
 
     public Board(Difficulty difficulty) {
         this.difficulty = difficulty;
@@ -23,6 +26,7 @@ public class Board {
         this.questionBoxes = difficulty.getQuestionBoxes();
 
         cells = new Cell[cols][rows];
+        this.extraTurnBoxes = difficulty.getExtraTurnBoxes();
 
         createEmptyCells();
         setSpecialBoxes();        
@@ -30,7 +34,7 @@ public class Board {
         setSurroundingMinesNumber();
     }
 
-    
+
     private void createEmptyCells() {
         for (int x = 0; x < cols; x++) {
             for (int y = 0; y < rows; y++) {
@@ -59,6 +63,22 @@ public class Board {
                 currentSurprise++;
             }
         }
+
+        int currentExtraTurn = 0;
+        while (currentExtraTurn < extraTurnBoxes) {
+            int x = rand.nextInt(cols);
+            int y = rand.nextInt(rows);
+            String pos = x + "," + y;
+
+            if (!usedPositions.contains(pos)
+                    && cells[x][y].getSpecialBox() == SpecialBoxType.NONE) {
+
+                cells[x][y].setSpecialBox(SpecialBoxType.EXTRA_TURN);
+                usedPositions.add(pos);
+                currentExtraTurn++;
+            }
+        }
+
 
         int currentQuestion = 0;
         while (currentQuestion < questionBoxes) {

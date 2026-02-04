@@ -56,6 +56,10 @@ public class MineSweeper extends JFrame implements GameObserver {
     public final Color CELL_HIDDEN_A = PlayerSetupView.getPlayer1BoardColorChoice().darker();
     public final Color CELL_HIDDEN_B = PlayerSetupView.getPlayer2BoardColorChoice().darker();
 
+   //extra turn
+    public final Color T_HIGHLIGHT = new Color(200, 230, 201); // soft green
+    private final Color T_BORDER   = new Color(76, 175, 80);   // green border
+
     // revealed normal cell background
     public final Color CELL_REVEALED = new Color(238, 246, 248);
 
@@ -733,6 +737,20 @@ public class MineSweeper extends JFrame implements GameObserver {
                     b.setForeground(new Color(30, 30, 30));
                     continue;
                 }
+                if (special == SpecialBoxType.EXTRA_TURN) {
+                    b.setIcon(null);
+                    b.setBackground(T_HIGHLIGHT);
+                    b.setBorder(new LineBorder(T_BORDER, 2, true));
+                    b.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
+                    b.setForeground(new Color(30, 30, 30));
+
+                    if ("USED".equals(content)) b.setText("⏭✓");   // or "USED"
+                    else b.setText("⏭");
+
+                    continue;
+                }
+
+
 
                 // ===== NORMAL CELL =====
                 int n = cell.getSurroundingMines();
@@ -977,8 +995,15 @@ public class MineSweeper extends JFrame implements GameObserver {
     public void onStatusChanged(int score, int lives) {
         updateStatus(score, lives);
     }
+    public void highlightExtraTurnCell(JButton b) {
+        b.setBackground(T_HIGHLIGHT);
+        b.setForeground(new Color(20, 40, 20));
+        b.setText("⏭"); // or "T"
+        b.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
+        b.setBorder(new LineBorder(T_BORDER, 2, true));
+    }
 
-  
+
     private void installWindowCloseHandler() {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override

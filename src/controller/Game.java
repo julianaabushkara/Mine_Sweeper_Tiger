@@ -370,7 +370,14 @@ public class Game implements MouseListener, ActionListener, WindowListener {
 	                continue;
 	            }
 
-	            // ❓ Question – מתנהג כמו תא ריק וממשיך קסקדה
+                if (special == SpecialBoxType.EXTRA_TURN && content.equals("")) {
+                    cell.setContent("⏭");
+                    gui.highlightExtraTurnCell(btn);
+                    continue;
+                }
+
+
+                // ❓ Question – מתנהג כמו תא ריק וממשיך קסקדה
 	            if (special == SpecialBoxType.QUESTION) {
 	                if (!content.equals("❓")) {
 	                    cell.setContent("❓");
@@ -420,8 +427,66 @@ public class Game implements MouseListener, ActionListener, WindowListener {
 			}
 		}
 
+    private boolean handleExtraTurnBox(int x, int y, Board board, JButton button) {
+        Cell cell = board.getCells()[x][y];
+        String content = cell.getContent();
+        if (content == null) content = "";
 
-	private void handleSurpriseBox(int x, int y, Board board, JButton button) {  // Handles clicks on a surprise box and applies random effect.
+        // 1st click: reveal it (like Q/S) and +1 point
+        if (content.equals("")) {
+            button.setIcon(null);
+            button.setBackground(new Color(200, 230, 201));
+            button.setText("⏭");
+            button.setFont(new Font("Segoe UI Emoji", Font.BOLD, 18));
+            button.setForeground(new Color(20, 40, 20));
+
+            cell.setContent("⏭");
+            sharedScore += 1;
+            gui.updateStatus(sharedScore, sharedLives);
+
+            return false; // no extra turn yet (only revealed)
+        }
+
+        // already used → do nothing
+        if (content.equals("USED")) return false;
+
+        // 2nd click: activate (cost same as others) and GRANT extra turn
+        if (content.equals("⏭")) {
+            int choice = JOptionPane.showConfirmDialog(
+                    gui,
+                    "Activate Extra Turn?\n(Activation will cost " + getActivationCost() + " points.)",
+                    "Extra Turn",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (choice != JOptionPane.YES_OPTION) return false;
+
+            sharedScore -= getActivationCost();
+
+            button.setText("USED");
+            button.setFont(new Font("Serif", Font.BOLD, 12));
+            button.setForeground(Color.BLACK);
+
+            cell.setContent("USED");
+            //cell.setSpecialBox(SpecialBoxType.NONE);
+
+            gui.updateStatus(sharedScore, sharedLives);
+
+            JOptionPane.showMessageDialog(
+                    gui,
+                    "✅ Extra Turn granted!\nYou play again.",
+                    "Extra Turn",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            return true; // <-- THIS is the extra turn signal
+        }
+
+        return false;
+    }
+
+
+    private void handleSurpriseBox(int x, int y, Board board, JButton button) {  // Handles clicks on a surprise box and applies random effect.
 		Cell cell = board.getCells()[x][y];
 		String content = cell.getContent();
 
@@ -487,7 +552,7 @@ public class Game implements MouseListener, ActionListener, WindowListener {
 			button.setForeground(Color.BLACK);
 
 			cell.setContent("USED");
-			cell.setSpecialBox(SpecialBoxType.NONE);
+			//cell.setSpecialBox(SpecialBoxType.NONE);
 
 			gui.updateStatus(sharedScore, sharedLives);
 
@@ -578,7 +643,7 @@ public class Game implements MouseListener, ActionListener, WindowListener {
 			button.setForeground(Color.BLACK);
 
 			cell.setContent("USED");
-			cell.setSpecialBox(SpecialBoxType.NONE);
+			//cell.setSpecialBox(SpecialBoxType.NONE);
 
 			// Apply scoring & lives
 			applyQuestionOutcome(currentDifficulty, q.getDifficulty(), correct, board);
@@ -796,15 +861,18 @@ public class Game implements MouseListener, ActionListener, WindowListener {
 
 		// if cell already has content (number, USED, etc.) – only allow clicking
 		// special boxes
-		if (!content.equals("")) {
-			boolean isClickableSpecial = (specialBox == SpecialBoxType.SURPRISE && content.equals("🎁"))
-					|| (specialBox == SpecialBoxType.QUESTION && content.equals("❓"));
+        if (!content.equals("")) {
+            boolean isClickableSpecial =
+                    (specialBox == SpecialBoxType.SURPRISE && content.equals("🎁")) ||
+                            (specialBox == SpecialBoxType.QUESTION && content.equals("❓")) ||
+                            (specialBox == SpecialBoxType.EXTRA_TURN && content.equals("⏭"));
 
-			if (!isClickableSpecial)
-				return;
-		}
+            if (!isClickableSpecial)
+                return;
+        }
 
-		// -------- SPECIAL BOXES / MINES / NORMAL CELLS --------
+
+        // -------- SPECIAL BOXES / MINES / NORMAL CELLS --------
 		if (specialBox == SpecialBoxType.SURPRISE) {
 
 			String before = cell.getContent();
@@ -823,7 +891,20 @@ public class Game implements MouseListener, ActionListener, WindowListener {
 			if (before.equals("") || "USED".equals(after))
 				switchTurn();
 
-		} else if (isMine) {
+		} else if (specialBox == SpecialBoxType.EXTRA_TURN) {
+
+        String before = cell.getContent();
+        handleExtraTurnBox(x, y, board, button);
+        String after = cell.getContent();
+
+        // TURN SWITCH RULE:
+        // reveal (before == "") -> switch turn like normal
+        // activation (after == "USED") -> DO NOT switch turn (extra turn!)
+        if (before.equals("")) {
+            switchTurn();
+        }
+
+    }else if (isMine) {
 			// first-time click on hidden mine
 			handleMineClick(x, y, board, button);
 
