@@ -1,4 +1,3 @@
-[README_Iteration__Final.md](https://github.com/user-attachments/files/26488132/README_Iteration__Final.md)
 # Minesweeper Game - Tiger Edition - Iteration 3.0
 
 # Important note: This represents the third and final iteration of the Minesweeper Quiz Game. Iteration 3 focuses on user authentication, personalized question banks, advanced history filtering with Strategy pattern implementation, refined turn mechanics, audio feedback, and final polish features.
